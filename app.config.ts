@@ -10,8 +10,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...config,
-    name: 'Nimbus',
-    slug: 'nimbus',
+    name: 'Poultra AI',
+    slug: 'poultra-ai',
     newArchEnabled: true,
     version: '1.0.0',
     orientation: 'portrait',
@@ -31,7 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       package: 'me.bilt.nimbus',
     },
-    plugins: ['expo-router', 'expo-font', ...nativePlugins],
+    plugins: ['expo-router', 'expo-font', 'expo-video', 'expo-secure-store', ...nativePlugins],
     experiments: {
       typedRoutes: true,
     }
