@@ -50,14 +50,14 @@ export default function Register() {
             </Text>
           </View>
           <View className="gap-4">
-            <Input label="Full name" value={name} onChangeText={setName} leftIcon={<User size={18} color="hsl(150 10% 40%)" />} className="min-h-[48px]" />
+            <Input label="Full name" value={name} onChangeText={setName} leftIcon={<User size={18} color="hsl(20 12% 45%)" />} className="min-h-[48px]" />
             <Input
               label="Email"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
-              leftIcon={<Mail size={18} color="hsl(150 10% 40%)" />}
+              leftIcon={<Mail size={18} color="hsl(20 12% 45%)" />}
               className="min-h-[48px]"
             />
             <Input
@@ -65,7 +65,7 @@ export default function Register() {
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
-              leftIcon={<Phone size={18} color="hsl(150 10% 40%)" />}
+              leftIcon={<Phone size={18} color="hsl(20 12% 45%)" />}
               className="min-h-[48px]"
             />
             <Input
@@ -73,7 +73,7 @@ export default function Register() {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              leftIcon={<Lock size={18} color="hsl(150 10% 40%)" />}
+              leftIcon={<Lock size={18} color="hsl(20 12% 45%)" />}
               className="min-h-[48px]"
             />
             <Button onPress={submit} loading={loading} size="lg">

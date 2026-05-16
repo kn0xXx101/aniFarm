@@ -130,7 +130,7 @@ export default function LiveCount() {
       >
         {/* Animated soft glow background to simulate a live preview */}
         <View className="absolute inset-0 bg-[#0a1610]" />
-        <View className="absolute inset-0 opacity-20" style={{ backgroundColor: 'hsl(142 72% 29%)' }} />
+        <View className="absolute inset-0 opacity-20" style={{ backgroundColor: 'hsl(18 95% 58%)' }} />
 
         {/* Bounding boxes overlay */}
         {boxes.map((b) => (
@@ -228,7 +228,7 @@ export default function LiveCount() {
               style={{ opacity: trackCount === 0 ? 0.4 : 1 }}
               accessibilityLabel="Save session"
             >
-              <Save size={20} color="hsl(150 25% 8%)" />
+              <Save size={20} color="hsl(20 12% 45%)" />
             </Pressable>
           </View>
         </View>

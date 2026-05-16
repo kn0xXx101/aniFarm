@@ -100,7 +100,7 @@ export default function Subscription() {
             <View className="flex-row items-start justify-between mb-3">
               <View className="flex-row items-center gap-3">
                 <View className={`size-10 rounded-xl items-center justify-center ${p.highlight ? 'bg-primary' : 'bg-muted'}`}>
-                  <Icon size={20} color={p.highlight ? 'white' : 'hsl(142 72% 29%)'} />
+                  <Icon size={20} color={p.highlight ? 'white' : 'hsl(18 95% 58%)'} />
                 </View>
                 <View>
                   <Text className="font-bold text-lg">{p.name}</Text>
@@ -124,7 +124,7 @@ export default function Subscription() {
             <View className="gap-2 mb-4">
               {p.features.map((f) => (
                 <View key={f} className="flex-row items-center gap-2">
-                  <Check size={14} color="hsl(142 72% 29%)" />
+                  <Check size={14} color="hsl(18 95% 58%)" />
                   <Text size="sm">{f}</Text>
                 </View>
               ))}

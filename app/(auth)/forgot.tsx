@@ -38,7 +38,7 @@ export default function ForgotPassword() {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
-          leftIcon={<Mail size={18} color="hsl(150 10% 40%)" />}
+          leftIcon={<Mail size={18} color="hsl(20 12% 45%)" />}
           className="min-h-[48px]"
         />
         <Button onPress={submit} loading={loading} size="lg">

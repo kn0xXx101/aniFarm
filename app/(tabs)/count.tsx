@@ -1,12 +1,15 @@
 import { View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Camera, Image as ImageIcon, Video, Activity } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Camera, Image as ImageIcon, Video, Activity, ArrowUpRight } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/text';
 import { Badge } from '@/components/ui/badge';
+import { AppHeader } from '@/components/app-header';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
+import { SUNRISE_GRADIENT, SKY_GRADIENT } from '@/lib/constants';
 
 const MODES = [
   {
@@ -14,21 +17,21 @@ const MODES = [
     title: 'Live counting',
     body: 'Real-time YOLOv8 detection through your camera. Bounding boxes + tracking.',
     path: '/count/live' as const,
-    tone: 'bg-primary',
+    gradient: SUNRISE_GRADIENT,
   },
   {
     icon: ImageIcon,
     title: 'Image counting',
     body: 'Upload one or more photos. Best for tight overhead shots of full houses.',
     path: '/count/image' as const,
-    tone: 'bg-accent',
+    gradient: SKY_GRADIENT,
   },
   {
     icon: Video,
     title: 'Video counting',
     body: 'Process a recording frame-by-frame with ByteTrack to dedupe birds.',
     path: '/count/video' as const,
-    tone: 'bg-secondary',
+    gradient: ['#FF5E62', '#FF9966'] as const,
   },
 ];
 
@@ -39,10 +42,11 @@ export default function CountTab() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-        <Text className="text-2xl font-bold text-foreground">Count birds</Text>
+      <AppHeader title="Count" subtitle="AI poultry counting" />
+      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 4, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+        <Text className="text-2xl font-bold text-foreground">Pick a mode</Text>
         <Text variant="muted" size="sm" className="mt-1 mb-5">
-          Pick a counting mode to get started.
+          Three flexible ways to count your flock.
         </Text>
 
         {MODES.map((m) => {
@@ -51,23 +55,31 @@ export default function CountTab() {
             <Pressable
               key={m.title}
               onPress={() => router.push(m.path)}
-              className="flex-row items-center gap-4 rounded-2xl border border-border bg-card p-4 mb-3 min-h-[80px]"
+              className="rounded-3xl overflow-hidden mb-3 min-h-[110px]"
             >
-              <View className={`size-12 rounded-2xl ${m.tone} items-center justify-center`}>
-                <Icon size={22} color={m.tone === 'bg-secondary' ? 'hsl(142 72% 29%)' : 'white'} />
-              </View>
-              <View className="flex-1">
-                <Text className="font-semibold text-base">{m.title}</Text>
-                <Text variant="muted" size="xs" className="mt-0.5">
-                  {m.body}
-                </Text>
-              </View>
+              <LinearGradient
+                colors={[...m.gradient]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ padding: 18, flexDirection: 'row', alignItems: 'center', gap: 14 }}
+              >
+                <View className="size-14 rounded-2xl bg-white/25 items-center justify-center">
+                  <Icon size={26} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text className="font-bold text-base text-white">{m.title}</Text>
+                  <Text className="text-white/85 text-xs mt-1" numberOfLines={2}>
+                    {m.body}
+                  </Text>
+                </View>
+                <ArrowUpRight size={22} color="white" />
+              </LinearGradient>
             </Pressable>
           );
         })}
 
         <View className="mt-6 flex-row items-center justify-between mb-3">
-          <Text className="font-semibold text-base">Recent sessions</Text>
+          <Text className="font-bold text-lg">Recent sessions</Text>
           <Badge variant="secondary">
             <Text size="xs">{sessions.length} total</Text>
           </Badge>
@@ -76,13 +88,16 @@ export default function CountTab() {
         {sessions.slice(0, 8).map((s) => {
           const farm = farms.find((f) => f.id === s.farmId);
           return (
-            <View key={s.id} className="rounded-xl border border-border bg-card p-3 mb-2 flex-row items-center gap-3">
-              <View className="size-10 rounded-lg bg-muted items-center justify-center">
-                <Activity size={18} color="hsl(142 72% 29%)" />
+            <View
+              key={s.id}
+              className="rounded-2xl border border-border bg-card p-3 mb-2 flex-row items-center gap-3"
+            >
+              <View className="size-11 rounded-2xl bg-secondary items-center justify-center">
+                <Activity size={18} color="hsl(18 95% 58%)" />
               </View>
               <View className="flex-1">
-                <Text className="font-semibold">{farm?.name ?? 'Unknown farm'}</Text>
-                <Text variant="muted" size="xs">
+                <Text className="font-bold" numberOfLines={1}>{farm?.name ?? 'Unknown farm'}</Text>
+                <Text variant="muted" size="xs" numberOfLines={1}>
                   {s.mode.toUpperCase()} · {new Date(s.createdAt).toLocaleDateString()} ·{' '}
                   {(s.avgConfidence * 100).toFixed(0)}% conf
                 </Text>
@@ -96,6 +111,18 @@ export default function CountTab() {
             </View>
           );
         })}
+
+        {sessions.length === 0 ? (
+          <View className="items-center py-12 px-6">
+            <View className="size-16 rounded-2xl bg-secondary items-center justify-center mb-3">
+              <Camera size={26} color="hsl(18 95% 58%)" />
+            </View>
+            <Text className="font-bold">No sessions yet</Text>
+            <Text variant="muted" size="xs" className="mt-1 text-center">
+              Start your first counting session above.
+            </Text>
+          </View>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

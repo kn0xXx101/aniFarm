@@ -38,7 +38,7 @@ export default function FarmDetail() {
       <View>
         <Text className="text-2xl font-bold text-foreground">{farm.name}</Text>
         <View className="flex-row items-center gap-1 mt-1">
-          <MapPin size={14} color="hsl(150 10% 40%)" />
+          <MapPin size={14} color="hsl(20 12% 45%)" />
           <Text variant="muted" size="sm">
             {farm.location}
           </Text>
@@ -79,7 +79,7 @@ export default function FarmDetail() {
           <Text className="ml-2 text-primary-foreground font-semibold">Count now</Text>
         </Button>
         <Button className="flex-1" variant="outline" onPress={() => router.push({ pathname: '/house/new', params: { farmId: farm.id } })}>
-          <Plus size={16} color="hsl(142 72% 29%)" />
+          <Plus size={16} color="hsl(18 95% 58%)" />
           <Text className="ml-2 font-semibold">Add house</Text>
         </Button>
       </View>

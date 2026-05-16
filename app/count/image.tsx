@@ -100,7 +100,7 @@ export default function ImageCount() {
           <Image source={{ uri: imageUri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
         ) : (
           <View className="flex-1 items-center justify-center">
-            <ImageIcon size={48} color="hsl(150 10% 50%)" />
+            <ImageIcon size={48} color="hsl(20 12% 45%)" />
             <Text variant="muted" className="mt-2">No image yet</Text>
           </View>
         )}
@@ -131,11 +131,11 @@ export default function ImageCount() {
 
       <View className="flex-row gap-2 mt-3">
         <Button variant="outline" className="flex-1" onPress={pickFromDevice}>
-          <Upload size={16} color="hsl(142 72% 29%)" />
+          <Upload size={16} color="hsl(18 95% 58%)" />
           <Text className="ml-2 font-semibold">Upload</Text>
         </Button>
         <Button variant="outline" className="flex-1" onPress={() => { setResult(null); setImageUri(null); }}>
-          <RotateCcw size={16} color="hsl(142 72% 29%)" />
+          <RotateCcw size={16} color="hsl(18 95% 58%)" />
           <Text className="ml-2 font-semibold">Clear</Text>
         </Button>
       </View>

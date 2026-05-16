@@ -18,7 +18,7 @@ export function LineAreaChart({
   data,
   height = 180,
   metric = 'count',
-  stroke = 'hsl(142 72% 29%)',
+  stroke = 'hsl(18 95% 58%)',
   fillId = 'area-grad',
 }: Props) {
   const { paths, ticks, maxV, minV } = useMemo(() => {

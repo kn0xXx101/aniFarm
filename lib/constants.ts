@@ -9,22 +9,28 @@ const NAV_FONTS = {
 
 export const NAV_THEME = {
   light: {
-    background: 'hsl(0 0% 100%)',
-    border: 'hsl(150 20% 88%)',
+    background: 'hsl(30 100% 98%)',
+    border: 'hsl(24 60% 90%)',
     card: 'hsl(0 0% 100%)',
-    notification: 'hsl(0 84% 56%)',
-    primary: 'hsl(142 72% 29%)',
-    text: 'hsl(150 25% 10%)',
+    notification: 'hsl(348 90% 56%)',
+    primary: 'hsl(18 95% 58%)',
+    text: 'hsl(15 30% 12%)',
   },
   dark: {
-    background: 'hsl(150 20% 6%)',
-    border: 'hsl(150 12% 18%)',
-    card: 'hsl(150 18% 9%)',
-    notification: 'hsl(0 70% 52%)',
-    primary: 'hsl(142 65% 45%)',
-    text: 'hsl(0 0% 98%)',
+    background: 'hsl(18 35% 7%)',
+    border: 'hsl(18 18% 20%)',
+    card: 'hsl(18 28% 11%)',
+    notification: 'hsl(348 85% 58%)',
+    primary: 'hsl(22 95% 60%)',
+    text: 'hsl(30 30% 96%)',
   },
 };
+
+/** Shared brand gradient stops (sunrise → tropical). */
+export const SUNRISE_GRADIENT = ['#FF6A3D', '#FF8E53', '#FFB347'] as const;
+export const TROPICAL_GRADIENT = ['#FF5E62', '#FF9966', '#FFC371'] as const;
+export const SKY_GRADIENT = ['#36D1DC', '#5B86E5'] as const;
+export const SUNSET_GRADIENT = ['#FF512F', '#F09819'] as const;
 
 export const LIGHT_THEME: Theme = {
   dark: false,

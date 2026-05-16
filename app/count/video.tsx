@@ -106,12 +106,12 @@ export default function VideoCount() {
       <Card className="mb-4">
         <CardContent className="p-4">
           <View className="aspect-video rounded-xl bg-black items-center justify-center overflow-hidden">
-            <View className="absolute inset-0 opacity-20" style={{ backgroundColor: 'hsl(142 72% 29%)' }} />
+            <View className="absolute inset-0 opacity-20" style={{ backgroundColor: 'hsl(18 95% 58%)' }} />
             <VideoIcon size={36} color="white" />
             <Text className="text-white/80 text-xs mt-2">{filename ?? 'No video selected'}</Text>
           </View>
           <Button variant="outline" className="mt-3" onPress={pick}>
-            <Upload size={16} color="hsl(142 72% 29%)" />
+            <Upload size={16} color="hsl(18 95% 58%)" />
             <Text className="ml-2 font-semibold">Choose video</Text>
           </Button>
         </CardContent>

@@ -23,6 +23,7 @@ import { initPostHog } from '@/lib/posthog';
 import { reportErrorToParent } from '@/lib/reportPreviewError';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ToastProvider } from '@/components/ui/toast';
+import { DrawerProvider } from '@/components/app-drawer';
 
 import {
   ErrorBoundary as ExpoErrorBoundary,
@@ -162,22 +163,24 @@ export default function RootLayout() {
         <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ToastProvider>
-            <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="onboarding" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="farm/[id]" options={{ headerShown: true, title: 'Farm' }} />
-              <Stack.Screen name="farm/new" options={{ presentation: 'modal', headerShown: true, title: 'New farm' }} />
-              <Stack.Screen name="house/new" options={{ presentation: 'modal', headerShown: true, title: 'New house' }} />
-              <Stack.Screen name="count/live" options={{ headerShown: true, title: 'Live counting' }} />
-              <Stack.Screen name="count/image" options={{ headerShown: true, title: 'Image counting' }} />
-              <Stack.Screen name="count/video" options={{ headerShown: true, title: 'Video counting' }} />
-              <Stack.Screen name="reports/index" options={{ headerShown: true, title: 'Reports' }} />
-              <Stack.Screen name="subscription" options={{ headerShown: true, title: 'Plans & billing' }} />
-              <Stack.Screen name="profile" options={{ headerShown: true, title: 'Profile' }} />
-              <Stack.Screen name="admin" options={{ headerShown: true, title: 'Admin' }} />
-            </Stack>
+            <DrawerProvider>
+              <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="onboarding" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="farm/[id]" options={{ headerShown: true, title: 'Farm' }} />
+                <Stack.Screen name="farm/new" options={{ presentation: 'modal', headerShown: true, title: 'New farm' }} />
+                <Stack.Screen name="house/new" options={{ presentation: 'modal', headerShown: true, title: 'New house' }} />
+                <Stack.Screen name="count/live" options={{ headerShown: true, title: 'Live counting' }} />
+                <Stack.Screen name="count/image" options={{ headerShown: true, title: 'Image counting' }} />
+                <Stack.Screen name="count/video" options={{ headerShown: true, title: 'Video counting' }} />
+                <Stack.Screen name="reports/index" options={{ headerShown: true, title: 'Reports' }} />
+                <Stack.Screen name="subscription" options={{ headerShown: true, title: 'Plans & billing' }} />
+                <Stack.Screen name="profile" options={{ headerShown: true, title: 'Profile' }} />
+                <Stack.Screen name="admin" options={{ headerShown: true, title: 'Admin' }} />
+              </Stack>
+            </DrawerProvider>
           </ToastProvider>
         </GestureHandlerRootView>
       </ThemeProvider>

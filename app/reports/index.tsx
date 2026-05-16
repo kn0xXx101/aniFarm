@@ -149,11 +149,11 @@ export default function ReportsScreen() {
           <Text className="ml-2 text-primary-foreground font-semibold">Export PDF</Text>
         </Button>
         <Button variant="outline" onPress={handleCsv} loading={busy === 'csv'} size="lg">
-          <FileDown size={18} color="hsl(142 72% 29%)" />
+          <FileDown size={18} color="hsl(18 95% 58%)" />
           <Text className="ml-2 font-semibold">Export CSV</Text>
         </Button>
         <Button variant="outline" onPress={handleXlsx} loading={busy === 'xlsx'} size="lg">
-          <FileSpreadsheet size={18} color="hsl(142 72% 29%)" />
+          <FileSpreadsheet size={18} color="hsl(18 95% 58%)" />
           <Text className="ml-2 font-semibold">Export Excel</Text>
         </Button>
       </View>

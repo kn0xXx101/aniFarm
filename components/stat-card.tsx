@@ -18,20 +18,31 @@ const toneClasses: Record<NonNullable<StatCardProps['tone']>, string> = {
   destructive: 'text-destructive',
 };
 
+const iconBgByTone: Record<NonNullable<StatCardProps['tone']>, string> = {
+  default: 'bg-secondary',
+  success: 'bg-primary/10',
+  warning: 'bg-amber-400/15',
+  destructive: 'bg-destructive/10',
+};
+
 export function StatCard({ label, value, hint, icon, tone = 'default', className, ...props }: StatCardProps) {
   return (
     <View
       className={cn(
-        'flex-1 min-w-[140px] rounded-2xl border border-border bg-card p-4',
+        'flex-1 min-w-[150px] rounded-3xl border border-border bg-card p-4',
         className,
       )}
       {...props}
     >
-      <View className="flex-row items-center justify-between mb-2">
-        <Text variant="muted" size="xs" className="uppercase tracking-wider">
+      <View className="flex-row items-center justify-between mb-3">
+        <Text variant="muted" size="xs" className="uppercase tracking-wider font-semibold">
           {label}
         </Text>
-        {icon}
+        {icon ? (
+          <View className={cn('size-9 rounded-2xl items-center justify-center', iconBgByTone[tone])}>
+            {icon}
+          </View>
+        ) : null}
       </View>
       <Text className={cn('text-2xl font-bold', toneClasses[tone])}>{value}</Text>
       {hint ? (

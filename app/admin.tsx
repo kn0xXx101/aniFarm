@@ -36,11 +36,11 @@ export default function AdminDashboard() {
       </Text>
 
       <View className="flex-row flex-wrap gap-3 mb-4">
-        <StatCard label="MRR" value={`$${mrr.toLocaleString()}`} hint={`${MOCK_TENANTS.length} tenants`} icon={<DollarSign size={16} color="hsl(142 72% 29%)" />} tone="success" />
-        <StatCard label="Users" value={String(users)} icon={<Users size={16} color="hsl(142 72% 29%)" />} />
-        <StatCard label="Farms" value={String(farms.length + 53)} icon={<Building2 size={16} color="hsl(142 72% 29%)" />} />
-        <StatCard label="Devices online" value={String(devices)} icon={<Smartphone size={16} color="hsl(142 72% 29%)" />} />
-        <StatCard label="AI sessions" value={String(sessions.length + 612)} icon={<Activity size={16} color="hsl(142 72% 29%)" />} />
+        <StatCard label="MRR" value={`$${mrr.toLocaleString()}`} hint={`${MOCK_TENANTS.length} tenants`} icon={<DollarSign size={16} color="hsl(18 95% 58%)" />} tone="success" />
+        <StatCard label="Users" value={String(users)} icon={<Users size={16} color="hsl(18 95% 58%)" />} />
+        <StatCard label="Farms" value={String(farms.length + 53)} icon={<Building2 size={16} color="hsl(18 95% 58%)" />} />
+        <StatCard label="Devices online" value={String(devices)} icon={<Smartphone size={16} color="hsl(18 95% 58%)" />} />
+        <StatCard label="AI sessions" value={String(sessions.length + 612)} icon={<Activity size={16} color="hsl(18 95% 58%)" />} />
         <StatCard label="Active alerts" value={String(alerts.filter((a) => !a.read).length)} icon={<AlertTriangle size={16} color="hsl(38 92% 50%)" />} tone="warning" />
       </View>
 
@@ -50,7 +50,7 @@ export default function AdminDashboard() {
           <Text variant="muted" size="xs" className="mt-0.5 mb-3">
             Aggregated bird counts across all tenants · 30d
           </Text>
-          <LineAreaChart data={series} height={180} stroke="hsl(142 72% 29%)" />
+          <LineAreaChart data={series} height={180} stroke="hsl(18 95% 58%)" />
         </CardContent>
       </Card>
 

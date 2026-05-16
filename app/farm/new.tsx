@@ -51,7 +51,7 @@ export default function NewFarm() {
           value={location}
           onChangeText={setLocation}
           placeholder="City, country"
-          leftIcon={<MapPin size={18} color="hsl(150 10% 40%)" />}
+          leftIcon={<MapPin size={18} color="hsl(20 12% 45%)" />}
           className="min-h-[48px]"
         />
         <Input

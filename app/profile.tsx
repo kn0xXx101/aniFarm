@@ -48,7 +48,7 @@ export default function Profile() {
           >
             <View className="flex-row items-center gap-3">
               <View className="size-9 rounded-lg bg-primary/10 items-center justify-center">
-                <ShieldCheck size={18} color="hsl(142 72% 29%)" />
+                <ShieldCheck size={18} color="hsl(18 95% 58%)" />
               </View>
               <View>
                 <Text className="font-semibold">Subscription</Text>
@@ -65,7 +65,7 @@ export default function Profile() {
           <View className="flex-row items-center justify-between p-4 min-h-[56px] border-b border-border">
             <View className="flex-row items-center gap-3">
               <View className="size-9 rounded-lg bg-muted items-center justify-center">
-                <Bell size={18} color="hsl(142 72% 29%)" />
+                <Bell size={18} color="hsl(18 95% 58%)" />
               </View>
               <Text className="font-semibold">Push notifications</Text>
             </View>
@@ -74,7 +74,7 @@ export default function Profile() {
           <View className="flex-row items-center justify-between p-4 min-h-[56px] border-b border-border">
             <View className="flex-row items-center gap-3">
               <View className="size-9 rounded-lg bg-muted items-center justify-center">
-                <Mail size={18} color="hsl(142 72% 29%)" />
+                <Mail size={18} color="hsl(18 95% 58%)" />
               </View>
               <Text className="font-semibold">Email summary</Text>
             </View>
@@ -133,7 +133,7 @@ export default function Profile() {
           >
             <View className="flex-row items-center gap-3">
               <View className="size-9 rounded-lg bg-primary/10 items-center justify-center">
-                <ShieldCheck size={18} color="hsl(142 72% 29%)" />
+                <ShieldCheck size={18} color="hsl(18 95% 58%)" />
               </View>
               <Text className="font-semibold">Admin dashboard</Text>
             </View>

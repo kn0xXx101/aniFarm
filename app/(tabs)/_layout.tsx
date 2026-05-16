@@ -1,74 +1,116 @@
 import { Tabs } from 'expo-router';
-import { Home, Bird, Camera, BarChart3, Bell } from 'lucide-react-native';
-import { View } from 'react-native';
-import { useAlertStore } from '@/lib/stores/alert-store';
-import { Text } from '@/components/ui/text';
+import { Home, Camera, BarChart3 } from 'lucide-react-native';
+import { Platform, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 
+import { useColorScheme } from '@/hooks/useColorScheme';
+
+/**
+ * Minimal 3-action floating bottom bar.
+ * Other destinations (Farms, Alerts, Reports, Profile, Subscription, Admin)
+ * live in the side drawer mounted in app/_layout.tsx.
+ *
+ * Farms and Alerts tabs are kept as routes (href is reachable from the drawer)
+ * but hidden from the tab bar via `href: null`.
+ */
 export default function TabLayout() {
-  const unread = useAlertStore((s) => s.alerts.filter((a) => !a.read).length);
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: 'hsl(142 72% 29%)',
-        tabBarInactiveTintColor: 'hsl(150 10% 50%)',
-        tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: 'hsl(150 20% 88%)',
-          height: 64,
-          paddingTop: 6,
-          paddingBottom: 8,
+        tabBarActiveTintColor: 'hsl(18 95% 58%)',
+        tabBarInactiveTintColor: isDark ? 'hsl(28 12% 65%)' : 'hsl(20 12% 45%)',
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontFamily: 'Inter_600SemiBold',
+          fontSize: 11,
+          marginTop: 2,
         },
-        tabBarLabelStyle: { fontFamily: 'Inter_500Medium', fontSize: 11 },
+        tabBarStyle: {
+          position: 'absolute',
+          left: 18,
+          right: 18,
+          bottom: Platform.OS === 'ios' ? 24 : 16,
+          height: 68,
+          paddingTop: 10,
+          paddingBottom: 10,
+          borderRadius: 28,
+          borderTopWidth: 0,
+          borderWidth: 1,
+          borderColor: isDark ? 'hsl(18 18% 20%)' : 'hsl(24 60% 90%)',
+          backgroundColor: isDark ? 'rgba(28,18,12,0.92)' : 'rgba(255,255,255,0.92)',
+          // soft shadow
+          shadowColor: '#FF6A3D',
+          shadowOpacity: isDark ? 0.25 : 0.18,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 10,
+        },
+        tabBarBackground:
+          Platform.OS === 'ios'
+            ? () => (
+                <BlurView
+                  intensity={40}
+                  tint={isDark ? 'dark' : 'light'}
+                  style={{ flex: 1, borderRadius: 28, overflow: 'hidden' }}
+                />
+              )
+            : undefined,
       }}
     >
       <Tabs.Screen
         name="dashboard"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="farms"
-        options={{
-          title: 'Farms',
-          tabBarIcon: ({ color, size }) => <Bird color={color} size={size} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Home color={color} size={focused ? 24 : 22} strokeWidth={focused ? 2.4 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="count"
         options={{
           title: 'Count',
-          tabBarIcon: ({ color, size }) => <Camera color={color} size={size} />,
+          tabBarIcon: ({ focused }) => (
+            // Center action: oversized gradient pill
+            <View
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 26,
+                marginTop: -18,
+                backgroundColor: 'hsl(18 95% 58%)',
+                alignItems: 'center',
+                justifyContent: 'center',
+                shadowColor: '#FF6A3D',
+                shadowOpacity: 0.45,
+                shadowRadius: 14,
+                shadowOffset: { width: 0, height: 6 },
+                elevation: 8,
+                borderWidth: focused ? 3 : 0,
+                borderColor: isDark ? '#1c120c' : '#fff',
+              }}
+            >
+              <Camera color="white" size={24} strokeWidth={2.2} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="analytics"
         options={{
-          title: 'Analytics',
-          tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="alerts"
-        options={{
-          title: 'Alerts',
-          tabBarIcon: ({ color, size }) => (
-            <View>
-              <Bell color={color} size={size} />
-              {unread > 0 ? (
-                <View className="absolute -right-2 -top-1 bg-destructive rounded-full min-w-[16px] h-4 px-1 items-center justify-center">
-                  <Text className="text-[10px] font-bold text-destructive-foreground">
-                    {unread > 9 ? '9+' : unread}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
+          title: 'Insights',
+          tabBarIcon: ({ color, focused }) => (
+            <BarChart3 color={color} size={focused ? 24 : 22} strokeWidth={focused ? 2.4 : 2} />
           ),
         }}
       />
+      {/* Hidden routes — still reachable via drawer */}
+      <Tabs.Screen name="farms" options={{ href: null }} />
+      <Tabs.Screen name="alerts" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
