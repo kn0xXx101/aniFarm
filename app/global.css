@@ -7,51 +7,51 @@
 
 @layer base {
   :root {
-    /* Sunrise / tropical palette */
-    --background: 30 100% 98%;
-    --foreground: 15 30% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 15 30% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 15 30% 12%;
-    /* Sunrise orange */
-    --primary: 18 95% 58%;
-    --primary-foreground: 0 0% 100%;
-    /* Soft peach */
-    --secondary: 24 100% 95%;
-    --secondary-foreground: 15 60% 25%;
-    --muted: 28 60% 95%;
-    --muted-foreground: 20 12% 45%;
-    /* Sky blue accent */
-    --accent: 200 95% 55%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 348 90% 56%;
+    /* Dark futuristic / neon palette — used in both light and dark variants
+       because this is a night-ops console aesthetic. */
+    --background: 222 47% 5%;
+    --foreground: 160 30% 96%;
+    --card: 222 40% 9%;
+    --card-foreground: 160 30% 96%;
+    --popover: 222 45% 7%;
+    --popover-foreground: 160 30% 96%;
+    /* Neon green primary */
+    --primary: 152 100% 50%;
+    --primary-foreground: 222 47% 5%;
+    --secondary: 222 30% 14%;
+    --secondary-foreground: 160 30% 96%;
+    --muted: 222 25% 13%;
+    --muted-foreground: 215 15% 65%;
+    /* Cyan accent */
+    --accent: 188 100% 55%;
+    --accent-foreground: 222 47% 5%;
+    --destructive: 0 90% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 24 60% 90%;
-    --input: 24 60% 90%;
-    --ring: 18 95% 58%;
-    --radius: 1.25rem;
+    --border: 222 30% 16%;
+    --input: 222 30% 14%;
+    --ring: 152 100% 50%;
+    --radius: 1rem;
   }
 
   .dark:root {
-    --background: 18 35% 7%;
-    --foreground: 30 30% 96%;
-    --card: 18 28% 11%;
-    --card-foreground: 30 30% 96%;
-    --popover: 18 28% 11%;
-    --popover-foreground: 30 30% 96%;
-    --primary: 22 95% 60%;
-    --primary-foreground: 18 40% 8%;
-    --secondary: 18 20% 17%;
-    --secondary-foreground: 30 30% 96%;
-    --muted: 18 20% 17%;
-    --muted-foreground: 28 12% 65%;
-    --accent: 200 90% 60%;
-    --accent-foreground: 18 40% 8%;
-    --destructive: 348 85% 58%;
+    --background: 222 47% 4%;
+    --foreground: 160 30% 96%;
+    --card: 222 40% 8%;
+    --card-foreground: 160 30% 96%;
+    --popover: 222 45% 6%;
+    --popover-foreground: 160 30% 96%;
+    --primary: 152 100% 52%;
+    --primary-foreground: 222 47% 4%;
+    --secondary: 222 30% 13%;
+    --secondary-foreground: 160 30% 96%;
+    --muted: 222 25% 12%;
+    --muted-foreground: 215 15% 68%;
+    --accent: 188 100% 58%;
+    --accent-foreground: 222 47% 4%;
+    --destructive: 0 90% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 18 18% 20%;
-    --input: 18 18% 20%;
-    --ring: 22 95% 60%;
+    --border: 222 30% 15%;
+    --input: 222 30% 13%;
+    --ring: 152 100% 52%;
   }
 }

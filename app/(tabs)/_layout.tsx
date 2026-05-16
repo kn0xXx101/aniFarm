@@ -2,60 +2,55 @@ import { Tabs } from 'expo-router';
 import { Home, Camera, BarChart3 } from 'lucide-react-native';
 import { Platform, View } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { NEON, SUNRISE_GRADIENT } from '@/lib/constants';
 
 /**
- * Minimal 3-action floating bottom bar.
- * Other destinations (Farms, Alerts, Reports, Profile, Subscription, Admin)
- * live in the side drawer mounted in app/_layout.tsx.
- *
- * Farms and Alerts tabs are kept as routes (href is reachable from the drawer)
- * but hidden from the tab bar via `href: null`.
+ * Minimal 3-action floating bottom bar with a neon glass look.
+ * Center action: oversized gradient FAB with cyan/green glow.
  */
 export default function TabLayout() {
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
-
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: 'hsl(18 95% 58%)',
-        tabBarInactiveTintColor: isDark ? 'hsl(28 12% 65%)' : 'hsl(20 12% 45%)',
+        tabBarActiveTintColor: NEON.green,
+        tabBarInactiveTintColor: 'rgba(225,235,245,0.45)',
         tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontFamily: 'Inter_600SemiBold',
           fontSize: 11,
           marginTop: 2,
+          letterSpacing: 0.4,
         },
         tabBarStyle: {
           position: 'absolute',
           left: 18,
           right: 18,
           bottom: Platform.OS === 'ios' ? 24 : 16,
-          height: 68,
+          height: 70,
           paddingTop: 10,
           paddingBottom: 10,
-          borderRadius: 28,
+          borderRadius: 24,
           borderTopWidth: 0,
           borderWidth: 1,
-          borderColor: isDark ? 'hsl(18 18% 20%)' : 'hsl(24 60% 90%)',
-          backgroundColor: isDark ? 'rgba(28,18,12,0.92)' : 'rgba(255,255,255,0.92)',
-          // soft shadow
-          shadowColor: '#FF6A3D',
-          shadowOpacity: isDark ? 0.25 : 0.18,
-          shadowRadius: 18,
-          shadowOffset: { width: 0, height: 8 },
-          elevation: 10,
+          borderColor: 'rgba(0,255,163,0.18)',
+          backgroundColor: 'rgba(8,12,24,0.85)',
+          // neon glow
+          shadowColor: NEON.green,
+          shadowOpacity: 0.5,
+          shadowRadius: 24,
+          shadowOffset: { width: 0, height: 0 },
+          elevation: 14,
         },
         tabBarBackground:
           Platform.OS === 'ios'
             ? () => (
                 <BlurView
-                  intensity={40}
-                  tint={isDark ? 'dark' : 'light'}
-                  style={{ flex: 1, borderRadius: 28, overflow: 'hidden' }}
+                  intensity={60}
+                  tint="dark"
+                  style={{ flex: 1, borderRadius: 24, overflow: 'hidden' }}
                 />
               )
             : undefined,
@@ -73,28 +68,32 @@ export default function TabLayout() {
       <Tabs.Screen
         name="count"
         options={{
-          title: 'Count',
+          title: 'Scan',
           tabBarIcon: ({ focused }) => (
-            // Center action: oversized gradient pill
             <View
               style={{
-                width: 52,
-                height: 52,
-                borderRadius: 26,
-                marginTop: -18,
-                backgroundColor: 'hsl(18 95% 58%)',
-                alignItems: 'center',
-                justifyContent: 'center',
-                shadowColor: '#FF6A3D',
-                shadowOpacity: 0.45,
-                shadowRadius: 14,
-                shadowOffset: { width: 0, height: 6 },
-                elevation: 8,
-                borderWidth: focused ? 3 : 0,
-                borderColor: isDark ? '#1c120c' : '#fff',
+                width: 56,
+                height: 56,
+                borderRadius: 28,
+                marginTop: -22,
+                overflow: 'hidden',
+                shadowColor: NEON.green,
+                shadowOpacity: 0.9,
+                shadowRadius: 16,
+                shadowOffset: { width: 0, height: 0 },
+                elevation: 12,
+                borderWidth: focused ? 2 : 1,
+                borderColor: focused ? NEON.cyan : 'rgba(0,255,163,0.6)',
               }}
             >
-              <Camera color="white" size={24} strokeWidth={2.2} />
+              <LinearGradient
+                colors={[...SUNRISE_GRADIENT]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Camera color="#04060B" size={26} strokeWidth={2.6} />
+              </LinearGradient>
             </View>
           ),
         }}
@@ -108,7 +107,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* Hidden routes — still reachable via drawer */}
       <Tabs.Screen name="farms" options={{ href: null }} />
       <Tabs.Screen name="alerts" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />

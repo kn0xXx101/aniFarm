@@ -79,7 +79,7 @@ export default function FarmDetail() {
           <Text className="ml-2 text-primary-foreground font-semibold">Count now</Text>
         </Button>
         <Button className="flex-1" variant="outline" onPress={() => router.push({ pathname: '/house/new', params: { farmId: farm.id } })}>
-          <Plus size={16} color="hsl(18 95% 58%)" />
+          <Plus size={16} color="#00FFA3" />
           <Text className="ml-2 font-semibold">Add house</Text>
         </Button>
       </View>

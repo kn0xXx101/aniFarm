@@ -62,22 +62,10 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    void (async () => {
-      try {
-        const theme = await AsyncStorage.getItem('theme');
-        if (!theme) {
-          await AsyncStorage.setItem('theme', colorScheme);
-          return;
-        }
-        const colorTheme = theme === 'dark' ? 'dark' : 'light';
-        if (colorTheme !== colorScheme) {
-          setColorScheme(colorTheme);
-        }
-      } catch (_error) {
-        // no-op on storage errors
-      }
-    })();
-  }, [colorScheme, setColorScheme]);
+    // Force always-dark for the neon console aesthetic.
+    setColorScheme('dark');
+    void AsyncStorage.setItem('theme', 'dark').catch(() => {});
+  }, [setColorScheme]);
 
   useEffect(() => {
     if (loaded || error) {

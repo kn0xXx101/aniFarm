@@ -102,12 +102,12 @@ export default function Dashboard() {
 
         {/* Floating hero stat card — overlaps gradient */}
         <View className="px-5 -mt-12">
-          <View className="rounded-3xl bg-card border border-border p-5 shadow-md" style={{
-            shadowColor: '#000',
-            shadowOpacity: 0.08,
-            shadowRadius: 16,
-            shadowOffset: { width: 0, height: 8 },
-            elevation: 4,
+          <View className="rounded-3xl bg-card border border-primary/30 p-5" style={{
+            shadowColor: '#00FFA3',
+            shadowOpacity: 0.35,
+            shadowRadius: 24,
+            shadowOffset: { width: 0, height: 0 },
+            elevation: 6,
           }}>
             <View className="flex-row items-center justify-between">
               <View>
@@ -121,8 +121,8 @@ export default function Dashboard() {
                   Across {farms.length} farm{farms.length === 1 ? '' : 's'} · {houses.length} house{houses.length === 1 ? '' : 's'}
                 </Text>
               </View>
-              <View className="size-16 rounded-2xl bg-secondary items-center justify-center">
-                <Bird size={28} color="hsl(18 95% 58%)" />
+              <View className="size-16 rounded-2xl bg-primary/10 border border-primary/40 items-center justify-center">
+                <Bird size={28} color="#00FFA3" />
               </View>
             </View>
 
@@ -131,7 +131,7 @@ export default function Dashboard() {
             <View className="flex-row justify-between">
               <View className="flex-1">
                 <View className="flex-row items-center gap-1">
-                  <ArrowUpRight size={14} color={trendPct >= 0 ? 'hsl(18 95% 58%)' : 'hsl(348 90% 56%)'} />
+                  <ArrowUpRight size={14} color={trendPct >= 0 ? '#00FFA3' : '#FF4D6D'} />
                   <Text className={`text-sm font-bold ${trendPct >= 0 ? 'text-primary' : 'text-destructive'}`}>
                     {trendPct >= 0 ? '+' : ''}{trendPct.toFixed(1)}%
                   </Text>
@@ -166,7 +166,7 @@ export default function Dashboard() {
             {([
               { icon: Camera, label: 'Live', sub: 'AI camera', path: '/count/live' as const, gradient: SUNRISE_GRADIENT },
               { icon: ImageIcon, label: 'Image', sub: 'Upload photo', path: '/count/image' as const, gradient: SKY_GRADIENT },
-              { icon: Video, label: 'Video', sub: 'Frame-by-frame', path: '/count/video' as const, gradient: ['#FF5E62', '#FF9966'] as const },
+              { icon: Video, label: 'Video', sub: 'Frame-by-frame', path: '/count/video' as const, gradient: ['#FF00C8', '#7B2FF7'] as const },
             ]).map((q) => {
               const Icon = q.icon;
               return (
@@ -203,13 +203,13 @@ export default function Dashboard() {
             label="Sessions"
             value={String(sessions.length)}
             hint={`${pendingSync} pending sync`}
-            icon={<Activity size={18} color="hsl(18 95% 58%)" />}
+            icon={<Activity size={18} color="#00FFA3" />}
           />
           <StatCard
             label="Alerts"
             value={String(unreadAlerts)}
             hint="unread"
-            icon={<AlertTriangle size={18} color="hsl(38 92% 50%)" />}
+            icon={<AlertTriangle size={18} color="#FFD600" />}
             tone="warning"
           />
         </View>
@@ -229,7 +229,7 @@ export default function Dashboard() {
                 className="flex-row items-center gap-1 min-h-[44px] px-2"
               >
                 <Text className="text-primary font-semibold text-sm">Details</Text>
-                <ArrowUpRight size={14} color="hsl(18 95% 58%)" />
+                <ArrowUpRight size={14} color="#00FFA3" />
               </Pressable>
             </View>
             <LineAreaChart data={series} height={160} />
@@ -244,7 +244,7 @@ export default function Dashboard() {
               onPress={() => router.push('/farm/new')}
               className="flex-row items-center gap-1 min-h-[44px] px-2 bg-secondary rounded-full"
             >
-              <Plus size={14} color="hsl(18 95% 58%)" />
+              <Plus size={14} color="#00FFA3" />
               <Text className="text-primary font-semibold text-sm pr-1">Add</Text>
             </Pressable>
           </View>
@@ -264,9 +264,9 @@ export default function Dashboard() {
                   <View className="flex-row items-center gap-3 flex-1">
                     <View
                       className={`size-12 rounded-2xl items-center justify-center ${isFirst ? '' : 'bg-secondary'}`}
-                      style={isFirst ? { backgroundColor: '#FFE0CC' } : undefined}
+                      style={isFirst ? { backgroundColor: 'rgba(0,255,163,0.12)', borderWidth: 1, borderColor: 'rgba(0,255,163,0.3)' } : undefined}
                     >
-                      <Bird size={20} color="hsl(18 95% 58%)" />
+                      <Bird size={20} color="#00FFA3" />
                     </View>
                     <View className="flex-1">
                       <Text className="font-bold text-base" numberOfLines={1}>{f.name}</Text>
@@ -300,7 +300,7 @@ export default function Dashboard() {
               className="rounded-3xl border-2 border-dashed border-border bg-secondary/40 p-6 items-center justify-center"
             >
               <View className="size-12 rounded-2xl bg-primary/15 items-center justify-center mb-2">
-                <Plus size={22} color="hsl(18 95% 58%)" />
+                <Plus size={22} color="#00FFA3" />
               </View>
               <Text className="font-bold">Add your first farm</Text>
               <Text variant="muted" size="xs" className="mt-1 text-center">
@@ -331,7 +331,7 @@ export default function Dashboard() {
                 >
                   <AlertTriangle
                     size={20}
-                    color={a.severity === 'critical' ? 'hsl(348 90% 56%)' : 'hsl(38 92% 50%)'}
+                    color={a.severity === 'critical' ? '#FF4D6D' : '#FFD600'}
                   />
                 </View>
                 <View className="flex-1">

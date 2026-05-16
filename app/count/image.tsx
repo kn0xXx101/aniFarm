@@ -131,11 +131,11 @@ export default function ImageCount() {
 
       <View className="flex-row gap-2 mt-3">
         <Button variant="outline" className="flex-1" onPress={pickFromDevice}>
-          <Upload size={16} color="hsl(18 95% 58%)" />
+          <Upload size={16} color="#00FFA3" />
           <Text className="ml-2 font-semibold">Upload</Text>
         </Button>
         <Button variant="outline" className="flex-1" onPress={() => { setResult(null); setImageUri(null); }}>
-          <RotateCcw size={16} color="hsl(18 95% 58%)" />
+          <RotateCcw size={16} color="#00FFA3" />
           <Text className="ml-2 font-semibold">Clear</Text>
         </Button>
       </View>

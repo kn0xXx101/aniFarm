@@ -28,13 +28,13 @@ const SEVERITY_STYLE: Record<
   warning: {
     bg: 'bg-amber-400/15',
     ring: 'border-amber-400/30',
-    color: 'hsl(38 92% 50%)',
+    color: '#FFD600',
     Icon: AlertTriangle,
   },
   critical: {
     bg: 'bg-destructive/10',
     ring: 'border-destructive/30',
-    color: 'hsl(348 90% 56%)',
+    color: '#FF4D6D',
     Icon: AlertTriangle,
   },
 };
@@ -60,7 +60,7 @@ export default function AlertsTab() {
         </View>
         {unread > 0 ? (
           <Button variant="outline" size="sm" onPress={() => markAllRead()}>
-            <CheckCircle2 size={16} color="hsl(18 95% 58%)" />
+            <CheckCircle2 size={16} color="#00FFA3" />
             <Text className="ml-1 font-bold">Mark all</Text>
           </Button>
         ) : null}
@@ -69,7 +69,7 @@ export default function AlertsTab() {
         {alerts.length === 0 ? (
           <View className="items-center py-20">
             <View className="size-20 rounded-3xl bg-primary/10 items-center justify-center mb-3">
-              <CheckCircle2 size={32} color="hsl(18 95% 58%)" />
+              <CheckCircle2 size={32} color="#00FFA3" />
             </View>
             <Text className="font-bold text-lg">You&apos;re all caught up</Text>
             <Text variant="muted" size="sm">No active alerts.</Text>

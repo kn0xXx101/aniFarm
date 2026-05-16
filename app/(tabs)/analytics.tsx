@@ -109,9 +109,9 @@ export default function AnalyticsTab() {
                 }`}
               >
                 {change >= 0 ? (
-                  <TrendingUp size={16} color="hsl(18 95% 58%)" />
+                  <TrendingUp size={16} color="#00FFA3" />
                 ) : (
-                  <TrendingDown size={16} color="hsl(348 90% 56%)" />
+                  <TrendingDown size={16} color="#FF4D6D" />
                 )}
                 <Text className={`font-bold ${change >= 0 ? 'text-primary' : 'text-destructive'}`}>
                   {change >= 0 ? '+' : ''}
@@ -122,7 +122,7 @@ export default function AnalyticsTab() {
             <LineAreaChart
               data={series}
               metric={metric}
-              stroke={metric === 'count' ? 'hsl(18 95% 58%)' : 'hsl(348 90% 56%)'}
+              stroke={metric === 'count' ? '#00FFA3' : '#FF4D6D'}
               height={200}
             />
           </CardContent>
@@ -141,7 +141,7 @@ export default function AnalyticsTab() {
                 Math.max(1, series.reduce((s, p) => s + p.count, 0))) *
               100
             ).toFixed(2)}%`}
-            icon={<AlertTriangle size={18} color="hsl(38 92% 50%)" />}
+            icon={<AlertTriangle size={18} color="#FFD600" />}
             tone="warning"
           />
           <StatCard label="Sessions" value="74" hint="last 30d" />

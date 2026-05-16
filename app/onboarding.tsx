@@ -22,7 +22,7 @@ const SLIDES = [
     icon: Camera,
     title: 'Live, image,\nand video',
     body: 'Aim your phone, upload a photo, or process a video. Bounding boxes show every detection.',
-    gradient: ['#FF5E62', '#FF9966'] as const,
+    gradient: ['#00FFA3', '#00E5FF'] as const,
   },
   {
     icon: BarChart3,
@@ -34,7 +34,7 @@ const SLIDES = [
     icon: ShieldCheck,
     title: 'Works offline.\nSyncs later.',
     body: 'Field-first design. Capture counts without signal — they sync the moment you reconnect.',
-    gradient: ['#F09819', '#FF512F'] as const,
+    gradient: ['#7B2FF7', '#FF00C8'] as const,
   },
 ];
 

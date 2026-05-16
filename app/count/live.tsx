@@ -130,7 +130,7 @@ export default function LiveCount() {
       >
         {/* Animated soft glow background to simulate a live preview */}
         <View className="absolute inset-0 bg-[#0a1610]" />
-        <View className="absolute inset-0 opacity-20" style={{ backgroundColor: 'hsl(18 95% 58%)' }} />
+        <View className="absolute inset-0 opacity-20" style={{ backgroundColor: '#00FFA3' }} />
 
         {/* Bounding boxes overlay */}
         {boxes.map((b) => (

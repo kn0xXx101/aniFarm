@@ -53,7 +53,7 @@ export default function FarmsTab() {
         {farms.length === 0 ? (
           <View className="items-center justify-center py-20">
             <View className="size-20 rounded-3xl bg-secondary items-center justify-center mb-4">
-              <Bird size={32} color="hsl(18 95% 58%)" />
+              <Bird size={32} color="#00FFA3" />
             </View>
             <Text className="text-lg font-bold">No farms yet</Text>
             <Text variant="muted" size="sm" className="mt-1 mb-4 text-center max-w-[260px]">
@@ -79,7 +79,7 @@ export default function FarmsTab() {
                 <View className="flex-row items-start justify-between mb-3">
                   <View className="flex-row items-center gap-3 flex-1">
                     <View className="size-12 rounded-2xl bg-secondary items-center justify-center">
-                      <Bird size={22} color="hsl(18 95% 58%)" />
+                      <Bird size={22} color="#00FFA3" />
                     </View>
                     <View className="flex-1">
                       <Text className="font-bold text-base" numberOfLines={1}>{f.name}</Text>

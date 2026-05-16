@@ -31,7 +31,7 @@ const MODES = [
     title: 'Video counting',
     body: 'Process a recording frame-by-frame with ByteTrack to dedupe birds.',
     path: '/count/video' as const,
-    gradient: ['#FF5E62', '#FF9966'] as const,
+    gradient: ['#FF00C8', '#7B2FF7'] as const,
   },
 ];
 
@@ -93,7 +93,7 @@ export default function CountTab() {
               className="rounded-2xl border border-border bg-card p-3 mb-2 flex-row items-center gap-3"
             >
               <View className="size-11 rounded-2xl bg-secondary items-center justify-center">
-                <Activity size={18} color="hsl(18 95% 58%)" />
+                <Activity size={18} color="#00FFA3" />
               </View>
               <View className="flex-1">
                 <Text className="font-bold" numberOfLines={1}>{farm?.name ?? 'Unknown farm'}</Text>
@@ -115,7 +115,7 @@ export default function CountTab() {
         {sessions.length === 0 ? (
           <View className="items-center py-12 px-6">
             <View className="size-16 rounded-2xl bg-secondary items-center justify-center mb-3">
-              <Camera size={26} color="hsl(18 95% 58%)" />
+              <Camera size={26} color="#00FFA3" />
             </View>
             <Text className="font-bold">No sessions yet</Text>
             <Text variant="muted" size="xs" className="mt-1 text-center">
