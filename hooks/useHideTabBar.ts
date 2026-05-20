@@ -13,7 +13,7 @@ export function useHideTabBar() {
     const parent = navigation.getParent();
     parent?.setOptions({ tabBarStyle: { display: 'none' } });
     return () => {
-      parent?.setOptions({ tabBarStyle: getDefaultTabBarStyle(insets.bottom) });
+      parent?.setOptions({ tabBarStyle: getDefaultTabBarStyle(insets.bottom) as object });
     };
   }, [navigation, insets.bottom]);
 }

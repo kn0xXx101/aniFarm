@@ -1,9 +1,9 @@
 /**
- * 3D card with optional tilt — uses explicit dark-theme styles for reliable RN display.
+ * Card with optional tilt — iOS 26 liquid glass surfaces.
  */
 
 import React, { type ReactNode } from 'react';
-import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
+import { type ViewProps, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,8 +12,8 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { LinearGradient } from 'expo-linear-gradient';
 
+import { IosGlassSurface, type IosGlassVariant } from '@/components/ui/ios-glass-surface';
 import { SPRING_3D } from '@/lib/animations-3d';
 import { GRADIENTS_3D } from '@/lib/constants-3d';
 import { COLORS, LAYOUT } from '@/lib/design-system';
@@ -23,23 +23,11 @@ type CardSize = 'sm' | 'md' | 'lg';
 
 const SIZE_PADDING: Record<CardSize, number> = { sm: 12, md: 16, lg: 20 };
 
-const VARIANT_STYLE: Record<CardVariant, ViewStyle> = {
-  glass: {
-    backgroundColor: COLORS.surfaceGlass,
-    borderColor: COLORS.borderSoft,
-  },
-  neon: {
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.border,
-  },
-  solid: {
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.borderSoft,
-  },
-  gradient: {
-    backgroundColor: COLORS.surfaceMuted,
-    borderColor: COLORS.border,
-  },
+const VARIANT_MAP: Record<CardVariant, IosGlassVariant> = {
+  glass: 'glass',
+  neon: 'accent',
+  solid: 'solid',
+  gradient: 'accent',
 };
 
 interface Card3DProps extends ViewProps {
@@ -52,7 +40,6 @@ interface Card3DProps extends ViewProps {
   gradientColors?: readonly [string, string, ...string[]];
   onPress?: () => void;
   className?: string;
-  /** @deprecated Use style — className kept for NativeWind compat */
 }
 
 export function Card3D({
@@ -71,6 +58,8 @@ export function Card3D({
   const rotateY = useSharedValue(0);
   const scale = useSharedValue(1);
   const translateZ = useSharedValue(0);
+
+  const accent = variant === 'gradient' && gradientColors?.[0] ? gradientColors[0] : glowColor;
 
   const gesture = Gesture.Pan()
     .enabled(tiltEnabled)
@@ -113,44 +102,25 @@ export function Card3D({
   }));
 
   const shadowStyle = useAnimatedStyle(() => ({
-    shadowColor: glowColor,
+    shadowColor: accent,
     shadowOffset: { width: 0, height: 4 + translateZ.value / 3 },
-    shadowOpacity: 0.15 + translateZ.value / 80,
-    shadowRadius: 12 + translateZ.value,
+    shadowOpacity: 0.12 + translateZ.value / 100,
+    shadowRadius: 14 + translateZ.value,
     elevation: 4 + translateZ.value / 2,
   }));
 
-  const cardStyle: ViewStyle = {
-    borderRadius: LAYOUT.radiusLg,
-    borderWidth: 1,
-    padding: SIZE_PADDING[size],
-    overflow: 'hidden',
-    ...VARIANT_STYLE[variant],
-  };
-
   const content = (
-    <Animated.View style={[animatedStyle, shadowStyle, cardStyle, style]} {...props}>
-      {variant === 'gradient' && gradientColors ? (
-        <LinearGradient
-          colors={gradientColors as [string, string, ...string[]]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-      ) : null}
-      <View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor: glowColor, opacity: 0.04, borderRadius: LAYOUT.radiusLg }]}
-      />
-      <LinearGradient
-        colors={['rgba(255,255,255,0.08)', 'transparent']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[StyleSheet.absoluteFill, { borderRadius: LAYOUT.radiusLg }]}
-        pointerEvents="none"
-      />
-      <View style={{ zIndex: 1 }}>{children}</View>
+    <Animated.View style={[animatedStyle, shadowStyle, style as ViewStyle]} {...props}>
+      <IosGlassSurface
+        variant={VARIANT_MAP[variant]}
+        radius={LAYOUT.radiusLg}
+        padding={SIZE_PADDING[size]}
+        accentColor={accent}
+        shadow={variant === 'neon' ? 'hero' : 'soft'}
+        contentStyle={{ flex: 1 }}
+      >
+        {children}
+      </IosGlassSurface>
     </Animated.View>
   );
 

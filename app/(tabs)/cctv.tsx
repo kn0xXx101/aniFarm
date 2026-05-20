@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { View, Pressable, FlatList, type ListRenderItemInfo } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Tv2, Plus, Wifi, WifiOff, AlertCircle, Loader, Trash2, ToggleLeft, ToggleRight } from 'lucide-react-native';
 
@@ -268,11 +268,6 @@ export default function CctvTab() {
     router.push('/cctv/add-feed');
   }, [router]);
 
-  const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<CctvFeed>) => <FeedCard feed={item} />,
-    [],
-  );
-
   return (
     <NeoScreen>
       <TopBar
@@ -312,13 +307,11 @@ export default function CctvTab() {
       {feeds.length === 0 ? (
         <EmptyFeeds onAdd={handleAdd} />
       ) : (
-        <FlatList
-          data={feeds}
-          renderItem={renderItem}
-          keyExtractor={(f) => f.id}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-        />
+        <View style={{ gap: 12 }}>
+          {feeds.map((feed) => (
+            <FeedCard key={feed.id} feed={feed} />
+          ))}
+        </View>
       )}
     </NeoScreen>
   );

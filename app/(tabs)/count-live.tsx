@@ -1,12 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, Text, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CountControlButton } from '@/components/count/count-control-button';
 import { DetectionOverlay } from '@/components/count/detection-overlay';
 import { DetectionSummary } from '@/components/count/detection-summary';
 import { HousePicker } from '@/components/count/house-picker';
 import { CountAdjustBar } from '@/components/count/count-adjust-bar';
+import { SlidingButton } from '@/components/ui/sliding-button';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
@@ -19,9 +29,8 @@ import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 export default function LiveCount() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
-  const compact = windowHeight < 700;
+  const compact = windowHeight < 740;
   useHideTabBar();
 
   const farms = useFarmStore((s) => s.farms);
@@ -56,8 +65,9 @@ export default function LiveCount() {
   const [previewSize, setPreviewSize] = useState({ w: 1, h: 1 });
 
   const trackCount = Math.max(0, detectedCount + manualOffset);
-  const mainBtnSize = compact ? 58 : 68;
-  const sideBtnSize = compact ? 46 : 52;
+  const mainBtnSize = compact ? 56 : 64;
+  const sideBtnSize = compact ? 44 : 50;
+  const dockMaxHeight = compact ? Math.min(windowHeight * 0.48, 320) : Math.min(windowHeight * 0.42, 280);
 
   useEffect(() => {
     if (!running) return undefined;
@@ -170,13 +180,91 @@ export default function LiveCount() {
     router.back();
   };
 
+  const dockBody = (
+    <View style={styles.dockInner}>
+      {status !== 'idle' ? (
+        <DetectionSummary
+          variant="compact"
+          aliveCount={trackCount}
+          deadCount={deadCount}
+          excludedHumans={excludedHumans}
+        />
+      ) : null}
+
+      <CountAdjustBar
+        variant="dark"
+        value={trackCount}
+        onChange={(v) => setManualOffset(v - detectedCount)}
+        label={`Alive ${unit} (adjust)`}
+      />
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.housesScroll}
+        contentContainerStyle={styles.housesContent}
+        nestedScrollEnabled
+      >
+        <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} variant="dark" layout="row" />
+      </ScrollView>
+
+      <View style={styles.controls}>
+        <CountControlButton size={sideBtnSize} onPress={reset} accessibilityLabel="Reset">
+          ↻
+        </CountControlButton>
+
+        {status === 'running' ? (
+          <CountControlButton
+            size={mainBtnSize}
+            variant="pause"
+            onPress={pause}
+            accessibilityLabel="Pause counting"
+          >
+            ■
+          </CountControlButton>
+        ) : (
+          <CountControlButton
+            size={mainBtnSize}
+            variant="primary"
+            onPress={status === 'paused' ? resume : start}
+            accessibilityLabel={status === 'paused' ? 'Resume counting' : 'Start counting'}
+          >
+            ▶
+          </CountControlButton>
+        )}
+
+        <CountControlButton
+          size={sideBtnSize}
+          variant="save"
+          onPress={() => void save()}
+          disabled={trackCount === 0}
+          accessibilityLabel="Save session"
+        >
+          ✓
+        </CountControlButton>
+      </View>
+    </View>
+  );
+
   return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
-      <View style={styles.main}>
+    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={0}
+      >
         <View style={styles.header}>
-          <Pressable onPress={() => router.back()} style={styles.backBtn} accessibilityLabel="Go back">
+          <SlidingButton
+            onPress={() => router.back()}
+            accessibilityLabel="Go back"
+            tone="ghost"
+            shape="circle"
+            size="sm"
+            bare
+            style={styles.backBtn}
+          >
             <Text style={styles.backText}>←</Text>
-          </Pressable>
+          </SlidingButton>
           <Text style={styles.title} numberOfLines={1}>
             Live count
           </Text>
@@ -186,112 +274,55 @@ export default function LiveCount() {
               <Text style={styles.statusText}>{status === 'running' ? 'REC' : 'PAUSED'}</Text>
             </View>
           ) : (
-            <View style={styles.statusBadgePlaceholder} />
+            <View style={styles.statusPlaceholder} />
           )}
         </View>
 
-        <View
-          style={styles.preview}
-          onLayout={(e) => {
-            const { width, height } = e.nativeEvent.layout;
-            setPreviewSize({ w: width, h: height });
-          }}
-        >
-          {status === 'idle' ? (
-            <Text style={styles.previewHint}>
-              Mock camera in Expo Go{'\n'}Counts alive livestock · flags dead · ignores people
-            </Text>
-          ) : null}
-
-          {running && previewSize.w > 1 ? (
-            <DetectionOverlay boxes={boxes} width={previewSize.w} height={previewSize.h} />
-          ) : null}
-
-          {status !== 'idle' ? (
-            <View style={styles.statsOverlay}>
-              <Text style={styles.statsValue}>{trackCount}</Text>
-              <Text style={styles.statsLabel}>alive {unit}</Text>
-              <Text style={styles.statsMeta}>
-                {fps} fps · {(avgConfidence * 100).toFixed(0)}%
+        <View style={[styles.previewWrap, { minHeight: compact ? 140 : 180 }]}>
+          <View
+            style={[styles.preview, { maxHeight: windowHeight * (compact ? 0.38 : 0.45) }]}
+            onLayout={(e) => {
+              const { width, height } = e.nativeEvent.layout;
+              setPreviewSize({ w: width, h: height });
+            }}
+          >
+            {status === 'idle' ? (
+              <Text style={styles.previewHint}>
+                Mock camera in Expo Go{'\n'}Counts alive livestock · flags dead · ignores people
               </Text>
-            </View>
-          ) : null}
+            ) : null}
+
+            {running && previewSize.w > 1 ? (
+              <DetectionOverlay boxes={boxes} width={previewSize.w} height={previewSize.h} />
+            ) : null}
+
+            {status !== 'idle' ? (
+              <View style={styles.statsOverlay}>
+                <Text style={styles.statsValue}>{trackCount}</Text>
+                <Text style={styles.statsLabel}>alive {unit}</Text>
+                <Text style={styles.statsMeta}>
+                  {fps} fps · {(avgConfidence * 100).toFixed(0)}%
+                </Text>
+              </View>
+            ) : null}
+          </View>
         </View>
-      </View>
 
-      <View style={[styles.bottomPanel, { paddingBottom: Math.max(insets.bottom, compact ? 8 : 12) }]}>
-        {status !== 'idle' ? (
-          <DetectionSummary
-            variant="compact"
-            aliveCount={trackCount}
-            deadCount={deadCount}
-            excludedHumans={excludedHumans}
-          />
-        ) : null}
-
-        <CountAdjustBar
-          variant="dark"
-          value={trackCount}
-          onChange={(v) => setManualOffset(v - detectedCount)}
-          label={`Alive ${unit} (adjust)`}
-        />
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.housesScroll}
-          contentContainerStyle={styles.housesContent}
-        >
-          <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} variant="dark" layout="row" />
-        </ScrollView>
-
-        <View style={styles.controls}>
-          <Pressable
-            onPress={reset}
-            style={[styles.sideBtn, { width: sideBtnSize, height: sideBtnSize, borderRadius: sideBtnSize / 2 }]}
-            accessibilityLabel="Reset"
+        {compact ? (
+          <ScrollView
+            style={[styles.dock, { maxHeight: dockMaxHeight }]}
+            contentContainerStyle={styles.dockScrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
           >
-            <Text style={styles.sideBtnText}>↻</Text>
-          </Pressable>
-
-          {status === 'running' ? (
-            <Pressable
-              onPress={pause}
-              style={[
-                styles.mainBtn,
-                styles.pauseBtn,
-                { width: mainBtnSize, height: mainBtnSize, borderRadius: mainBtnSize / 2 },
-              ]}
-              accessibilityLabel="Pause counting"
-            >
-              <Text style={[styles.mainBtnText, compact && { fontSize: 22 }]}>■</Text>
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={status === 'paused' ? resume : start}
-              style={[styles.mainBtn, { width: mainBtnSize, height: mainBtnSize, borderRadius: mainBtnSize / 2 }]}
-              accessibilityLabel={status === 'paused' ? 'Resume counting' : 'Start counting'}
-            >
-              <Text style={[styles.mainBtnText, compact && { fontSize: 22 }]}>▶</Text>
-            </Pressable>
-          )}
-
-          <Pressable
-            onPress={() => void save()}
-            disabled={trackCount === 0}
-            style={[
-              styles.sideBtn,
-              styles.saveBtn,
-              { width: sideBtnSize, height: sideBtnSize, borderRadius: sideBtnSize / 2 },
-              trackCount === 0 && styles.disabled,
-            ]}
-            accessibilityLabel="Save session"
-          >
-            <Text style={styles.sideBtnText}>✓</Text>
-          </Pressable>
-        </View>
-      </View>
-    </View>
+            {dockBody}
+          </ScrollView>
+        ) : (
+          <View style={styles.dock}>{dockBody}</View>
+        )}
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -300,7 +331,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-  main: {
+  flex: {
     flex: 1,
     minHeight: 0,
   },
@@ -310,16 +341,14 @@ const styles = StyleSheet.create({
     gap: 10,
     flexShrink: 0,
     paddingHorizontal: LAYOUT.screenPadding,
-    paddingTop: 8,
-    paddingBottom: 10,
+    paddingTop: 4,
+    paddingBottom: 8,
   },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.10)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.14)',
   },
@@ -345,8 +374,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.10)',
   },
-  statusBadgePlaceholder: {
-    width: 70,
+  statusPlaceholder: {
+    width: 72,
     height: 28,
   },
   statusDot: {
@@ -364,11 +393,15 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semibold,
     letterSpacing: 0.5,
   },
+  previewWrap: {
+    flex: 1,
+    minHeight: 0,
+    paddingHorizontal: LAYOUT.screenPadding,
+    marginBottom: 6,
+  },
   preview: {
     flex: 1,
-    minHeight: 120,
-    marginHorizontal: LAYOUT.screenPadding,
-    marginBottom: 8,
+    width: '100%',
     borderRadius: LAYOUT.radiusMd,
     overflow: 'hidden',
     backgroundColor: '#0a1610',
@@ -383,14 +416,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     lineHeight: 20,
-    paddingHorizontal: 32,
+    paddingHorizontal: 24,
   },
   statsOverlay: {
     position: 'absolute',
     top: 12,
     right: 12,
     backgroundColor: 'rgba(0,0,0,0.65)',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 8,
     alignItems: 'center',
@@ -399,9 +432,9 @@ const styles = StyleSheet.create({
   },
   statsValue: {
     color: COLORS.primary,
-    fontSize: 26,
+    fontSize: 24,
     fontFamily: FONTS.extrabold,
-    lineHeight: 30,
+    lineHeight: 28,
   },
   statsLabel: {
     color: 'rgba(255,255,255,0.55)',
@@ -416,66 +449,37 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular,
     marginTop: 2,
   },
-  bottomPanel: {
+  dock: {
     flexShrink: 0,
-    paddingTop: 8,
-    paddingHorizontal: LAYOUT.screenPadding,
-    gap: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.06)',
     backgroundColor: '#000',
+    paddingHorizontal: LAYOUT.screenPadding,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  dockScrollContent: {
+    gap: 8,
+    paddingBottom: 4,
+  },
+  dockInner: {
+    gap: 8,
   },
   housesScroll: {
-    maxHeight: 48,
+    maxHeight: 52,
+    flexGrow: 0,
   },
   housesContent: {
     alignItems: 'center',
     paddingRight: 8,
+    gap: 8,
   },
   controls: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
-    paddingTop: 2,
-    paddingBottom: 2,
-  },
-  mainBtn: {
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.45,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  pauseBtn: {
-    backgroundColor: COLORS.danger,
-    shadowColor: COLORS.danger,
-  },
-  mainBtnText: {
-    fontSize: 26,
-    color: COLORS.canvas,
-    fontFamily: FONTS.bold,
-  },
-  sideBtn: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
-  },
-  saveBtn: {
-    backgroundColor: 'rgba(0,212,255,0.18)',
-    borderColor: COLORS.secondary,
-  },
-  sideBtnText: {
-    fontSize: 20,
-    color: '#fff',
-    fontFamily: FONTS.bold,
-  },
-  disabled: {
-    opacity: 0.35,
+    gap: 16,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
 });

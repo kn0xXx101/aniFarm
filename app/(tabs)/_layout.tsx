@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router';
 import { Home, ScanLine, Warehouse, User, Tv2 } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { COLORS, FONTS } from '@/lib/design-system';
+import { IosGlassTabBar } from '@/components/shell/ios-glass-tab-bar';
+import { COLORS } from '@/lib/design-system';
 import { getDefaultTabBarStyle } from '@/lib/tab-bar-style';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -11,18 +12,12 @@ export default function TabLayout() {
   return (
     <Tabs
       initialRouteName="dashboard"
+      tabBar={(props) => <IosGlassTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: COLORS.inkMuted,
-        tabBarLabelStyle: {
-          fontFamily: FONTS.semibold,
-          fontSize: 11,
-          marginTop: 2,
-        },
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
+        tabBarAllowFontScaling: false,
         tabBarStyle: getDefaultTabBarStyle(insets.bottom),
         sceneStyle: {
           backgroundColor: COLORS.canvas,

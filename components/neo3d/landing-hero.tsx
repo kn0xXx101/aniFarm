@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, View } from 'react-native';
 
+import { BrandMarkCompact } from '@/components/brand/ani-farm-logo';
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { Text } from '@/components/ui/text';
-import { BRAND, COLORS, FONTS, GRADIENTS, LAYOUT, SHADOW } from '@/lib/design-system';
+import { COLORS, FONTS } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
 
 interface LandingHeroProps {
   badge?: string;
@@ -16,69 +18,51 @@ interface LandingHeroProps {
 
 export function LandingHero({ badge, title, highlight, subtitle, actions, compact }: LandingHeroProps) {
   return (
-    <LinearGradient
-      colors={[...GRADIENTS.glass]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[
-        {
-          borderRadius: LAYOUT.radiusHero,
-          padding: compact ? 18 : 22,
-          marginBottom: 20,
-          borderWidth: 1,
-          borderColor: COLORS.border,
-          overflow: 'hidden',
-        },
-        SHADOW.hero,
-      ]}
+    <IosGlassSurface
+      variant="elevated"
+      radius={IOS_GLASS.radiusHero}
+      padding={compact ? 18 : 22}
+      accentColor={COLORS.primary}
+      shadow="hero"
+      style={{ marginBottom: 20 }}
     >
-      <LinearGradient
-        colors={['rgba(0,255,163,0.12)', 'transparent', 'rgba(168,85,247,0.08)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-      />
-      <View style={{ zIndex: 1 }}>
-        {badge ? (
-          <View
-            style={{
-              alignSelf: 'flex-start',
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              borderRadius: 999,
-              marginBottom: 10,
-              backgroundColor: COLORS.primaryLight,
-              borderWidth: 1,
-              borderColor: COLORS.border,
-            }}
-          >
-            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.primary, fontSize: 12 }}>{badge}</Text>
-          </View>
-        ) : null}
-        <Text
+      {badge ? (
+        <View
           style={{
-            fontFamily: FONTS.extrabold,
-            color: COLORS.ink,
-            fontSize: compact ? 26 : 28,
-            lineHeight: compact ? 32 : 34,
+            alignSelf: 'flex-start',
+            paddingHorizontal: 12,
+            paddingVertical: 5,
+            borderRadius: IOS_GLASS.radiusPill,
+            marginBottom: 10,
+            backgroundColor: COLORS.primaryLight,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: IOS_GLASS.border,
           }}
         >
-          {title}
-          {highlight ? <Text style={{ color: COLORS.primary }}> {highlight}</Text> : null}
+          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.primary, fontSize: 12 }}>{badge}</Text>
+        </View>
+      ) : null}
+      <Text
+        style={{
+          fontFamily: FONTS.display,
+          color: COLORS.ink,
+          fontSize: compact ? 24 : 28,
+          lineHeight: compact ? 30 : 34,
+        }}
+      >
+        {title}
+        {highlight ? <Text style={{ color: COLORS.primary }}> {highlight}</Text> : null}
+      </Text>
+      {subtitle ? (
+        <Text style={{ color: COLORS.inkSecondary, fontSize: 15, marginTop: 8, lineHeight: 22, fontFamily: FONTS.regular }}>
+          {subtitle}
         </Text>
-        {subtitle ? (
-          <Text style={{ color: COLORS.inkSecondary, fontSize: 15, marginTop: 8, lineHeight: 22 }}>{subtitle}</Text>
-        ) : null}
-        {actions ? <View style={{ marginTop: 18 }}>{actions}</View> : null}
-      </View>
-    </LinearGradient>
+      ) : null}
+      {actions ? <View style={{ marginTop: 18 }}>{actions}</View> : null}
+    </IosGlassSurface>
   );
 }
 
 export function BrandMark() {
-  return (
-    <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: 18 }}>
-      {BRAND.name}
-    </Text>
-  );
+  return <BrandMarkCompact />;
 }

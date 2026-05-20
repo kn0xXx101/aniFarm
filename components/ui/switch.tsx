@@ -9,6 +9,7 @@ import Animated, {
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { SPRING_CONFIGS, triggerHaptic } from '@/lib/animations';
+import { COLORS } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 
 const switchVariants = cva('justify-center rounded-full p-0.5', {
@@ -50,7 +51,7 @@ export const Switch = React.forwardRef<React.ComponentRef<typeof Pressable>, Swi
       backgroundColor: interpolateColor(
         progress.value,
         [0, 1],
-        ['hsl(240, 4.8%, 95.9%)', 'hsl(240, 5.9%, 10%)'],
+        [COLORS.surfaceMuted, COLORS.primary],
       ),
     }));
 
@@ -59,7 +60,7 @@ export const Switch = React.forwardRef<React.ComponentRef<typeof Pressable>, Swi
         { translateX: withSpring(checked ? travel : 0, SPRING_CONFIGS.snappy) },
         {
           scale: withSpring(
-            progress.value > 0.3 && progress.value < 0.7 ? 1.1 : 1,
+            progress.value > 0.3 && progress.value < 0.7 ? 1.08 : 1,
             SPRING_CONFIGS.gentle,
           ),
         },
@@ -82,14 +83,15 @@ export const Switch = React.forwardRef<React.ComponentRef<typeof Pressable>, Swi
       >
         <Animated.View className={cn(switchVariants({ size }), className)} style={trackStyle}>
           <Animated.View
-            className="rounded-full bg-white"
             style={[
               {
                 width: thumbSize,
                 height: thumbSize,
+                borderRadius: thumbSize / 2,
+                backgroundColor: COLORS.ink,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.15,
+                shadowOpacity: 0.2,
                 shadowRadius: 2,
                 elevation: 2,
               },

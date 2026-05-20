@@ -20,8 +20,10 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
+import { AniFarmLogo } from '@/components/brand/ani-farm-logo';
 import { Text } from '@/components/ui/text';
 import { AmbientScene } from '@/components/neo3d/ambient-scene';
+import { FloatingLeaf } from '@/components/neo3d/floating-leaf';
 import { FloatingIcon } from '@/components/neo3d/floating-icon';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { BRAND, COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
@@ -209,6 +211,8 @@ export default function Onboarding() {
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.canvas }}>
       <AmbientScene />
+      <FloatingLeaf top={100} left={20} delay={200} />
+      <FloatingLeaf top={200} left={SCREEN_W - 44} delay={700} color={COLORS.accent} />
 
       <SafeAreaView style={{ flex: 1 }}>
         {/* Top bar */}
@@ -222,9 +226,7 @@ export default function Onboarding() {
             paddingBottom: 4,
           }}
         >
-          <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: 18 }}>
-            {BRAND.name}
-          </Text>
+          <AniFarmLogo size="sm" />
           <Pressable
             onPress={finish}
             hitSlop={12}

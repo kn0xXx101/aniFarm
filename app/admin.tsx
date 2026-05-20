@@ -9,6 +9,7 @@ import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { buildAnalyticsFromSessions } from '@/lib/analytics';
+import { COLORS } from '@/lib/design-system';
 
 export default function AdminDashboard() {
   const farms = useFarmStore((s) => s.farms);
@@ -27,9 +28,9 @@ export default function AdminDashboard() {
       </Text>
 
       <View className="flex-row flex-wrap gap-3 mb-4">
-        <StatCard label="Farms" value={String(farms.length)} icon={<Building2 size={16} color="#00FFA3" />} />
-        <StatCard label="Sessions" value={String(sessions.length)} icon={<Activity size={16} color="#00FFA3" />} />
-        <StatCard label="Total alive" value={totalBirds.toLocaleString()} icon={<Users size={16} color="#00FFA3" />} tone="success" />
+        <StatCard label="Farms" value={String(farms.length)} icon={<Building2 size={16} color={COLORS.primary} />} />
+        <StatCard label="Sessions" value={String(sessions.length)} icon={<Activity size={16} color={COLORS.primary} />} />
+        <StatCard label="Total alive" value={totalBirds.toLocaleString()} icon={<Users size={16} color={COLORS.primary} />} tone="success" />
         <StatCard label="Active alerts" value={String(activeAlerts)} icon={<AlertTriangle size={16} color="#FFD600" />} tone="warning" />
       </View>
 
@@ -39,7 +40,7 @@ export default function AdminDashboard() {
           <Text variant="muted" size="xs" className="mt-0.5 mb-3">
             Aggregated livestock counts · 30d
           </Text>
-          <LineAreaChart data={series} height={180} stroke="#00FFA3" />
+          <LineAreaChart data={series} height={180} stroke={COLORS.primary} />
         </CardContent>
       </Card>
 

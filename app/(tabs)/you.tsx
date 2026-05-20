@@ -20,6 +20,7 @@ import { Card3D } from '@/components/ui/card-3d';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
+import { UiStylePicker } from '@/components/settings/ui-style-picker';
 import { COLORS, FONTS } from '@/lib/design-system';
 
 export default function YouTab() {
@@ -72,6 +73,11 @@ export default function YouTab() {
           </View>
         </View>
       </Card3D>
+
+      <SectionHeading eyebrow="Appearance" title="Liquid Glass or Tinted" />
+      <SurfaceCard style={{ marginBottom: 20 }}>
+        <UiStylePicker />
+      </SurfaceCard>
 
       <SectionHeading eyebrow="Menu" title="Tools & settings" />
       <SurfaceCard padded={false} style={{ marginBottom: 20, overflow: 'hidden' }}>

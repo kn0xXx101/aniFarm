@@ -23,6 +23,7 @@ import { useSettingsStore } from '@/lib/stores/settings-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
 import { registerForPushNotifications } from '@/lib/notifications';
+import { UiStylePicker } from '@/components/settings/ui-style-picker';
 import { COLORS, FONTS } from '@/lib/design-system';
 
 function SettingToggle({
@@ -138,6 +139,11 @@ export default function Profile() {
           <Text style={{ color: COLORS.inkMuted, fontSize: 12, marginTop: 4 }}>Pending sync</Text>
         </Card3D>
       </View>
+
+      <SectionHeading eyebrow="Appearance" title="Look & feel" />
+      <SurfaceCard style={{ marginBottom: 20 }}>
+        <UiStylePicker />
+      </SurfaceCard>
 
       <SectionHeading eyebrow="Preferences" title="Notifications & data" />
       <SurfaceCard padded={false} style={{ marginBottom: 20, overflow: 'hidden' }}>

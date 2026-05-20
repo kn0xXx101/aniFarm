@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
 import { Card3D } from '@/components/ui/card-3d';
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/design-system';
 
@@ -35,20 +36,9 @@ export function ScanModeCard({
     >
       <Card3D variant="neon" size="md" glowColor={glowColor}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 14,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: COLORS.primaryLight,
-              borderWidth: 1,
-              borderColor: COLORS.border,
-            }}
-          >
-            {icon}
-          </View>
+          <IosGlassSurface variant="accent" radius={16} padding={0} accentColor={glowColor} shadow="none">
+            <View style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>{icon}</View>
+          </IosGlassSurface>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text numberOfLines={1} style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 16 }}>
               {title}

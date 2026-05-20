@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SlidingButton } from '@/components/ui/sliding-button';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
@@ -15,7 +16,6 @@ interface CountScreenShellProps {
 
 export function CountScreenShell({ title, children, scroll = true, dark = false }: CountScreenShellProps) {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   useHideTabBar();
 
   const bg = dark ? '#000' : COLORS.canvas;
@@ -31,23 +31,24 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
         paddingBottom: 12,
       }}
     >
-      <Pressable
+      <SlidingButton
         onPress={() => router.back()}
-        hitSlop={12}
+        accessibilityLabel="Go back"
+        tone="ghost"
+        shape="circle"
+        size="sm"
+        bare
         style={{
           width: 40,
           height: 40,
-          borderRadius: 12,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: dark ? 'rgba(255,255,255,0.12)' : COLORS.surfaceMuted,
           borderWidth: 1,
           borderColor: dark ? 'rgba(255,255,255,0.15)' : COLORS.borderSoft,
         }}
-        accessibilityLabel="Go back"
       >
         <Text style={{ fontFamily: FONTS.bold, fontSize: 20, color: ink }}>←</Text>
-      </Pressable>
+      </SlidingButton>
       <Text
         style={{
           fontFamily: FONTS.bold,
@@ -62,24 +63,17 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
     </View>
   );
 
-  const rootStyle = {
-    flex: 1,
-    backgroundColor: bg,
-    paddingTop: insets.top,
-    paddingBottom: Math.max(insets.bottom, 12),
-  } as const;
-
   if (!scroll) {
     return (
-      <View style={rootStyle}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: bg }} edges={['top', 'bottom']}>
         {header}
         <View style={{ flex: 1, minHeight: 0 }}>{children}</View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={rootStyle}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: bg }} edges={['top', 'bottom']}>
       {header}
       <ScrollView
         style={{ flex: 1 }}
@@ -93,6 +87,6 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
       >
         {children}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

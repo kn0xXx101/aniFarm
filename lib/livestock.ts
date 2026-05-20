@@ -31,7 +31,7 @@ export const DETECTION_CLASS_LABELS: Record<DetectionClass, string> = {
 };
 
 export const DETECTION_CLASS_COLORS: Record<DetectionClass, string> = {
-  livestock_alive: '#00FFA3',
+  livestock_alive: '#6BBF7B',
   livestock_dead: '#FF4D6D',
   human: '#64748B',
 };

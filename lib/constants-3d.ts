@@ -1,9 +1,7 @@
 /**
- * 3D Design System Constants
- * Enhanced visual system with depth, shadows, and advanced animations
+ * 3D Design System Constants — Meadow Field organic palette
  */
 
-// 3D Transform presets
 export const TRANSFORMS_3D = {
   cardHover: {
     scale: 1.02,
@@ -28,84 +26,79 @@ export const TRANSFORMS_3D = {
   },
 } as const;
 
-// Enhanced gradients with 3D depth
 export const GRADIENTS_3D = {
-  neonGlow: ['#00FFA3', '#00D98A', '#00B371'],
-  cyberPurple: ['#A855F7', '#7C3AED', '#6D28D9'],
-  deepOcean: ['#0EA5E9', '#0284C7', '#0369A1'],
-  sunset: ['#F59E0B', '#F97316', '#EF4444'],
-  aurora: ['#00FFA3', '#00D4FF', '#A855F7'],
-  darkGlass: ['rgba(15, 23, 42, 0.8)', 'rgba(30, 41, 59, 0.6)'],
-  lightGlass: ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)'],
+  neonGlow: ['#6BBF7B', '#4A9E5C', '#3D8550'],
+  cyberPurple: ['#9B8EC4', '#7C6BAD', '#6D5A9A'],
+  deepOcean: ['#7BA8C4', '#5A8AA8', '#3D6B85'],
+  sunset: ['#E8C88A', '#C9A66B', '#C45C5C'],
+  aurora: ['#6BBF7B', '#7BA8C4', '#C9A66B'],
+  darkGlass: ['rgba(26, 37, 32, 0.85)', 'rgba(13, 20, 18, 0.7)'],
+  lightGlass: ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.03)'],
 } as const;
 
-// Advanced shadow system
 export const SHADOWS_3D = {
   sm: {
-    shadowColor: '#00FFA3',
+    shadowColor: '#6BBF7B',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
   },
   md: {
-    shadowColor: '#00FFA3',
+    shadowColor: '#6BBF7B',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#00FFA3',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 8,
   },
   xl: {
-    shadowColor: '#00FFA3',
+    shadowColor: '#6BBF7B',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.18,
     shadowRadius: 24,
     elevation: 12,
   },
   neon: {
-    shadowColor: '#00FFA3',
+    shadowColor: '#6BBF7B',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 20,
-    elevation: 16,
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 10,
   },
   purple: {
-    shadowColor: '#A855F7',
+    shadowColor: '#9B8EC4',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 12,
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    elevation: 8,
   },
 } as const;
 
-// Particle system configs
 export const PARTICLES = {
   count: {
     low: 20,
     medium: 50,
     high: 100,
   },
-  colors: ['#00FFA3', '#00D4FF', '#A855F7', '#F59E0B'],
+  colors: ['#6BBF7B', '#7BA8C4', '#C9A66B', '#E8C88A'],
   sizes: [2, 3, 4, 5],
   speeds: [0.5, 1, 1.5, 2],
 } as const;
 
-// 3D Card configurations
 export const CARD_3D = {
   perspective: 1000,
-  rotateIntensity: 10, // degrees
-  shadowIntensity: 0.3,
-  glowIntensity: 0.4,
+  rotateIntensity: 10,
+  shadowIntensity: 0.25,
+  glowIntensity: 0.3,
 } as const;
 
-// Animation durations (ms)
 export const DURATIONS = {
   instant: 100,
   fast: 200,
@@ -115,34 +108,32 @@ export const DURATIONS = {
   particle: 2000,
 } as const;
 
-// Glassmorphism presets
 export const GLASS = {
   light: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     backdropFilter: 'blur(10px)',
   },
   medium: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     backdropFilter: 'blur(15px)',
   },
   dark: {
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(26, 37, 32, 0.75)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     backdropFilter: 'blur(20px)',
   },
   neon: {
-    backgroundColor: 'rgba(0, 255, 163, 0.1)',
-    borderColor: 'rgba(0, 255, 163, 0.3)',
+    backgroundColor: 'rgba(107, 191, 123, 0.1)',
+    borderColor: 'rgba(107, 191, 123, 0.28)',
     backdropFilter: 'blur(12px)',
   },
 } as const;
 
-// 3D Icon animations
 export const ICON_ANIMATIONS = {
   pulse: {
-    scale: [1, 1.2, 1],
+    scale: [1, 1.15, 1],
     duration: 1000,
     loop: true,
   },
@@ -152,12 +143,12 @@ export const ICON_ANIMATIONS = {
     loop: true,
   },
   bounce: {
-    translateY: [0, -10, 0],
+    translateY: [0, -8, 0],
     duration: 800,
     loop: true,
   },
   glow: {
-    opacity: [0.6, 1, 0.6],
+    opacity: [0.5, 0.9, 0.5],
     duration: 1500,
     loop: true,
   },

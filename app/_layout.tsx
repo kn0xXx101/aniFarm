@@ -2,13 +2,13 @@
 import './global.css';
 
 import {
-  Outfit_400Regular,
-  Outfit_500Medium,
-  Outfit_600SemiBold,
-  Outfit_700Bold,
-  Outfit_800ExtraBold,
-  useFonts,
-} from '@expo-google-fonts/outfit';
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+} from '@expo-google-fonts/dm-sans';
+import { Fraunces_700Bold } from '@expo-google-fonts/fraunces';
+import { useFonts } from 'expo-font';
 import { ThemeProvider } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -43,11 +43,11 @@ export default function RootLayout() {
   const pushEnabled = useSettingsStore((s) => s.pushEnabled);
 
   const [loaded, error] = useFonts({
-    Outfit_400Regular,
-    Outfit_500Medium,
-    Outfit_600SemiBold,
-    Outfit_700Bold,
-    Outfit_800ExtraBold,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
+    Fraunces_700Bold,
   });
 
   useEffect(() => {
@@ -94,7 +94,8 @@ export default function RootLayout() {
               }}
             >
               <Stack.Screen name="index" />
-              <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
+              <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
+              <Stack.Screen name="onboarding" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="farm/[id]" options={{ ...STACK_HEADER, title: 'Farm details' }} />

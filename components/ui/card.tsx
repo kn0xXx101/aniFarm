@@ -1,17 +1,18 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { cn } from '@/lib/utils';
+import { IOS_GLASS } from '@/lib/ios-glass';
 import { AnimatedPressable } from './primitives/animated-pressable';
 import { Text } from './text';
 
-const cardVariants = cva('overflow-hidden rounded-lg border', {
+const cardVariants = cva('overflow-hidden', {
   variants: {
     variant: {
       default: 'border-border bg-card',
-      glass: 'border-border/50',
+      glass: '',
     },
   },
   defaultVariants: {
@@ -31,35 +32,45 @@ export function Card({
   pressable,
   onPress,
   children,
+  style,
   ...props
 }: CardProps) {
   const isGlass = variant === 'glass';
 
-  const inner = (
-    <>
-      {isGlass && (
-        <BlurView
-          intensity={40}
-          tint="default"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-          }}
-        />
-      )}
-      {children}
-    </>
-  );
+  if (isGlass) {
+    const glass = (
+      <IosGlassSurface
+        variant="glass"
+        radius={IOS_GLASS.radiusMd}
+        padding={0}
+        shadow="soft"
+        style={style}
+        contentStyle={{ padding: 24 }}
+        {...props}
+      >
+        {children}
+      </IosGlassSurface>
+    );
+
+    if (pressable && onPress) {
+      return (
+        <AnimatedPressable onPress={onPress} accessibilityRole="button" className={className}>
+          {glass}
+        </AnimatedPressable>
+      );
+    }
+    return glass;
+  }
+
+  const inner = <View className={cn('p-6', className)}>{children}</View>;
 
   if (pressable && onPress) {
     return (
       <AnimatedPressable
         onPress={onPress}
-        className={cn(cardVariants({ variant }), className)}
+        className={cn(cardVariants({ variant }), 'rounded-2xl border')}
         accessibilityRole="button"
+        style={style}
         {...props}
       >
         {inner}
@@ -68,7 +79,7 @@ export function Card({
   }
 
   return (
-    <View className={cn(cardVariants({ variant }), className)} {...props}>
+    <View className={cn(cardVariants({ variant }), 'rounded-2xl border')} style={style} {...props}>
       {inner}
     </View>
   );

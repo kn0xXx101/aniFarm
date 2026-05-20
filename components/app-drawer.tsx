@@ -25,7 +25,7 @@ import { FarmIcon } from '@/components/brand/brand-icon';
 import { Text } from '@/components/ui/text';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
-import { SUNRISE_GRADIENT, NEON } from '@/lib/constants';
+import { COLORS, NEON, SUNRISE_GRADIENT } from '@/lib/constants';
 
 interface DrawerCtxValue {
   open: () => void;
@@ -230,11 +230,11 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
                       <View
                         className="size-10 rounded-xl items-center justify-center border"
                         style={{
-                          backgroundColor: 'rgba(0,255,163,0.08)',
-                          borderColor: 'rgba(0,255,163,0.25)',
+                          backgroundColor: 'rgba(107,191,123,0.1)',
+                          borderColor: 'rgba(107,191,123,0.28)',
                         }}
                       >
-                        <Icon size={18} color={NEON.green} />
+                        <Icon size={18} color={COLORS.primary} />
                       </View>
                       <Text className="flex-1 font-semibold">{it.label}</Text>
                       {it.badge && it.badge > 0 ? (

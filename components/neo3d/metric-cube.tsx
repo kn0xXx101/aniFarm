@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { Card3D } from '@/components/ui/card-3d';
 import { Text } from '@/components/ui/text';
@@ -13,6 +13,7 @@ interface MetricCubeProps {
 }
 
 export function MetricCube({ value, label, icon, glowColor = COLORS.primary }: MetricCubeProps) {
+  const narrow = useWindowDimensions().width < 380;
   return (
     <View style={{ flex: 1, minWidth: 0 }}>
       <Card3D variant="glass" size="sm" glowColor={glowColor} onPress={undefined} style={{ flex: 1 }}>
@@ -22,7 +23,7 @@ export function MetricCube({ value, label, icon, glowColor = COLORS.primary }: M
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.7}
-            style={{ fontFamily: FONTS.extrabold, color: COLORS.ink, fontSize: 22 }}
+            style={{ fontFamily: FONTS.extrabold, color: COLORS.ink, fontSize: narrow ? 18 : 22 }}
           >
             {value}
           </Text>

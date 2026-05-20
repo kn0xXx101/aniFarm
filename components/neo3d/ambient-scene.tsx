@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { COLORS } from '@/lib/design-system';
+import { COLORS, GRADIENTS } from '@/lib/design-system';
 
 function Orb({
   size,
@@ -18,12 +18,14 @@ function Orb({
   left,
   colors,
   delay = 0,
+  opacity = 0.35,
 }: {
   size: number;
   top: number;
   left: number;
   colors: readonly [string, string];
   delay?: number;
+  opacity?: number;
 }) {
   const y = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -32,16 +34,16 @@ function Orb({
     const start = () => {
       y.value = withRepeat(
         withSequence(
-          withTiming(-18, { duration: 2800 + delay, easing: Easing.inOut(Easing.ease) }),
-          withTiming(0, { duration: 2800 + delay, easing: Easing.inOut(Easing.ease) })
+          withTiming(-14, { duration: 3200 + delay, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0, { duration: 3200 + delay, easing: Easing.inOut(Easing.ease) })
         ),
         -1,
         true
       );
       scale.value = withRepeat(
         withSequence(
-          withTiming(1.08, { duration: 3200 + delay, easing: Easing.inOut(Easing.ease) }),
-          withTiming(1, { duration: 3200 + delay, easing: Easing.inOut(Easing.ease) })
+          withTiming(1.06, { duration: 3600 + delay, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1, { duration: 3600 + delay, easing: Easing.inOut(Easing.ease) })
         ),
         -1,
         true
@@ -65,7 +67,7 @@ function Orb({
           borderRadius: size / 2,
           top,
           left,
-          opacity: 0.45,
+          opacity,
         },
         style,
       ]}
@@ -75,22 +77,22 @@ function Orb({
   );
 }
 
-export function AmbientScene() {
+export function AmbientScene({ subdued }: { subdued?: boolean }) {
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <LinearGradient
-        colors={[COLORS.canvas, COLORS.canvasMid, COLORS.canvas]}
+        colors={[...GRADIENTS.meadow]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
       />
-      <Orb size={220} top={-40} left={-60} colors={[COLORS.primary, 'transparent']} delay={0} />
-      <Orb size={180} top={120} left={220} colors={[COLORS.secondary, 'transparent']} delay={400} />
-      <Orb size={140} top={380} left={-30} colors={[COLORS.accent, 'transparent']} delay={800} />
+      <Orb size={240} top={-50} left={-70} colors={[COLORS.primary, 'transparent']} delay={0} />
+      <Orb size={160} top={100} left={220} colors={[COLORS.secondary, 'transparent']} delay={500} opacity={0.28} />
+      <Orb size={120} top={360} left={-20} colors={[COLORS.accent, 'transparent']} delay={900} opacity={0.22} />
       <View
         style={{
           ...StyleSheet.absoluteFillObject,
-          backgroundColor: 'rgba(6,11,20,0.55)',
+          backgroundColor: subdued ? 'rgba(13,20,18,0.65)' : 'rgba(13,20,18,0.5)',
         }}
       />
     </View>

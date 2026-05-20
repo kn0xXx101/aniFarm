@@ -79,14 +79,14 @@ export default function Login() {
               ]}
             >
               <LinearGradient
-                colors={['rgba(0,255,163,0.12)', 'transparent']}
+                colors={['rgba(107,191,123,0.12)', 'transparent', 'rgba(201,166,107,0.06)']}
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
               />
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, zIndex: 1 }}>
                 <BrandMarkIcon size={14} color={COLORS.primary} />
                 <Text style={{ fontFamily: FONTS.semibold, color: COLORS.primary, fontSize: 12 }}>Sign in</Text>
               </View>
-              <Text style={{ fontFamily: FONTS.extrabold, color: COLORS.ink, fontSize: 28, zIndex: 1 }}>
+              <Text style={{ fontFamily: FONTS.display, color: COLORS.ink, fontSize: 28, zIndex: 1 }}>
                 Welcome to {BRAND.name}
               </Text>
               <Text style={{ color: COLORS.inkSecondary, marginTop: 8, lineHeight: 22, zIndex: 1 }}>{BRAND.tagline}</Text>

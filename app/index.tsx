@@ -1,11 +1,10 @@
 import { Redirect } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { COLORS } from '@/lib/design-system';
 
 /**
- * Splash router — routes the user to onboarding, auth, or tabs based on persisted state.
- * The native splash screen handled by expo-splash-screen is hidden in _layout once
- * fonts load, so this acts as a fast in-app reroute.
+ * Splash router — welcome landing → onboarding → auth → tabs.
  */
 export default function Index() {
   const hydrated = useAuthStore((s) => s.hydrated);
@@ -14,12 +13,12 @@ export default function Index() {
 
   if (!hydrated) {
     return (
-      <View className="flex-1 items-center justify-center" style={{ backgroundColor: '#060B14' }}>
-        <ActivityIndicator color="#00FFA3" />
+      <View className="flex-1 items-center justify-center" style={{ backgroundColor: COLORS.canvas }}>
+        <ActivityIndicator color={COLORS.primary} />
       </View>
     );
   }
-  if (!isOnboarded) return <Redirect href="/onboarding" />;
+  if (!isOnboarded) return <Redirect href="/welcome" />;
   if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
   return <Redirect href="/(tabs)/dashboard" />;
 }

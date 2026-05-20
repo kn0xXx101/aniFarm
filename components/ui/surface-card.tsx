@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { Pressable, View, type ViewProps } from 'react-native';
+import { type ViewProps, type ViewStyle } from 'react-native';
 
-import { SHADOW, COLORS } from '@/lib/design-system';
-import { cn } from '@/lib/utils';
-
+import { IosGlassSurface, type IosGlassVariant } from '@/components/ui/ios-glass-surface';
+import { COLORS } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
 interface SurfaceCardProps extends ViewProps {
   children: ReactNode;
   onPress?: () => void;
@@ -11,17 +11,17 @@ interface SurfaceCardProps extends ViewProps {
   padded?: boolean;
 }
 
-const variantBg = {
-  default: COLORS.surface,
-  muted: COLORS.surfaceMuted,
-  accent: COLORS.primaryLight,
-  danger: COLORS.dangerLight,
+const variantMap: Record<NonNullable<SurfaceCardProps['variant']>, IosGlassVariant> = {
+  default: 'glass',
+  muted: 'glass',
+  accent: 'accent',
+  danger: 'accent',
 };
 
-const variantBorder = {
-  default: COLORS.borderSoft,
-  muted: COLORS.borderSoft,
-  accent: COLORS.border,
+const accentMap: Record<NonNullable<SurfaceCardProps['variant']>, string> = {
+  default: COLORS.primary,
+  muted: COLORS.secondary,
+  accent: COLORS.primary,
   danger: COLORS.danger,
 };
 
@@ -30,34 +30,26 @@ export function SurfaceCard({
   onPress,
   variant = 'default',
   padded = true,
-  className,
   style,
   ...props
 }: SurfaceCardProps) {
-  const inner = (
-    <View
-      className={cn('rounded-2xl border overflow-hidden', padded && 'p-4', className)}
-      style={[
-        SHADOW.card,
-        {
-          backgroundColor: variantBg[variant],
-          borderColor: variantBorder[variant],
-        },
-        style,
-      ]}
+  return (
+    <IosGlassSurface
+      variant={variantMap[variant]}
+      radius={IOS_GLASS.radiusMd}
+      padding={padded ? 16 : 0}
+      accentColor={accentMap[variant]}
+      onPress={onPress}
+      shadow="soft"
+      style={style as ViewStyle}
       {...props}
     >
       {children}
-    </View>
+    </IosGlassSurface>
   );
+}
 
-  if (onPress) {
-    return (
-      <Pressable onPress={onPress} accessibilityRole="button" className="active:opacity-92">
-        {inner}
-      </Pressable>
-    );
-  }
-
-  return inner;
+/** Hero-sized glass panel for section headers. */
+export function SurfaceCardHero(props: Omit<SurfaceCardProps, 'variant'>) {
+  return <SurfaceCard {...props} variant="accent" />;
 }

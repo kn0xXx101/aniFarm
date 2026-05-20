@@ -19,6 +19,9 @@ export {
   type AvatarFallbackProps,
 } from './avatar';
 export { Button, type ButtonProps } from './button';
+export { SlidingButton, SliderButtonLabel, type SlidingButtonProps, type SlidingButtonTone } from './sliding-button';
+export { SegmentSlider, type SegmentOption } from './segment-slider';
+export { ValueSlider } from './value-slider';
 export { Input, type InputProps } from './input';
 export { Switch, type SwitchProps } from './switch';
 export {
@@ -64,6 +67,7 @@ export {
   type DropdownItemProps,
 } from './dropdown';
 export { ToastProvider, useToast, type ToastData } from './toast';
+export { IosGlassSurface, type IosGlassSurfaceProps } from './ios-glass-surface';
 export { SurfaceCard, SurfaceCardHero } from './surface-card';
 export { MetricTile } from './metric-tile';
 export { ActionRow } from './action-row';

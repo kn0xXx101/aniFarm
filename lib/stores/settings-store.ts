@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import type { UiStyle } from '@/lib/ui-style';
+
 interface SettingsState {
   pushEnabled: boolean;
   emailEnabled: boolean;
@@ -11,9 +13,11 @@ interface SettingsState {
   deadAlertMin: number;
   language: 'en' | 'fr' | 'sw';
   autoSync: boolean;
+  uiStyle: UiStyle;
   toggle: (k: 'pushEnabled' | 'emailEnabled' | 'autoSync') => void;
   setThreshold: (k: 'mortalityThreshold' | 'densityThreshold' | 'deadAlertMin', v: number) => void;
   setLanguage: (v: 'en' | 'fr' | 'sw') => void;
+  setUiStyle: (v: UiStyle) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -26,9 +30,11 @@ export const useSettingsStore = create<SettingsState>()(
       deadAlertMin: 1,
       language: 'en',
       autoSync: true,
+      uiStyle: 'liquid-glass',
       toggle: (k) => set((s) => ({ [k]: !s[k] }) as Partial<SettingsState>),
       setThreshold: (k, v) => set({ [k]: v } as Partial<SettingsState>),
       setLanguage: (v) => set({ language: v }),
+      setUiStyle: (v) => set({ uiStyle: v }),
     }),
     {
       name: 'poultra-settings',

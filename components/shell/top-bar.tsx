@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Bell, ChevronLeft } from 'lucide-react-native';
 
 import { BrandMark } from '@/components/neo3d/landing-hero';
 import { Text } from '@/components/ui/text';
 import { useAlertStore } from '@/lib/stores/alert-store';
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { COLORS, FONTS } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
 import { cn } from '@/lib/utils';
 
 interface TopBarProps {
@@ -32,22 +34,19 @@ export function TopBar({
   const unread = useAlertStore((s) => s.alerts.filter((a) => !a.read).length);
 
   const alertBtn = showAlerts ? (
-    <Pressable
-      onPress={() => router.push('/(tabs)/alerts')}
-      className="size-10 rounded-2xl items-center justify-center"
-      style={{ backgroundColor: COLORS.surfaceMuted, borderWidth: 1, borderColor: COLORS.borderSoft }}
-    >
-      <Bell size={20} color={COLORS.ink} />
-      {unread > 0 ? (
-        <View
-          className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full items-center justify-center"
-          style={{ backgroundColor: COLORS.primary }}
-        >
-          <Text className="text-[10px] font-bold" style={{ color: COLORS.canvas }}>
-            {unread > 9 ? '9+' : unread}
-          </Text>
+    <Pressable onPress={() => router.push('/(tabs)/alerts')} accessibilityLabel="Alerts">
+      <IosGlassSurface variant="glass" radius={14} padding={0} shadow="none">
+        <View style={styles.iconBtn}>
+          <Bell size={20} color={COLORS.ink} />
+          {unread > 0 ? (
+            <View style={styles.badge}>
+              <Text className="text-[10px] font-bold" style={{ color: COLORS.canvas }}>
+                {unread > 9 ? '9+' : unread}
+              </Text>
+            </View>
+          ) : null}
         </View>
-      ) : null}
+      </IosGlassSurface>
     </Pressable>
   ) : null;
 
@@ -66,12 +65,12 @@ export function TopBar({
   return (
     <View className={cn('flex-row items-center gap-3 py-2', className)}>
       {showBack ? (
-        <Pressable
-          onPress={() => router.back()}
-          className="size-10 rounded-2xl items-center justify-center"
-          style={{ backgroundColor: COLORS.surfaceMuted, borderWidth: 1, borderColor: COLORS.borderSoft }}
-        >
-          <ChevronLeft size={22} color={COLORS.ink} />
+        <Pressable onPress={() => router.back()} accessibilityLabel="Go back">
+          <IosGlassSurface variant="glass" radius={14} padding={0} shadow="none">
+            <View style={styles.iconBtn}>
+              <ChevronLeft size={22} color={COLORS.ink} />
+            </View>
+          </IosGlassSurface>
         </Pressable>
       ) : (
         <View className="w-0" />
@@ -92,3 +91,25 @@ export function TopBar({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  iconBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: IOS_GLASS.radiusPill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: IOS_GLASS.border,
+  },
+});

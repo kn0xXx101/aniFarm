@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ScrollView, View, Pressable, useWindowDimensions } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   Camera,
@@ -12,7 +12,6 @@ import {
   Zap,
   TrendingUp,
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 import { FarmIcon } from '@/components/brand/brand-icon';
 import { Text } from '@/components/ui/text';
@@ -27,6 +26,7 @@ import { ScanModeCard } from '@/components/neo3d/scan-mode-card';
 import { StaggerIn } from '@/components/neo3d/stagger-in';
 import { NeoChip } from '@/components/neo3d/neo-chip';
 import { Card3D } from '@/components/ui/card-3d';
+import { SlidingButton, SliderButtonLabel } from '@/components/ui/sliding-button';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
@@ -34,12 +34,13 @@ import { useAlertStore } from '@/lib/stores/alert-store';
 import { useOnlineStatus, useAutoSync } from '@/lib/sync';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { buildAnalyticsFromSessions } from '@/lib/analytics';
-import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { COLORS, FONTS, SHADOW } from '@/lib/design-system';
+import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { width } = useWindowDimensions();
+  const { width, isNarrow } = useBreakpoint();
   const { horizontal } = useScreenInsets(true);
   const user = useAuthStore((s) => s.user);
   const farms = useFarmStore((s) => s.farms);
@@ -79,51 +80,39 @@ export default function Dashboard() {
           highlight="command center."
           subtitle="Launch AI counts, monitor capacity, and track trends."
           actions={
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <Pressable
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+              <SlidingButton
                 onPress={() => router.push('/(tabs)/count-live')}
-                style={[{ flex: 1, borderRadius: 16, overflow: 'hidden', minHeight: 48 }, SHADOW.neon]}
+                tone="primary"
+                size="lg"
+                style={[{ flex: 1 }, SHADOW.neon]}
               >
-                <LinearGradient
-                  colors={[...GRADIENTS.hero]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    paddingVertical: 14,
-                    paddingHorizontal: 12,
-                  }}
-                >
-                  <Zap size={18} color={COLORS.canvas} />
-                  <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 15 }}>Start scan</Text>
-                </LinearGradient>
-              </Pressable>
-              <Pressable
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 12 }}>
+                  <Zap size={18} color={COLORS.primary} />
+                  <SliderButtonLabel tone="primary" size="lg">
+                    Start scan
+                  </SliderButtonLabel>
+                </View>
+              </SlidingButton>
+              <SlidingButton
                 onPress={() => router.push('/(tabs)/farms')}
-                style={{
-                  flex: 1,
-                  borderRadius: 16,
-                  minHeight: 48,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderWidth: 1,
-                  borderColor: COLORS.border,
-                  backgroundColor: COLORS.surfaceMuted,
-                }}
+                tone="ghost"
+                size="lg"
+                style={{ flex: 1 }}
               >
-                <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 15 }}>Farms</Text>
-              </Pressable>
+                <View style={{ paddingVertical: 10, paddingHorizontal: 12, alignItems: 'center' }}>
+                  <SliderButtonLabel tone="ghost" selected={false} size="lg">
+                    Farms
+                  </SliderButtonLabel>
+                </View>
+              </SlidingButton>
             </View>
           }
         />
       </StaggerIn>
 
       <StaggerIn index={2}>
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
+        <View style={{ flexDirection: 'row', gap: isNarrow ? 6 : 10, marginBottom: 20 }}>
           <MetricCube value={`${farms.length}`} label="Farms" icon={<FarmIcon size={18} color={COLORS.primary} />} />
           <MetricCube
             value={formatCompact(totalBirds)}
@@ -205,7 +194,7 @@ export default function Dashboard() {
       </ScrollView>
 
       <SectionHeading eyebrow="Capabilities" title="Built for the field" />
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: isNarrow ? 8 : 12, marginBottom: 20 }}>
         {[
           { icon: online ? Wifi : WifiOff, title: 'Sync', body: online ? 'Connected' : 'Offline queue', color: COLORS.primary },
           { icon: Shield, title: 'Secure', body: 'Farm-level access', color: COLORS.secondary },

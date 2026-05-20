@@ -1,49 +1,28 @@
 import React from 'react';
-import { ActivityIndicator, View, type PressableProps } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, type PressableProps } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { SlidingButton, SliderButtonLabel, type SlidingButtonTone } from '@/components/ui/sliding-button';
+import { COLORS, FONTS } from '@/lib/design-system';
+import { IOS_SLIDER } from '@/lib/ios-slider-style';
 import { cn } from '@/lib/utils';
-import { AnimatedPressable } from './primitives/animated-pressable';
 import { Text } from './text';
 
-const buttonVariants = cva('flex-row items-center justify-center overflow-hidden rounded-md', {
+const buttonVariants = cva('w-full', {
   variants: {
     variant: {
       default: '',
-      destructive: 'bg-destructive',
-      outline: 'border border-input bg-transparent',
-      secondary: 'bg-secondary',
-      ghost: 'bg-transparent',
-      link: 'bg-transparent',
-    },
-    size: {
-      default: 'h-11 px-5 py-2.5',
-      sm: 'h-9 px-3',
-      lg: 'h-12 px-8',
-      icon: 'h-10 w-10',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-    size: 'default',
-  },
-});
-
-const buttonTextVariants = cva('text-center text-sm font-semibold', {
-  variants: {
-    variant: {
-      default: 'text-primary-foreground',
-      destructive: 'text-destructive-foreground',
-      outline: 'text-foreground',
-      secondary: 'text-secondary-foreground',
-      ghost: 'text-foreground',
-      link: 'text-primary underline',
+      destructive: '',
+      outline: '',
+      secondary: '',
+      ghost: '',
+      link: '',
     },
     size: {
       default: '',
-      sm: 'text-xs',
-      lg: 'text-base',
+      sm: '',
+      lg: '',
       icon: '',
     },
   },
@@ -53,6 +32,26 @@ const buttonTextVariants = cva('text-center text-sm font-semibold', {
   },
 });
 
+function variantToTone(variant: string | null | undefined): SlidingButtonTone {
+  switch (variant) {
+    case 'destructive':
+      return 'danger';
+    case 'secondary':
+      return 'secondary';
+    case 'outline':
+    case 'ghost':
+      return 'ghost';
+    default:
+      return 'primary';
+  }
+}
+
+function sizeToSliderSize(size: string | null | undefined): 'sm' | 'default' | 'lg' {
+  if (size === 'sm' || size === 'icon') return 'sm';
+  if (size === 'lg') return 'lg';
+  return 'default';
+}
+
 export interface ButtonProps
   extends Omit<PressableProps, 'children'>, VariantProps<typeof buttonVariants> {
   loading?: boolean;
@@ -61,7 +60,7 @@ export interface ButtonProps
   children: React.ReactNode;
 }
 
-export const Button = React.forwardRef<React.ComponentRef<typeof AnimatedPressable>, ButtonProps>(
+export const Button = React.forwardRef<View, ButtonProps>(
   (
     {
       variant = 'default',
@@ -75,77 +74,80 @@ export const Button = React.forwardRef<React.ComponentRef<typeof AnimatedPressab
     },
     ref,
   ) => {
-    const isDefault = variant === 'default';
-    const haptic = variant === 'destructive' ? 'medium' : 'light';
+    const tone = variantToTone(variant);
+    const sliderSize = sizeToSliderSize(size);
     const isDisabled = disabled || loading;
+    const isLink = variant === 'link';
+    const selected = tone !== 'ghost';
 
     const content =
       typeof children === 'string' ? (
-        <Text
-          className={cn(
-            buttonTextVariants({ variant, size }),
-            loading && 'opacity-0',
-            textClassName,
-          )}
-        >
+        <SliderButtonLabel tone={tone} selected={selected} size={sliderSize}>
           {children}
-        </Text>
+        </SliderButtonLabel>
       ) : (
         children
       );
 
     const inner = (
-      <>
+      <View
+        style={{
+          paddingVertical: sliderSize === 'lg' ? 12 : sliderSize === 'sm' ? 6 : 8,
+          paddingHorizontal: size === 'icon' ? 0 : sliderSize === 'lg' ? 24 : 16,
+          minWidth: size === 'icon' ? 44 : undefined,
+          minHeight: size === 'icon' ? 44 : undefined,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         {content}
         {loading && (
           <Animated.View
             entering={FadeIn.duration(150)}
             exiting={FadeOut.duration(100)}
-            className="absolute inset-0 items-center justify-center"
+            style={StyleSheet.absoluteFillObject}
+            className="items-center justify-center"
           >
-            <ActivityIndicator size="small" color={isDefault ? '#060B14' : '#F1F5F9'} />
+            <ActivityIndicator size="small" color={COLORS.primary} />
           </Animated.View>
         )}
-      </>
+      </View>
     );
 
-    if (isDefault) {
+    if (isLink) {
       return (
-        <AnimatedPressable
+        <SlidingButton
           ref={ref}
           disabled={isDisabled}
-          hapticFeedback={haptic}
-          className={cn(buttonVariants({ variant, size }), className)}
+          tone="ghost"
+          bare
+          className={cn(className)}
           accessibilityRole="button"
           {...props}
         >
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: '#00FFA3',
-            }}
-          />
-          {inner}
-        </AnimatedPressable>
+          <Text
+            className={textClassName}
+            style={{ fontFamily: FONTS.semibold, color: COLORS.primary, textDecorationLine: 'underline' }}
+          >
+            {children}
+          </Text>
+        </SlidingButton>
       );
     }
 
     return (
-      <AnimatedPressable
+      <SlidingButton
         ref={ref}
         disabled={isDisabled}
-        hapticFeedback={haptic}
+        tone={tone}
+        size={sliderSize}
+        borderRadius={IOS_SLIDER.radius}
         className={cn(buttonVariants({ variant, size }), className)}
         accessibilityRole="button"
         {...props}
       >
         {inner}
-      </AnimatedPressable>
+      </SlidingButton>
     );
   },
 );

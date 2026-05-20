@@ -8,8 +8,10 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { SPRING_CONFIGS, TIMING_CONFIGS } from '@/lib/animations';
 import { COLORS, FONTS } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
 import { cn } from '@/lib/utils';
 import { Text } from './text';
 
@@ -61,7 +63,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       transform: [{ translateX: shakeX.value }],
     }));
 
-    const borderColor = error ? COLORS.danger : focused ? COLORS.primary : COLORS.borderSoft;
+    const accent = error ? COLORS.danger : focused ? COLORS.primary : COLORS.inkMuted;
 
     return (
       <Animated.View style={shakeStyle} className="w-full">
@@ -70,28 +72,31 @@ export const Input = React.forwardRef<TextInput, InputProps>(
             {label}
           </Text>
         ) : null}
-        <View
-          className={cn('flex-row items-center rounded-xl px-3', className)}
-          style={{
-            backgroundColor: COLORS.surfaceMuted,
-            borderWidth: 1,
-            borderColor,
-            minHeight: 48,
-          }}
+        <IosGlassSurface
+          variant={focused ? 'accent' : 'glass'}
+          radius={IOS_GLASS.radiusSm}
+          padding={0}
+          accentColor={accent}
+          shadow="none"
         >
-          {leftIcon ? <View style={{ marginRight: 8 }}>{leftIcon}</View> : null}
-          <TextInput
-            ref={ref}
-            className="flex-1 py-3 text-base"
-            style={[{ color: COLORS.ink, fontFamily: FONTS.regular }, style]}
-            placeholderTextColor={COLORS.inkMuted}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            accessibilityLabel={label}
-            {...props}
-          />
-          {rightIcon ? <View style={{ marginLeft: 8 }}>{rightIcon}</View> : null}
-        </View>
+          <View
+            className={cn('flex-row items-center px-3', className)}
+            style={{ minHeight: 48 }}
+          >
+            {leftIcon ? <View style={{ marginRight: 8 }}>{leftIcon}</View> : null}
+            <TextInput
+              ref={ref}
+              className="flex-1 py-3 text-base"
+              style={[{ color: COLORS.ink, fontFamily: FONTS.regular }, style]}
+              placeholderTextColor={COLORS.inkMuted}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              accessibilityLabel={label}
+              {...props}
+            />
+            {rightIcon ? <View style={{ marginLeft: 8 }}>{rightIcon}</View> : null}
+          </View>
+        </IosGlassSurface>
         {error ? (
           <Text style={{ color: COLORS.danger, fontSize: 12, marginTop: 4 }}>{error}</Text>
         ) : null}
