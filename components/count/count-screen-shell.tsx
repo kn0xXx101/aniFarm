@@ -1,11 +1,10 @@
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
-
-const TOP_INSET = 8;
-const BOTTOM_INSET = 16;
 
 interface CountScreenShellProps {
   title: string;
@@ -16,6 +15,9 @@ interface CountScreenShellProps {
 
 export function CountScreenShell({ title, children, scroll = true, dark = false }: CountScreenShellProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  useHideTabBar();
+
   const bg = dark ? '#000' : COLORS.canvas;
   const ink = dark ? '#fff' : COLORS.ink;
 
@@ -63,15 +65,15 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
   const rootStyle = {
     flex: 1,
     backgroundColor: bg,
-    paddingTop: TOP_INSET,
-    paddingBottom: BOTTOM_INSET,
+    paddingTop: insets.top,
+    paddingBottom: Math.max(insets.bottom, 12),
   } as const;
 
   if (!scroll) {
     return (
       <View style={rootStyle}>
         {header}
-        <View style={{ flex: 1 }}>{children}</View>
+        <View style={{ flex: 1, minHeight: 0 }}>{children}</View>
       </View>
     );
   }
@@ -83,7 +85,7 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
         style={{ flex: 1 }}
         contentContainerStyle={{
           paddingHorizontal: LAYOUT.screenPadding,
-          paddingBottom: 32,
+          paddingBottom: 24,
           flexGrow: 1,
         }}
         keyboardShouldPersistTaps="handled"

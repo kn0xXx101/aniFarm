@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, View, useWindowDimensions } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -284,7 +284,7 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
               <SafeAreaView edges={['bottom']}>
                 <View className="px-5 py-3 border-t border-border">
                   <Text variant="muted" size="xs" style={{ letterSpacing: 1 }}>
-                    POULTRA · v1.0.0 · {typeof window !== 'undefined' ? 'WEB' : 'NATIVE'}
+                    POULTRA · v1.0.0 · {Platform.OS === 'web' ? 'WEB' : Platform.OS.toUpperCase()}
                   </Text>
                 </View>
               </SafeAreaView>

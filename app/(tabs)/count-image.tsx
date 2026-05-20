@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Pressable, Image, Text, type LayoutChangeEvent } from 'react-native';
+import { View, Pressable, Image, Text, Platform, type LayoutChangeEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Upload, Image as ImageIcon, Check, RotateCcw } from 'lucide-react-native';
@@ -36,7 +36,7 @@ export default function ImageCount() {
   const [size, setSize] = useState({ w: 1, h: 1 });
 
   const pickFromDevice = async () => {
-    if (typeof window !== 'undefined') {
+    if (Platform.OS === 'web') {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';

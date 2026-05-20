@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Pressable, Text } from 'react-native';
+import { View, Pressable, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Upload, Video as VideoIcon, Check } from 'lucide-react-native';
@@ -66,7 +66,7 @@ export default function VideoCount() {
   }, [running]);
 
   const pick = async () => {
-    if (typeof window !== 'undefined') {
+    if (Platform.OS === 'web') {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'video/*';

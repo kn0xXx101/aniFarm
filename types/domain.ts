@@ -39,7 +39,7 @@ export interface PoultryHouse {
   lastCountedAt?: number;
 }
 
-export type CountingMode = 'live' | 'image' | 'video';
+export type CountingMode = 'live' | 'image' | 'video' | 'cctv';
 
 export interface BoundingBox {
   id: number;
@@ -83,4 +83,35 @@ export interface AnalyticsPoint {
   date: string; // ISO date
   count: number;
   mortality: number;
+}
+
+// ── CCTV ─────────────────────────────────────────────────────────────────────
+
+export type CctvFeedStatus = 'online' | 'offline' | 'error' | 'connecting';
+
+export interface CctvFeed {
+  id: string;
+  farmId: string;
+  houseId?: string;
+  name: string;
+  /** RTSP or HLS stream URL — processed server-side */
+  streamUrl: string;
+  /** How often the server pushes a new count (seconds) */
+  intervalSeconds: number;
+  enabled: boolean;
+  createdAt: number;
+  // Runtime state (not persisted)
+  status?: CctvFeedStatus;
+  lastCount?: number;
+  lastCountedAt?: number;
+  avgConfidence?: number;
+}
+
+export interface CctvCountUpdate {
+  feedId: string;
+  count: number;
+  avgConfidence: number;
+  countedAt: number;
+  /** Optional bounding boxes for overlay display */
+  boxes?: BoundingBox[];
 }

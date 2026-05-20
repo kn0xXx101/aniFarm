@@ -104,6 +104,7 @@ export default function RootLayout() {
               <Stack.Screen name="subscription" options={{ ...STACK_HEADER, title: 'Subscription' }} />
               <Stack.Screen name="profile" options={{ ...STACK_HEADER, title: 'Profile' }} />
               <Stack.Screen name="admin" options={{ ...STACK_HEADER, title: 'Admin' }} />
+              <Stack.Screen name="cctv/add-feed" options={{ ...STACK_HEADER, presentation: 'modal', title: 'Add CCTV feed' }} />
             </Stack>
             </ErrorBoundary>
           </ToastProvider>

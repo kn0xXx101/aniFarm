@@ -1,11 +1,12 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, Text, StyleSheet, ScrollView } from 'react-native';
-import { useRouter, useNavigation } from 'expo-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Pressable, Text, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DetectionOverlay } from '@/components/count/detection-overlay';
 import { HousePicker } from '@/components/count/house-picker';
 import { CountAdjustBar } from '@/components/count/count-adjust-bar';
+import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
@@ -16,8 +17,11 @@ import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 export default function LiveCount() {
   const router = useRouter();
-  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  const compact = windowHeight < 700;
+  useHideTabBar();
+
   const farms = useFarmStore((s) => s.farms);
   const houses = useFarmStore((s) => s.houses);
   const selectedFarmId = useFarmStore((s) => s.selectedFarmId);
@@ -30,7 +34,6 @@ export default function LiveCount() {
   const farmHouses = useMemo(() => houses.filter((h) => h.farmId === farm?.id), [houses, farm?.id]);
   const [houseId, setHouseId] = useState(farmHouses[0]?.id);
 
-  // 'idle' = never started, 'running' = counting, 'paused' = stopped mid-session
   const [status, setStatus] = useState<'idle' | 'running' | 'paused'>('idle');
   const running = status === 'running';
   const [manualOffset, setManualOffset] = useState(0);
@@ -48,25 +51,8 @@ export default function LiveCount() {
   const [previewSize, setPreviewSize] = useState({ w: 1, h: 1 });
 
   const trackCount = Math.max(0, detectedCount + manualOffset);
-
-  useLayoutEffect(() => {
-    const parent = navigation.getParent();
-    parent?.setOptions({ tabBarStyle: { display: 'none' } });
-    return () => {
-      parent?.setOptions({
-        tabBarStyle: {
-          position: 'absolute',
-          height: LAYOUT.tabBarHeight,
-          paddingTop: 6,
-          paddingBottom: typeof window !== 'undefined' ? 10 : 20,
-          backgroundColor: COLORS.surface,
-          borderTopColor: COLORS.borderSoft,
-          borderTopWidth: 1,
-          elevation: 0,
-        },
-      });
-    };
-  }, [navigation]);
+  const mainBtnSize = compact ? 58 : 68;
+  const sideBtnSize = compact ? 46 : 52;
 
   useEffect(() => {
     if (!running) return undefined;
@@ -162,104 +148,110 @@ export default function LiveCount() {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
-      {/* ── Header ── */}
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn} accessibilityLabel="Go back">
-          <Text style={styles.backText}>←</Text>
-        </Pressable>
-        <Text style={styles.title}>Live count</Text>
-        {/* Status badge inline in header so it never overlaps the preview */}
-        {status !== 'idle' ? (
-          <View style={styles.statusBadge}>
-            <View style={[styles.statusDot, status === 'paused' && styles.statusDotPaused]} />
-            <Text style={styles.statusText}>{status === 'running' ? 'REC' : 'PAUSED'}</Text>
-          </View>
-        ) : (
-          <View style={styles.statusBadgePlaceholder} />
-        )}
-      </View>
-
-      {/* ── Camera preview — fills available space ── */}
-      <View
-        style={styles.preview}
-        onLayout={(e) => {
-          const { width, height } = e.nativeEvent.layout;
-          setPreviewSize({ w: width, h: height });
-        }}
-      >
-        {/* Hint only shown when idle */}
-        {status === 'idle' ? (
-          <Text style={styles.previewHint}>
-            Mock camera in Expo Go{'\n'}Tap ▶ to run AI counting
+      <View style={styles.main}>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn} accessibilityLabel="Go back">
+            <Text style={styles.backText}>←</Text>
+          </Pressable>
+          <Text style={styles.title} numberOfLines={1}>
+            Live count
           </Text>
-        ) : null}
-
-        {/* Detection boxes overlay */}
-        {running && previewSize.w > 1 ? (
-          <DetectionOverlay boxes={boxes} width={previewSize.w} height={previewSize.h} />
-        ) : null}
-
-        {/* Stats overlay — inside preview so positioning is relative to it */}
-        {status !== 'idle' ? (
-          <View style={styles.statsOverlay}>
-            <Text style={styles.statsValue}>{trackCount}</Text>
-            <Text style={styles.statsLabel}>birds</Text>
-            <Text style={styles.statsMeta}>
-              {fps} fps · {(avgConfidence * 100).toFixed(0)}%
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      {/* ── Bottom panel — fixed layout, never overflows ── */}
-      <View style={[styles.bottomPanel, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-        {/* Adjust bar */}
-        <View style={styles.adjustRow}>
-          <CountAdjustBar
-            variant="dark"
-            value={trackCount}
-            onChange={(v) => setManualOffset(v - detectedCount)}
-            label="Manual adjust"
-          />
+          {status !== 'idle' ? (
+            <View style={styles.statusBadge}>
+              <View style={[styles.statusDot, status === 'paused' && styles.statusDotPaused]} />
+              <Text style={styles.statusText}>{status === 'running' ? 'REC' : 'PAUSED'}</Text>
+            </View>
+          ) : (
+            <View style={styles.statusBadgePlaceholder} />
+          )}
         </View>
 
-        {/* House picker — scrollable horizontally if many houses */}
+        <View
+          style={styles.preview}
+          onLayout={(e) => {
+            const { width, height } = e.nativeEvent.layout;
+            setPreviewSize({ w: width, h: height });
+          }}
+        >
+          {status === 'idle' ? (
+            <Text style={styles.previewHint}>
+              Mock camera in Expo Go{'\n'}Tap ▶ to run AI counting
+            </Text>
+          ) : null}
+
+          {running && previewSize.w > 1 ? (
+            <DetectionOverlay boxes={boxes} width={previewSize.w} height={previewSize.h} />
+          ) : null}
+
+          {status !== 'idle' ? (
+            <View style={styles.statsOverlay}>
+              <Text style={styles.statsValue}>{trackCount}</Text>
+              <Text style={styles.statsLabel}>birds</Text>
+              <Text style={styles.statsMeta}>
+                {fps} fps · {(avgConfidence * 100).toFixed(0)}%
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      </View>
+
+      <View style={[styles.bottomPanel, { paddingBottom: Math.max(insets.bottom, compact ? 8 : 12) }]}>
+        <CountAdjustBar
+          variant="dark"
+          value={trackCount}
+          onChange={(v) => setManualOffset(v - detectedCount)}
+          label="Manual adjust"
+        />
+
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.housesScroll}
           contentContainerStyle={styles.housesContent}
         >
-          <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} variant="dark" />
+          <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} variant="dark" layout="row" />
         </ScrollView>
 
-        {/* Controls */}
         <View style={styles.controls}>
-          {/* Reset */}
-          <Pressable onPress={reset} style={styles.sideBtn} accessibilityLabel="Reset">
+          <Pressable
+            onPress={reset}
+            style={[styles.sideBtn, { width: sideBtnSize, height: sideBtnSize, borderRadius: sideBtnSize / 2 }]}
+            accessibilityLabel="Reset"
+          >
             <Text style={styles.sideBtnText}>↻</Text>
           </Pressable>
 
-          {/* Play / Pause — main action */}
           {status === 'running' ? (
-            <Pressable onPress={pause} style={[styles.mainBtn, styles.pauseBtn]} accessibilityLabel="Pause counting">
-              <Text style={styles.mainBtnText}>■</Text>
+            <Pressable
+              onPress={pause}
+              style={[
+                styles.mainBtn,
+                styles.pauseBtn,
+                { width: mainBtnSize, height: mainBtnSize, borderRadius: mainBtnSize / 2 },
+              ]}
+              accessibilityLabel="Pause counting"
+            >
+              <Text style={[styles.mainBtnText, compact && { fontSize: 22 }]}>■</Text>
             </Pressable>
           ) : (
             <Pressable
               onPress={status === 'paused' ? resume : start}
-              style={styles.mainBtn}
+              style={[styles.mainBtn, { width: mainBtnSize, height: mainBtnSize, borderRadius: mainBtnSize / 2 }]}
               accessibilityLabel={status === 'paused' ? 'Resume counting' : 'Start counting'}
             >
-              <Text style={styles.mainBtnText}>▶</Text>
+              <Text style={[styles.mainBtnText, compact && { fontSize: 22 }]}>▶</Text>
             </Pressable>
           )}
 
-          {/* Save */}
           <Pressable
             onPress={() => void save()}
             disabled={trackCount === 0}
-            style={[styles.sideBtn, styles.saveBtn, trackCount === 0 && styles.disabled]}
+            style={[
+              styles.sideBtn,
+              styles.saveBtn,
+              { width: sideBtnSize, height: sideBtnSize, borderRadius: sideBtnSize / 2 },
+              trackCount === 0 && styles.disabled,
+            ]}
             accessibilityLabel="Save session"
           >
             <Text style={styles.sideBtnText}>✓</Text>
@@ -275,12 +267,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-
-  // ── Header ──────────────────────────────────────────────
+  main: {
+    flex: 1,
+    minHeight: 0,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    flexShrink: 0,
     paddingHorizontal: LAYOUT.screenPadding,
     paddingTop: 8,
     paddingBottom: 10,
@@ -336,11 +331,11 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semibold,
     letterSpacing: 0.5,
   },
-
-  // ── Preview ─────────────────────────────────────────────
   preview: {
     flex: 1,
+    minHeight: 120,
     marginHorizontal: LAYOUT.screenPadding,
+    marginBottom: 8,
     borderRadius: LAYOUT.radiusMd,
     overflow: 'hidden',
     backgroundColor: '#0a1610',
@@ -357,8 +352,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     paddingHorizontal: 32,
   },
-
-  // Stats overlay — positioned inside preview
   statsOverlay: {
     position: 'absolute',
     top: 12,
@@ -390,37 +383,31 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular,
     marginTop: 2,
   },
-
-  // ── Bottom panel ─────────────────────────────────────────
   bottomPanel: {
-    paddingTop: 10,
+    flexShrink: 0,
+    paddingTop: 8,
     paddingHorizontal: LAYOUT.screenPadding,
-    gap: 10,
-  },
-  adjustRow: {
-    // CountAdjustBar fills full width
+    gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: '#000',
   },
   housesScroll: {
-    // constrain height so it never grows unbounded
-    maxHeight: 60,
+    maxHeight: 48,
   },
   housesContent: {
-    paddingRight: 4,
+    alignItems: 'center',
+    paddingRight: 8,
   },
-
-  // ── Controls ─────────────────────────────────────────────
   controls: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 20,
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingTop: 2,
+    paddingBottom: 2,
   },
   mainBtn: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -440,9 +427,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.bold,
   },
   sideBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
     backgroundColor: 'rgba(255,255,255,0.10)',
     alignItems: 'center',
     justifyContent: 'center',

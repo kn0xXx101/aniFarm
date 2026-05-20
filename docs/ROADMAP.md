@@ -47,6 +47,7 @@ Phases align with [ARCHITECTURE.md](./ARCHITECTURE.md). Check [CHANGELOG.md](./C
 | Batch offline image jobs | ✅ | `lib/ai/batch-queue.ts` — queue, process, prune |
 | Model versioning per farm | ✅ | `lib/ai/model-registry.ts` — pin versions, OTA download scaffold |
 | ERP webhooks | ✅ | `lib/integrations/erp-webhooks.ts` — HMAC-signed, per-farm endpoints |
+| CCTV camera integration | ✅ | `app/(tabs)/cctv.tsx` — WebSocket + polling, feed management, auto-counting |
 | Manager web dashboard | 🔲 | Planned — separate Next.js app |
 
 **Legend:** ✅ Done · 🔄 In progress · 🔲 Planned

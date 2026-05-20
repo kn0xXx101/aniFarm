@@ -13,9 +13,18 @@ interface HousePickerProps {
   onChange: (id: string) => void;
   label?: string;
   variant?: 'dark' | 'light';
+  /** Single row for horizontal scroll parents (live count). */
+  layout?: 'wrap' | 'row';
 }
 
-export function HousePicker({ houses, value, onChange, label = 'House', variant = 'light' }: HousePickerProps) {
+export function HousePicker({
+  houses,
+  value,
+  onChange,
+  label = 'House',
+  variant = 'light',
+  layout = 'wrap',
+}: HousePickerProps) {
   const isDark = variant === 'dark';
 
   return (
@@ -34,7 +43,7 @@ export function HousePicker({ houses, value, onChange, label = 'House', variant 
           {label}
         </Text>
       ) : null}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      <View style={{ flexDirection: 'row', flexWrap: layout === 'row' ? 'nowrap' : 'wrap', gap: 8 }}>
         {houses.map((h) => {
           const active = value === h.id;
           return (
