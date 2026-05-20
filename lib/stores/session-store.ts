@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { CountingSession, CountingMode } from '@/types/domain';
-import { MOCK_SESSIONS } from '@/lib/mock-data';
 import { registerSessionSyncBridge } from '@/lib/sync/session-bridge';
 
 interface SessionState {
@@ -27,16 +26,23 @@ interface SessionState {
   clear: () => void;
 }
 
-let n = 1000;
-const nextId = () => `s${++n}`;
+let n = 0;
+const nextId = () => `s${++n}_${Date.now()}`;
 
 export const useSessionStore = create<SessionState>()(
   persist(
     (set, get) => ({
-      sessions: MOCK_SESSIONS,
-      pendingSyncCount: () => get().sessions.filter((s) => s.syncStatus === 'pending').length,
-      failedSyncCount: () => get().sessions.filter((s) => s.syncStatus === 'failed').length,
-      getPendingSessions: () => get().sessions.filter((s) => s.syncStatus === 'pending'),
+      sessions: [],
+
+      pendingSyncCount: () =>
+        get().sessions.filter((s) => s.syncStatus === 'pending').length,
+
+      failedSyncCount: () =>
+        get().sessions.filter((s) => s.syncStatus === 'failed').length,
+
+      getPendingSessions: () =>
+        get().sessions.filter((s) => s.syncStatus === 'pending'),
+
       addSession: (input) => {
         const session: CountingSession = {
           id: nextId(),
@@ -54,29 +60,34 @@ export const useSessionStore = create<SessionState>()(
         set((s) => ({ sessions: [session, ...s.sessions] }));
         return session;
       },
+
       markSessionSynced: (id) =>
         set((s) => ({
           sessions: s.sessions.map((x) =>
             x.id === id ? { ...x, syncStatus: 'synced' as const, syncError: undefined } : x,
           ),
         })),
+
       markSessionFailed: (id, error) =>
         set((s) => ({
           sessions: s.sessions.map((x) =>
             x.id === id ? { ...x, syncStatus: 'failed' as const, syncError: error } : x,
           ),
         })),
+
       retryFailed: (id) =>
         set((s) => ({
           sessions: s.sessions.map((x) =>
             x.id === id ? { ...x, syncStatus: 'pending' as const, syncError: undefined } : x,
           ),
         })),
+
       syncPending: async (options) => {
         const { processSyncQueue } = await import('@/lib/sync/queue');
         const result = await processSyncQueue(options);
         return result.synced;
       },
+
       clear: () => set({ sessions: [] }),
     }),
     {

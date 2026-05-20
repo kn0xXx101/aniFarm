@@ -36,7 +36,7 @@ export default function Register() {
     setErrors({});
     setLoading(true);
     try {
-      await register({ name: result.data.name, email: result.data.email, phone: result.data.phone ?? undefined });
+      await register({ name: result.data.name, email: result.data.email, phone: result.data.phone ?? undefined, password: result.data.password });
       router.replace('/(tabs)/dashboard');
     } catch {
       toast.toast({ title: 'Registration failed', description: 'Please try again.', variant: 'destructive' });

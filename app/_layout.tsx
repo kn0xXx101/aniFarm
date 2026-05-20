@@ -22,7 +22,6 @@ import { initPostHog } from '@/lib/posthog';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ToastProvider } from '@/components/ui/toast';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { isMockApi } from '@/lib/api';
 import { isExpoGo } from '@/lib/expo-go';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 
@@ -64,9 +63,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     initPostHog();
-    if (__DEV__ && isMockApi()) {
-      console.info('[Poultra] API mode: mock — set EXPO_PUBLIC_API_MODE=live for real backend');
-    }
   }, []);
 
   useEffect(() => {

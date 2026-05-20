@@ -23,9 +23,9 @@ export default function Login() {
   const toast = useToast();
 
   const [tab, setTab] = useState<'email' | 'phone'>('email');
-  const [email, setEmail] = useState('adaeze@poultraai.app');
-  const [password, setPassword] = useState('demo1234');
-  const [phone, setPhone] = useState('+234 802 555 0118');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleEmailLogin = async () => {
@@ -35,7 +35,7 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      await signIn(email);
+      await signIn(email, password);
       router.replace('/(tabs)/dashboard');
     } finally {
       setLoading(false);

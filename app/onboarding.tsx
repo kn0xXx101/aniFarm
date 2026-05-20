@@ -1,153 +1,310 @@
-import { ScrollView, View, Pressable } from 'react-native';
+import { useRef, useState } from 'react';
+import {
+  Dimensions,
+  FlatList,
+  Pressable,
+  View,
+  type ListRenderItemInfo,
+  type ViewToken,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Bird, Camera, BarChart3, Wifi, Sparkles, Zap } from 'lucide-react-native';
+import { Bird, Camera, BarChart3, Wifi, Zap, ChevronRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 import { Text } from '@/components/ui/text';
-import { Button } from '@/components/ui/button';
 import { AmbientScene } from '@/components/neo3d/ambient-scene';
 import { FloatingIcon } from '@/components/neo3d/floating-icon';
-import { StaggerIn } from '@/components/neo3d/stagger-in';
-import { Card3D } from '@/components/ui/card-3d';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { useScreenInsets } from '@/hooks/useScreenInsets';
 import { BRAND, COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 
-const FEATURES = [
-  { icon: Camera, title: 'Live AI counting', body: 'Real-time flock detection from your barn camera.', color: COLORS.primary },
-  { icon: BarChart3, title: 'Deep analytics', body: 'Trends, mortality, and capacity across every house.', color: COLORS.secondary },
-  { icon: Wifi, title: 'Field-ready sync', body: 'Works offline. Syncs when you reconnect.', color: COLORS.accent },
+const { width: SCREEN_W } = Dimensions.get('window');
+
+// ── Slide definitions ────────────────────────────────────────────────────────
+
+interface Slide {
+  key: string;
+  icon: typeof Bird;
+  iconColor: string;
+  badge: string;
+  title: string;
+  highlight: string;
+  body: string;
+}
+
+const SLIDES: Slide[] = [
+  {
+    key: 'welcome',
+    icon: Bird,
+    iconColor: COLORS.primary,
+    badge: 'Next-gen poultry ops',
+    title: 'Count smarter.',
+    highlight: 'Grow faster.',
+    body: `${BRAND.tagline}. Built for barn teams who need accuracy in seconds.`,
+  },
+  {
+    key: 'ai',
+    icon: Camera,
+    iconColor: COLORS.secondary,
+    badge: 'AI-powered',
+    title: 'Real-time flock',
+    highlight: 'detection.',
+    body: 'Point your camera at the barn. Poultra counts every bird in seconds using on-device AI — no internet needed.',
+  },
+  {
+    key: 'sync',
+    icon: BarChart3,
+    iconColor: COLORS.accent,
+    badge: 'Field-ready',
+    title: 'Works offline.',
+    highlight: 'Syncs instantly.',
+    body: 'Count in the field with no signal. Sessions queue automatically and sync the moment you reconnect.',
+  },
 ];
+
+// ── Dot indicator ────────────────────────────────────────────────────────────
+
+function Dots({ count, active }: { count: number; active: number }) {
+  return (
+    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+      {Array.from({ length: count }).map((_, i) => (
+        <View
+          key={i}
+          style={{
+            width: i === active ? 24 : 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: i === active ? COLORS.primary : COLORS.borderSoft,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+// ── Single slide ─────────────────────────────────────────────────────────────
+
+function SlideView({ slide }: { slide: Slide }) {
+  const Icon = slide.icon;
+  return (
+    <View
+      style={{
+        width: SCREEN_W,
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 28,
+      }}
+    >
+      {/* Icon hero */}
+      <Animated.View entering={FadeIn.duration(500)} style={{ marginBottom: 36 }}>
+        <FloatingIcon icon={Icon} size={52} color={slide.iconColor} />
+      </Animated.View>
+
+      {/* Badge */}
+      <Animated.View
+        entering={FadeInDown.delay(100).duration(400)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 999,
+          marginBottom: 20,
+          backgroundColor: `${slide.iconColor}18`,
+          borderWidth: 1,
+          borderColor: `${slide.iconColor}40`,
+        }}
+      >
+        <Wifi size={12} color={slide.iconColor} />
+        <Text style={{ fontFamily: FONTS.semibold, color: slide.iconColor, fontSize: 12 }}>
+          {slide.badge}
+        </Text>
+      </Animated.View>
+
+      {/* Headline */}
+      <Animated.View entering={FadeInDown.delay(180).duration(400)} style={{ alignItems: 'center' }}>
+        <Text
+          style={{
+            fontFamily: FONTS.extrabold,
+            color: COLORS.ink,
+            fontSize: 32,
+            textAlign: 'center',
+            lineHeight: 38,
+          }}
+        >
+          {slide.title}
+          {'\n'}
+          <Text style={{ color: slide.iconColor }}>{slide.highlight}</Text>
+        </Text>
+      </Animated.View>
+
+      {/* Body */}
+      <Animated.View entering={FadeInDown.delay(260).duration(400)}>
+        <Text
+          style={{
+            textAlign: 'center',
+            marginTop: 16,
+            fontSize: 15,
+            lineHeight: 23,
+            color: COLORS.inkSecondary,
+          }}
+        >
+          {slide.body}
+        </Text>
+      </Animated.View>
+    </View>
+  );
+}
+
+// ── Main screen ──────────────────────────────────────────────────────────────
 
 export default function Onboarding() {
   const router = useRouter();
-  const { horizontal, bottom } = useScreenInsets(false);
   const completeOnboarding = useAuthStore((s) => s.completeOnboarding);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const listRef = useRef<FlatList<Slide>>(null);
+  const btnScale = useSharedValue(1);
+
+  const isLast = activeIndex === SLIDES.length - 1;
 
   const finish = () => {
     completeOnboarding();
     router.replace('/(auth)/login');
   };
 
+  const next = () => {
+    if (isLast) {
+      finish();
+      return;
+    }
+    const nextIndex = activeIndex + 1;
+    listRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+    setActiveIndex(nextIndex);
+  };
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (viewableItems[0]?.index != null) {
+        setActiveIndex(viewableItems[0].index);
+      }
+    },
+  ).current;
+
+  const btnStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: btnScale.value }],
+  }));
+
+  const renderItem = ({ item }: ListRenderItemInfo<Slide>) => <SlideView slide={item} />;
+
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.canvas }}>
       <AmbientScene />
+
       <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingHorizontal: horizontal, paddingBottom: bottom + 16 }}
+        {/* Top bar */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: 24,
+            paddingTop: 8,
+            paddingBottom: 4,
+          }}
         >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
-            <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: 18 }}>
-              {BRAND.name}
-              <Text style={{ color: COLORS.secondary }}> AI</Text>
+          <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: 18 }}>
+            {BRAND.name}
+            <Text style={{ color: COLORS.secondary }}> AI</Text>
+          </Text>
+          <Pressable
+            onPress={finish}
+            hitSlop={12}
+            style={{ paddingHorizontal: 12, paddingVertical: 6 }}
+          >
+            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkMuted, fontSize: 14 }}>
+              Skip
             </Text>
-            <Pressable onPress={finish} hitSlop={12}>
-              <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkMuted }}>Skip</Text>
-            </Pressable>
-          </View>
+          </Pressable>
+        </View>
 
-          <Animated.View entering={FadeIn.duration(600)} style={{ alignItems: 'center', paddingTop: 24, paddingBottom: 20 }}>
-            <FloatingIcon icon={Bird} size={56} color={COLORS.primary} />
-          </Animated.View>
+        {/* Slides */}
+        <FlatList
+          ref={listRef}
+          data={SLIDES}
+          renderItem={renderItem}
+          keyExtractor={(s) => s.key}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          bounces={false}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+          style={{ flex: 1 }}
+          getItemLayout={(_, index) => ({
+            length: SCREEN_W,
+            offset: SCREEN_W * index,
+            index,
+          })}
+        />
 
-          <StaggerIn index={0}>
-            <View style={{ alignItems: 'center' }}>
-              <View
+        {/* Bottom controls */}
+        <View
+          style={{
+            paddingHorizontal: 24,
+            paddingBottom: 32,
+            paddingTop: 16,
+            gap: 20,
+            alignItems: 'center',
+          }}
+        >
+          {/* Dot indicator */}
+          <Dots count={SLIDES.length} active={activeIndex} />
+
+          {/* CTA button */}
+          <Animated.View style={[{ width: '100%', borderRadius: 18, overflow: 'hidden' }, btnStyle, SHADOW.neon]}>
+            <LinearGradient
+              colors={isLast ? [...GRADIENTS.hero] : [COLORS.primary, COLORS.primaryDark]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Pressable
+                onPress={next}
+                onPressIn={() => { btnScale.value = withSpring(0.97); }}
+                onPressOut={() => { btnScale.value = withSpring(1); }}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 8,
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  borderRadius: 999,
-                  marginBottom: 14,
-                  backgroundColor: COLORS.primaryLight,
-                  borderWidth: 1,
-                  borderColor: COLORS.border,
+                  justifyContent: 'center',
+                  gap: 10,
+                  paddingVertical: 18,
                 }}
+                accessibilityLabel={isLast ? `Launch ${BRAND.name}` : 'Next'}
               >
-                <Sparkles size={14} color={COLORS.primary} />
-                <Text style={{ fontFamily: FONTS.semibold, color: COLORS.primary, fontSize: 12 }}>Next-gen poultry ops</Text>
-              </View>
-              <Text
-                style={{
-                  fontFamily: FONTS.extrabold,
-                  color: COLORS.ink,
-                  fontSize: 34,
-                  textAlign: 'center',
-                  lineHeight: 40,
-                }}
-              >
-                Count smarter.{'\n'}
-                <Text style={{ color: COLORS.primary }}>Grow faster.</Text>
-              </Text>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  marginTop: 14,
-                  fontSize: 16,
-                  lineHeight: 24,
-                  color: COLORS.inkSecondary,
-                  paddingHorizontal: 8,
-                }}
-              >
-                {BRAND.tagline}. Built for barn teams who need accuracy in seconds.
-              </Text>
-            </View>
-          </StaggerIn>
+                {isLast ? (
+                  <Zap size={20} color={COLORS.canvas} />
+                ) : (
+                  <ChevronRight size={20} color={COLORS.canvas} />
+                )}
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 16 }}>
+                  {isLast ? `Launch ${BRAND.name}` : 'Next'}
+                </Text>
+              </Pressable>
+            </LinearGradient>
+          </Animated.View>
 
-          <View style={{ marginTop: 28, gap: 12 }}>
-            {FEATURES.map((f, i) => {
-              const Icon = f.icon;
-              return (
-                <StaggerIn key={f.title} index={i + 1}>
-                  <Card3D variant="glass" size="sm" glowColor={f.color}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-                      <View
-                        style={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: 14,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: `${f.color}18`,
-                          borderWidth: 1,
-                          borderColor: COLORS.border,
-                        }}
-                      >
-                        <Icon size={22} color={f.color} />
-                      </View>
-                      <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink }}>{f.title}</Text>
-                        <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 2 }}>{f.body}</Text>
-                      </View>
-                    </View>
-                  </Card3D>
-                </StaggerIn>
-              );
-            })}
-          </View>
-
-          <View style={{ marginTop: 32 }}>
-            <View style={[{ borderRadius: 18, padding: 1, overflow: 'hidden' }, SHADOW.neon]}>
-              <LinearGradient colors={[...GRADIENTS.hero]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                <Button size="lg" className="rounded-[17px] min-h-[56px] bg-transparent" onPress={finish}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Zap size={20} color={COLORS.canvas} />
-                    <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 16 }}>Launch {BRAND.name}</Text>
-                  </View>
-                </Button>
-              </LinearGradient>
-            </View>
-            <Text style={{ textAlign: 'center', fontSize: 12, marginTop: 14, color: COLORS.inkMuted }}>
-              Free to explore · No card required
-            </Text>
-          </View>
-        </ScrollView>
+          <Text style={{ fontSize: 12, color: COLORS.inkMuted }}>
+            Free to explore · No card required
+          </Text>
+        </View>
       </SafeAreaView>
     </View>
   );

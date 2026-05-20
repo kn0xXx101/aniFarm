@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
-import { buildAnalytics } from '@/lib/mock-data';
+import { buildAnalyticsFromSessions } from '@/lib/analytics';
 import { buildReportHTML, sessionsToCSV } from '@/lib/reports';
 import { exportPdf, exportTextFile } from '@/lib/file-export';
 import { SUNRISE_GRADIENT, SKY_GRADIENT, NEON } from '@/lib/constants';
@@ -27,7 +27,7 @@ export default function ReportsScreen() {
   const [busy, setBusy] = useState<'pdf' | 'csv' | 'xlsx' | null>(null);
 
   const days = range === '7d' ? 7 : range === '30d' ? 30 : 90;
-  const series = useMemo(() => buildAnalytics(days), [days]);
+  const series = useMemo(() => buildAnalyticsFromSessions(farmSessions, days), [farmSessions, days]);
 
   const farm = farms.find((f) => f.id === farmId);
   const farmHouses = houses.filter((h) => h.farmId === farmId);
@@ -209,9 +209,7 @@ export default function ReportsScreen() {
         </Pressable>
       </View>
 
-      <Text variant="muted" size="xs" className="text-center mt-5">
-        Mock prices shown — real App Store/Play Store prices appear after distribution.
-      </Text>
+
     </ScrollView>
   );
 }
