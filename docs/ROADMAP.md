@@ -1,4 +1,4 @@
-# Poultra — Product Roadmap
+# aniFarm — Product Roadmap
 
 Phases align with [ARCHITECTURE.md](./ARCHITECTURE.md). Check [CHANGELOG.md](./CHANGELOG.md) for shipped work.
 

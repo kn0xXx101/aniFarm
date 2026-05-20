@@ -258,7 +258,7 @@ export default function AddCctvFeed() {
           }}
         >
           <Text style={{ color: COLORS.secondary, fontSize: 12, fontFamily: FONTS.medium, lineHeight: 18 }}>
-            The stream URL is sent to the Poultra backend server, which connects to your camera and runs AI counting at the configured interval. Your phone does not need to stay open.
+            The stream URL is sent to the aniFarm server (or simulated locally in demo mode). AI counts alive animals, flags dead stock, and excludes people — on the interval you set. Keep the CCTV tab open for live updates in Expo Go.
           </Text>
         </View>
 

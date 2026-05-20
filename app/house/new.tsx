@@ -45,7 +45,7 @@ export default function NewHouse() {
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 20 }}>
-      <Text className="text-2xl font-bold text-foreground mb-1">New poultry house</Text>
+      <Text className="text-2xl font-bold text-foreground mb-1">New pen / housing unit</Text>
       <Text variant="muted" size="sm" className="mb-5">
         Houses live inside farms and store live counts.
       </Text>

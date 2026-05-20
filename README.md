@@ -1,13 +1,13 @@
-# Poultra
+# aniFarm
 
-AI-powered poultry counting and farm operations for modern barn teams.
+AI-powered livestock counting and farm operations for modern barn teams.
 
 ## Stack
 
 - **Expo SDK 54** · React Native 0.81 · expo-router 6
 - **Zustand** + AsyncStorage persistence
 - **NativeWind** · Neon Field UI (`components/neo3d/`)
-- **Dev client** required (`ai.poultra.app`)
+- **Dev client** required (`ai.anifarm.app`)
 
 ## Quick start
 
@@ -32,7 +32,7 @@ Use `npm start`, not a global legacy `expo-cli`.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `EXPO_PUBLIC_API_MODE` | `mock` | `mock` or `live` |
-| `EXPO_PUBLIC_API_URL` | `https://api.poultra.ai/v1` | Backend base URL when `live` |
+| `EXPO_PUBLIC_API_URL` | `https://api.anifarm.app/v1` | Backend base URL when `live` |
 
 ## Project structure
 
@@ -52,4 +52,4 @@ docs/          Architecture & roadmap
 
 ## License
 
-Proprietary — Poultra AI.
+Proprietary — aniFarm.

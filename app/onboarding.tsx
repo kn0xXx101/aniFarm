@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Bird, Camera, BarChart3, Wifi, Zap, ChevronRight } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import { Camera, BarChart3, Wifi, Zap, ChevronRight, Tractor } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeIn,
@@ -31,7 +32,7 @@ const { width: SCREEN_W } = Dimensions.get('window');
 
 interface Slide {
   key: string;
-  icon: typeof Bird;
+  icon: LucideIcon;
   iconColor: string;
   badge: string;
   title: string;
@@ -42,21 +43,21 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     key: 'welcome',
-    icon: Bird,
+    icon: Tractor,
     iconColor: COLORS.primary,
-    badge: 'Next-gen poultry ops',
+    badge: 'All livestock · All farms',
     title: 'Count smarter.',
     highlight: 'Grow faster.',
-    body: `${BRAND.tagline}. Built for barn teams who need accuracy in seconds.`,
+    body: `${BRAND.tagline}. Poultry, cattle, sheep, goats, pigs, and more — one platform for every herd and flock.`,
   },
   {
     key: 'ai',
     icon: Camera,
     iconColor: COLORS.secondary,
     badge: 'AI-powered',
-    title: 'Real-time flock',
+    title: 'Alive & dead',
     highlight: 'detection.',
-    body: 'Point your camera at the barn. Poultra counts every bird in seconds using on-device AI — no internet needed.',
+    body: 'On-device AI counts live animals, flags mortality, and automatically excludes people from totals — no internet needed.',
   },
   {
     key: 'sync',
@@ -223,7 +224,6 @@ export default function Onboarding() {
         >
           <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: 18 }}>
             {BRAND.name}
-            <Text style={{ color: COLORS.secondary }}> AI</Text>
           </Text>
           <Pressable
             onPress={finish}

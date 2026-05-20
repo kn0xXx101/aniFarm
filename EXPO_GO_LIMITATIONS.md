@@ -1,7 +1,7 @@
 # Expo Go Limitations
 
 ## Overview
-Poultra AI is designed to work in both **Expo Go** (for quick testing) and **Development/Production Builds** (for full functionality). This document outlines the limitations when running in Expo Go.
+aniFarm is designed to work in both **Expo Go** (for quick testing) and **Development/Production Builds** (for full functionality). This document outlines the limitations when running in Expo Go.
 
 ---
 
@@ -284,7 +284,7 @@ For more information:
 - **Expo Go**: https://docs.expo.dev/get-started/expo-go/
 - **Development Builds**: https://docs.expo.dev/develop/development-builds/introduction/
 - **EAS Build**: https://docs.expo.dev/build/introduction/
-- **Poultra AI Docs**: See `README.md` and `FIXES_REQUIRED.md`
+- **aniFarm Docs**: See `README.md` and `FIXES_REQUIRED.md`
 
 ---
 

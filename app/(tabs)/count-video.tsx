@@ -6,13 +6,14 @@ import { Upload, Video as VideoIcon, Check } from 'lucide-react-native';
 
 import { CountScreenShell } from '@/components/count/count-screen-shell';
 import { CountSectionHeading } from '@/components/count/count-section-heading';
+import { DetectionSummary } from '@/components/count/detection-summary';
 import { SimpleProgress } from '@/components/count/simple-progress';
 import { HousePicker } from '@/components/count/house-picker';
 import { CountAdjustBar } from '@/components/count/count-adjust-bar';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
-import { detectStreamFrame, trackUpdate, type TrackedBird } from '@/lib/ai/counting-service';
+import { detectStreamFrame, trackUpdate, type TrackedAnimal } from '@/lib/ai/counting-service';
 import { evaluateHouseAlerts } from '@/lib/alerts';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 
@@ -33,13 +34,15 @@ export default function VideoCount() {
   const [progress, setProgress] = useState(0);
   const [framesProcessed, setFramesProcessed] = useState(0);
   const [count, setCount] = useState(0);
+  const [deadCount, setDeadCount] = useState(0);
+  const [excludedHumans, setExcludedHumans] = useState(0);
   const [avgConf, setAvgConf] = useState(0);
   const [done, setDone] = useState(false);
   const [houseId, setHouseId] = useState(farmHouses[0]?.id);
 
   useEffect(() => {
     if (!running) return undefined;
-    const tracks: { current: TrackedBird[] } = { current: [] };
+    const tracks: { current: TrackedAnimal[] } = { current: [] };
     const ids = new Set<number>();
     let confSum = 0;
     let confN = 0;
@@ -54,6 +57,8 @@ export default function VideoCount() {
       confN += 1;
       setFramesProcessed(frame);
       setCount(ids.size);
+      setDeadCount(det.deadCount);
+      setExcludedHumans(det.excludedHumans);
       setAvgConf(confSum / Math.max(1, confN));
       setProgress(frame / total);
       if (frame >= total) {
@@ -93,13 +98,21 @@ export default function VideoCount() {
       houseId,
       mode: 'video',
       count,
+      aliveCount: count,
+      deadCount,
+      excludedHumans,
       avgConfidence: avgConf,
       durationMs: framesProcessed * 60,
     });
     const house = farmHouses.find((h) => h.id === houseId);
     updateHouse(houseId, { currentCount: count, lastCountedAt: Date.now() });
     if (house) {
-      evaluateHouseAlerts({ farmId: farm.id, farmName: farm.name, house: { ...house, currentCount: count } });
+      evaluateHouseAlerts({
+        farmId: farm.id,
+        farmName: farm.name,
+        house: { ...house, currentCount: count },
+        deadDetected: deadCount,
+      });
     }
     try {
       const { processSyncQueue } = await import('@/lib/sync/queue');
@@ -107,13 +120,21 @@ export default function VideoCount() {
     } catch {
       /* sync optional */
     }
-    toast.toast({ title: 'Saved', description: `${count} unique birds`, variant: 'success' });
+    toast.toast({
+      title: 'Saved',
+      description: `${count} alive · ${deadCount} dead flagged · ${excludedHumans} people excluded`,
+      variant: 'success',
+    });
     router.back();
   };
 
   return (
     <CountScreenShell title="Video count">
-      <CountSectionHeading eyebrow="Scan" title="Video counting" description="Frame-by-frame AI with ByteTrack dedupe." />
+      <CountSectionHeading
+        eyebrow="Scan"
+        title="Video counting"
+        description="Frame-by-frame AI with tracking. Alive animals counted; dead flagged; staff excluded."
+      />
 
       <View style={{ marginBottom: 16, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: COLORS.borderSoft, backgroundColor: COLORS.surface }}>
         <View style={{ aspectRatio: 16 / 9, borderRadius: 16, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
@@ -130,7 +151,8 @@ export default function VideoCount() {
         <View style={{ marginBottom: 16, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: COLORS.borderSoft, backgroundColor: COLORS.surface }}>
           <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, marginBottom: 8 }}>{done ? 'Complete' : 'Processing…'}</Text>
           <SimpleProgress value={Math.round(progress * 100)} />
-          <CountAdjustBar value={count} onChange={setCount} label="Unique birds" />
+          <DetectionSummary aliveCount={count} deadCount={deadCount} excludedHumans={excludedHumans} />
+          <CountAdjustBar value={count} onChange={setCount} label="Unique alive (adjust)" />
           {done ? (
             <>
               <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} />

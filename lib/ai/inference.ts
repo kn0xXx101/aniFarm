@@ -31,4 +31,4 @@ export function detectStreamFrame(tick: number, target = 78): DetectionResult {
 }
 
 export { trackUpdate } from '@/lib/ai/counting-service';
-export type { DetectionResult, TrackedBird } from '@/lib/ai/counting-service';
+export type { DetectionResult, TrackedAnimal, TrackedBird } from '@/lib/ai/counting-service';

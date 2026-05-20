@@ -16,9 +16,30 @@ import { useFarmStore } from '@/lib/stores/farm-store';
 import { COLORS, FONTS } from '@/lib/design-system';
 
 const MODES = [
-  { icon: Camera, title: 'Live counting', subtitle: 'Real-time AI from camera', meta: 'Tracking · YOLO', path: '/(tabs)/count-live' as const, color: COLORS.primary },
-  { icon: ImageIcon, title: 'Image counting', subtitle: 'Upload overhead photos', meta: 'Batch · Deduped', path: '/(tabs)/count-image' as const, color: COLORS.secondary },
-  { icon: Video, title: 'Video counting', subtitle: 'Analyze recordings', meta: 'Frame · Multi-pass', path: '/(tabs)/count-video' as const, color: COLORS.accent },
+  {
+    icon: Camera,
+    title: 'Live counting',
+    subtitle: 'Real-time livestock from camera',
+    meta: 'Alive · Dead · No humans',
+    path: '/(tabs)/count-live' as const,
+    color: COLORS.primary,
+  },
+  {
+    icon: ImageIcon,
+    title: 'Image counting',
+    subtitle: 'Pen, barn, or paddock photos',
+    meta: 'Batch · Species-agnostic',
+    path: '/(tabs)/count-image' as const,
+    color: COLORS.secondary,
+  },
+  {
+    icon: Video,
+    title: 'Video counting',
+    subtitle: 'Analyze herd or flock recordings',
+    meta: 'Track · Welfare flags',
+    path: '/(tabs)/count-video' as const,
+    color: COLORS.accent,
+  },
 ];
 
 export default function CountTab() {
@@ -30,13 +51,13 @@ export default function CountTab() {
 
   return (
     <NeoScreen>
-      <TopBar title="Scan" subtitle="AI flock counting" />
+      <TopBar title="Scan" subtitle="Herds, flocks & pens" />
       <FarmSelector />
 
       <SectionHeading
         eyebrow="Modes"
         title="Choose how to count"
-        description="Interactive 3D cards — tilt and tap to launch."
+        description="Counts alive animals across species. Flags dead stock. Staff are never counted."
       />
 
       {MODES.map((m, i) => {

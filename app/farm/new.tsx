@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useToast } from '@/components/ui/toast';
 import { parseForm, newFarmSchema } from '@/lib/validation';
-import type { Farm } from '@/types/domain';
+import { LIVESTOCK_TYPE_LABELS } from '@/lib/livestock';
+import type { LivestockType } from '@/types/domain';
 
-const TYPES: Farm['flockType'][] = ['broiler', 'layer', 'breeder', 'mixed'];
+const TYPES = Object.keys(LIVESTOCK_TYPE_LABELS) as LivestockType[];
 
 export default function NewFarm() {
   const router = useRouter();
@@ -21,11 +22,11 @@ export default function NewFarm() {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [capacity, setCapacity] = useState('');
-  const [flockType, setFlockType] = useState<Farm['flockType']>('broiler');
+  const [livestockType, setLivestockType] = useState<LivestockType>('broiler');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = () => {
-    const result = parseForm(newFarmSchema, { name, location, capacity, flockType });
+    const result = parseForm(newFarmSchema, { name, location, capacity, livestockType });
     if (result.errors) {
       setErrors(result.errors);
       return;
@@ -35,7 +36,7 @@ export default function NewFarm() {
       name: result.data.name,
       location: result.data.location,
       capacity: Number(result.data.capacity),
-      flockType: result.data.flockType,
+      livestockType: result.data.livestockType,
     });
     toast.toast({ title: 'Farm created', variant: 'success' });
     router.back();
@@ -45,7 +46,7 @@ export default function NewFarm() {
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 20 }}>
       <Text className="text-2xl font-bold text-foreground mb-1">New farm</Text>
       <Text variant="muted" size="sm" className="mb-5">
-        Tell us about the farm you&apos;re adding.
+        Poultry, cattle, sheep, goats, pigs, horses, aquaculture, and mixed operations.
       </Text>
 
       <View className="gap-4">
@@ -53,7 +54,7 @@ export default function NewFarm() {
           label="Farm name"
           value={name}
           onChangeText={(v) => { setName(v); setErrors((e) => ({ ...e, name: '' })); }}
-          placeholder="e.g. Greenfield Broilers"
+          placeholder="e.g. Greenfield Ranch"
           className="min-h-[48px]"
           error={errors.name}
         />
@@ -67,7 +68,7 @@ export default function NewFarm() {
           error={errors.location}
         />
         <Input
-          label="Capacity (birds)"
+          label="Capacity (animals)"
           value={capacity}
           onChangeText={(v) => { setCapacity(v); setErrors((e) => ({ ...e, capacity: '' })); }}
           keyboardType="number-pad"
@@ -78,19 +79,21 @@ export default function NewFarm() {
 
         <View>
           <Text size="sm" weight="medium" className="mb-1.5">
-            Flock type
+            Livestock type
           </Text>
           <View className="flex-row flex-wrap gap-2">
             {TYPES.map((t) => (
               <Pressable
                 key={t}
-                onPress={() => setFlockType(t)}
-                className={`px-4 py-2.5 rounded-xl border min-h-[44px] justify-center ${
-                  flockType === t ? 'bg-primary border-primary' : 'bg-card border-border'
+                onPress={() => setLivestockType(t)}
+                className={`px-3 py-2.5 rounded-xl border min-h-[44px] justify-center ${
+                  livestockType === t ? 'bg-primary border-primary' : 'bg-card border-border'
                 }`}
               >
-                <Text className={`capitalize ${flockType === t ? 'text-primary-foreground font-semibold' : 'text-foreground'}`}>
-                  {t}
+                <Text
+                  className={`text-xs ${livestockType === t ? 'text-primary-foreground font-semibold' : 'text-foreground'}`}
+                >
+                  {LIVESTOCK_TYPE_LABELS[t]}
                 </Text>
               </Pressable>
             ))}

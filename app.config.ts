@@ -2,12 +2,12 @@ import type { ConfigContext, ExpoConfig } from '@expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Poultra',
-  slug: 'poultra-ai',
+  name: 'aniFarm',
+  slug: 'anifarm',
   version: '1.0.0',
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
-  scheme: 'poultra',
+  scheme: 'anifarm',
   runtimeVersion: {
     policy: 'appVersion',
   },
@@ -17,11 +17,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ITSAppUsesNonExemptEncryption: false,
     },
     supportsTablet: true,
-    bundleIdentifier: 'ai.poultra.app',
+    bundleIdentifier: 'ai.anifarm.app',
     jsEngine: 'hermes',
   },
   android: {
-    package: 'ai.poultra.app',
+    package: 'ai.anifarm.app',
     jsEngine: 'hermes',
   },
   plugins: [
@@ -32,7 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-camera',
       {
-        cameraPermission: 'Allow Poultra to use the camera for live bird counting.',
+        cameraPermission: 'Allow aniFarm to use the camera for live livestock counting (alive/dead detection; people excluded).',
         microphonePermission: false,
         recordAudioAndroid: false,
       },

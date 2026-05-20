@@ -1,6 +1,8 @@
 import { Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Bird, Plus } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
+
+import { FarmIcon } from '@/components/brand/brand-icon';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Text } from '@/components/ui/text';
@@ -11,14 +13,8 @@ import { ScanModeCard } from '@/components/neo3d/scan-mode-card';
 import { StaggerIn } from '@/components/neo3d/stagger-in';
 import { EmptyState } from '@/components/layout/empty-state';
 import { useFarmStore } from '@/lib/stores/farm-store';
+import { formatLivestockType } from '@/lib/livestock';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
-
-const FLOCK: Record<string, string> = {
-  broiler: 'Broiler',
-  layer: 'Layer',
-  breeder: 'Breeder',
-  mixed: 'Mixed',
-};
 
 export default function FarmsTab() {
   const router = useRouter();
@@ -28,7 +24,7 @@ export default function FarmsTab() {
 
   return (
     <NeoScreen>
-      <TopBar title="Farms" subtitle="Locations & houses" />
+      <TopBar title="Farms" subtitle="Livestock sites & pens" />
 
       <SectionHeading
         eyebrow="Portfolio"
@@ -59,7 +55,7 @@ export default function FarmsTab() {
 
       {farms.length === 0 ? (
         <EmptyState
-          icon={<Bird size={28} color={COLORS.primary} />}
+          icon={<FarmIcon size={28} color={COLORS.primary} />}
           title="No farms yet"
           description="Add your first farm to organize counting and analytics."
           actionLabel="Create farm"
@@ -75,9 +71,9 @@ export default function FarmsTab() {
             <StaggerIn key={f.id} index={i}>
               <ScanModeCard
                 wide
-                icon={<Bird size={22} color={COLORS.primary} />}
+                icon={<FarmIcon size={22} color={COLORS.primary} />}
                 title={f.name}
-                subtitle={`${FLOCK[f.flockType] ?? f.flockType} · ${f.location}`}
+                subtitle={`${formatLivestockType(f.livestockType ?? f.flockType ?? 'mixed')} · ${f.location}`}
                 meta={`${fh.length} houses · ${pct}% capacity`}
                 glowColor={pct > 85 ? COLORS.warning : COLORS.primary}
                 onPress={() => {

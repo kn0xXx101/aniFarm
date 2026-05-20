@@ -15,6 +15,9 @@ interface CctvState {
   runtime: Record<string, {
     status: CctvFeedStatus;
     lastCount?: number;
+    lastAliveCount?: number;
+    lastDeadCount?: number;
+    lastExcludedHumans?: number;
     lastCountedAt?: number;
     avgConfidence?: number;
   }>;
@@ -80,7 +83,10 @@ export const useCctvStore = create<CctvState>()(
             ...s.runtime,
             [update.feedId]: {
               status: 'online',
-              lastCount: update.count,
+              lastCount: update.aliveCount ?? update.count,
+              lastAliveCount: update.aliveCount ?? update.count,
+              lastDeadCount: update.deadCount ?? 0,
+              lastExcludedHumans: update.excludedHumans ?? 0,
               lastCountedAt: update.countedAt,
               avgConfidence: update.avgConfidence,
             },

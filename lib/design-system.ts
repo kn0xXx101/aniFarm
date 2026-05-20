@@ -3,8 +3,8 @@
  */
 
 export const BRAND = {
-  name: 'Poultra',
-  tagline: '3D poultry intelligence for modern farms',
+  name: 'aniFarm',
+  tagline: 'Livestock & flock AI counting for every farm',
 } as const;
 
 export const FONTS = {

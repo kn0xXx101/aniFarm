@@ -1,6 +1,5 @@
 /**
- * Domain types for Poultra AI.
- * These mirror the Firestore collection schema documented in README under "Firestore Schema".
+ * Domain types for aniFarm — multi-species livestock & animal farming.
  */
 
 export type UserRole = 'farmer' | 'admin' | 'manager';
@@ -17,6 +16,25 @@ export interface User {
   createdAt: number;
 }
 
+/** Farm operation / species focus (all animal farming supported). */
+export type LivestockType =
+  | 'broiler'
+  | 'layer'
+  | 'breeder'
+  | 'poultry_mixed'
+  | 'cattle_beef'
+  | 'cattle_dairy'
+  | 'sheep'
+  | 'goat'
+  | 'pig'
+  | 'horse'
+  | 'fish'
+  | 'mixed'
+  | 'other';
+
+/** @deprecated Use LivestockType — kept for persisted data compatibility */
+export type FlockType = LivestockType;
+
 export interface Farm {
   id: string;
   name: string;
@@ -25,21 +43,31 @@ export interface Farm {
   coords?: { lat: number; lng: number };
   imageUrl?: string;
   capacity: number;
-  flockType: 'broiler' | 'layer' | 'breeder' | 'mixed';
+  livestockType: LivestockType;
+  /** @deprecated Use livestockType */
+  flockType?: LivestockType;
   createdAt: number;
 }
 
-export interface PoultryHouse {
+/** Barn, pen, shed, paddock, or house — any livestock housing unit. */
+export interface LivestockPen {
   id: string;
   farmId: string;
   name: string;
   capacity: number;
+  /** Alive animals (operational head count) */
   currentCount: number;
   mortality7d: number;
   lastCountedAt?: number;
 }
 
+/** @deprecated Use LivestockPen */
+export type PoultryHouse = LivestockPen;
+
 export type CountingMode = 'live' | 'image' | 'video' | 'cctv';
+
+/** AI detection class — humans are detected but excluded from flock totals. */
+export type DetectionClass = 'livestock_alive' | 'livestock_dead' | 'human';
 
 export interface BoundingBox {
   id: number;
@@ -48,6 +76,7 @@ export interface BoundingBox {
   w: number;
   h: number;
   confidence: number;
+  class: DetectionClass;
 }
 
 export interface CountingSession {
@@ -55,7 +84,12 @@ export interface CountingSession {
   farmId: string;
   houseId?: string;
   mode: CountingMode;
+  /** Primary total = alive animals (sync / reports) */
   count: number;
+  aliveCount: number;
+  deadCount: number;
+  /** People detected in frame — never added to count */
+  excludedHumans: number;
   avgConfidence: number;
   durationMs: number;
   thumbnailUri?: string;
@@ -66,7 +100,7 @@ export interface CountingSession {
 }
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
-export type AlertKind = 'mortality' | 'overcrowding' | 'count-complete' | 'system';
+export type AlertKind = 'mortality' | 'overcrowding' | 'count-complete' | 'mortality_detected' | 'system';
 
 export interface Alert {
   id: string;
@@ -94,13 +128,10 @@ export interface CctvFeed {
   farmId: string;
   houseId?: string;
   name: string;
-  /** RTSP or HLS stream URL — processed server-side */
   streamUrl: string;
-  /** How often the server pushes a new count (seconds) */
   intervalSeconds: number;
   enabled: boolean;
   createdAt: number;
-  // Runtime state (not persisted)
   status?: CctvFeedStatus;
   lastCount?: number;
   lastCountedAt?: number;
@@ -110,8 +141,10 @@ export interface CctvFeed {
 export interface CctvCountUpdate {
   feedId: string;
   count: number;
+  aliveCount?: number;
+  deadCount?: number;
+  excludedHumans?: number;
   avgConfidence: number;
   countedAt: number;
-  /** Optional bounding boxes for overlay display */
   boxes?: BoundingBox[];
 }

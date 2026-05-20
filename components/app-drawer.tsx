@@ -11,7 +11,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  Bird,
   Bell,
   FileText,
   CreditCard,
@@ -20,9 +19,9 @@ import {
   Settings as SettingsIcon,
   X,
   LogOut,
-  Sparkles,
 } from 'lucide-react-native';
 
+import { FarmIcon } from '@/components/brand/brand-icon';
 import { Text } from '@/components/ui/text';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
@@ -99,7 +98,7 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
   }));
 
   const items: NavItem[] = [
-    { label: 'My farms', icon: Bird, href: '/(tabs)/farms' as Href },
+    { label: 'My farms', icon: FarmIcon, href: '/(tabs)/farms' as Href },
     { label: 'Alerts', icon: Bell, href: '/(tabs)/alerts' as Href, badge: unread },
     { label: 'Reports', icon: FileText, href: '/reports' as Href },
     { label: 'Subscription', icon: CreditCard, href: '/subscription' as Href },
@@ -177,9 +176,9 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
                     <View className="px-5 pt-2 flex-row items-center justify-between">
                       <View className="flex-row items-center gap-2">
                         <View className="size-9 rounded-2xl bg-black/30 items-center justify-center border border-white/20">
-                          <Sparkles size={18} color="white" />
+                          <FarmIcon size={18} color="white" />
                         </View>
-                        <Text className="text-white font-bold text-lg" style={{ letterSpacing: 1 }}>POULTRA</Text>
+                        <Text className="text-white font-bold text-lg" style={{ letterSpacing: 1 }}>aniFarm</Text>
                       </View>
                       <Pressable
                         onPress={close}
@@ -208,7 +207,7 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
                           {user?.name ?? 'Operator'}
                         </Text>
                         <Text className="text-white/85 text-sm" numberOfLines={1}>
-                          {user?.email ?? 'guest@poultra.ai'}
+                          {user?.email ?? 'guest@anifarm.app'}
                         </Text>
                       </View>
                     </View>
@@ -284,7 +283,7 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
               <SafeAreaView edges={['bottom']}>
                 <View className="px-5 py-3 border-t border-border">
                   <Text variant="muted" size="xs" style={{ letterSpacing: 1 }}>
-                    POULTRA · v1.0.0 · {Platform.OS === 'web' ? 'WEB' : Platform.OS.toUpperCase()}
+                    aniFarm · v1.0.0 · {Platform.OS === 'web' ? 'WEB' : Platform.OS.toUpperCase()}
                   </Text>
                 </View>
               </SafeAreaView>

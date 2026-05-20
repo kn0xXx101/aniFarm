@@ -1,7 +1,9 @@
 import { View, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useShallow } from 'zustand/react/shallow';
-import { Plus, MapPin, Trash2, Camera, AlertTriangle, Bird } from 'lucide-react-native';
+import { Plus, MapPin, Trash2, Camera, AlertTriangle } from 'lucide-react-native';
+
+import { FarmIcon } from '@/components/brand/brand-icon';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Text } from '@/components/ui/text';
@@ -54,7 +56,7 @@ export default function FarmDetail() {
               borderColor: COLORS.border,
             }}
           >
-            <Bird size={28} color={COLORS.primary} />
+            <FarmIcon size={28} color={COLORS.primary} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 22 }}>{farm.name}</Text>
@@ -63,7 +65,7 @@ export default function FarmDetail() {
               <Text style={{ color: COLORS.inkMuted, fontSize: 13 }}>{farm.location}</Text>
             </View>
             <Text style={{ color: COLORS.secondary, fontSize: 12, marginTop: 6, textTransform: 'capitalize' }}>
-              {farm.flockType} · {houses.length} houses
+              {(farm.livestockType ?? farm.flockType)} · {houses.length} pens
             </Text>
           </View>
         </View>
@@ -79,7 +81,7 @@ export default function FarmDetail() {
       </Card3D>
 
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-        <MetricCube value={totalBirds.toLocaleString()} label="Birds" glowColor={COLORS.primary} />
+        <MetricCube value={totalBirds.toLocaleString()} label="Alive" glowColor={COLORS.primary} />
         <MetricCube value={totalCapacity.toLocaleString()} label="Capacity" glowColor={COLORS.secondary} />
         <MetricCube value={String(totalMortality)} label="7d mort." glowColor={COLORS.warning} />
       </View>
@@ -100,7 +102,7 @@ export default function FarmDetail() {
         </Pressable>
       </View>
 
-      <SectionHeading title="Poultry houses" />
+      <SectionHeading title="Pens & housing" />
       {houses.map((h) => {
         const pct = h.capacity ? Math.round((h.currentCount / h.capacity) * 100) : 0;
         return (

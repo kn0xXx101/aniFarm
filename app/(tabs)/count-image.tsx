@@ -7,6 +7,7 @@ import { Upload, Image as ImageIcon, Check, RotateCcw } from 'lucide-react-nativ
 import { CountScreenShell } from '@/components/count/count-screen-shell';
 import { CountSectionHeading } from '@/components/count/count-section-heading';
 import { DetectionOverlay } from '@/components/count/detection-overlay';
+import { DetectionSummary } from '@/components/count/detection-summary';
 import { HousePicker } from '@/components/count/house-picker';
 import { CountAdjustBar } from '@/components/count/count-adjust-bar';
 import { useFarmStore } from '@/lib/stores/farm-store';
@@ -33,6 +34,8 @@ export default function ImageCount() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [count, setCount] = useState(0);
+  const [deadCount, setDeadCount] = useState(0);
+  const [excludedHumans, setExcludedHumans] = useState(0);
   const [size, setSize] = useState({ w: 1, h: 1 });
 
   const pickFromDevice = async () => {
@@ -68,7 +71,9 @@ export default function ImageCount() {
     await new Promise((r) => setTimeout(r, 400));
     const det = detectFromImage(imageUri);
     setResult(det);
-    setCount(det.count);
+    setCount(det.aliveCount);
+    setDeadCount(det.deadCount);
+    setExcludedHumans(det.excludedHumans);
     setAnalyzing(false);
   };
 
@@ -79,6 +84,9 @@ export default function ImageCount() {
       houseId,
       mode: 'image',
       count,
+      aliveCount: count,
+      deadCount,
+      excludedHumans,
       avgConfidence: result.avgConfidence,
       durationMs: result.inferenceMs,
       thumbnailUri: imageUri ?? undefined,
@@ -86,7 +94,12 @@ export default function ImageCount() {
     const house = farmHouses.find((h) => h.id === houseId);
     updateHouse(houseId, { currentCount: count, lastCountedAt: Date.now() });
     if (house) {
-      evaluateHouseAlerts({ farmId: farm.id, farmName: farm.name, house: { ...house, currentCount: count } });
+      evaluateHouseAlerts({
+        farmId: farm.id,
+        farmName: farm.name,
+        house: { ...house, currentCount: count },
+        deadDetected: deadCount,
+      });
     }
     try {
       const { processSyncQueue } = await import('@/lib/sync/queue');
@@ -94,13 +107,21 @@ export default function ImageCount() {
     } catch {
       /* sync optional */
     }
-    toast.toast({ title: 'Saved', description: `${count} birds`, variant: 'success' });
+    toast.toast({
+      title: 'Saved',
+      description: `${count} alive · ${deadCount} dead · ${excludedHumans} people excluded`,
+      variant: 'success',
+    });
     router.back();
   };
 
   return (
     <CountScreenShell title="Image count">
-      <CountSectionHeading eyebrow="Scan" title="Image counting" description="Upload a top-down barn photo." />
+      <CountSectionHeading
+        eyebrow="Scan"
+        title="Image counting"
+        description="Upload pen or barn photos. AI counts alive animals, flags dead, and ignores people."
+      />
 
       <View
         style={{ aspectRatio: 4 / 3, borderRadius: 20, overflow: 'hidden', marginBottom: 12, borderWidth: 1, borderColor: COLORS.border }}
@@ -139,9 +160,10 @@ export default function ImageCount() {
 
       {result ? (
         <View style={{ marginBottom: 16, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: COLORS.borderSoft, backgroundColor: COLORS.surface }}>
-          <CountAdjustBar value={count} onChange={setCount} label="Bird count" />
+          <DetectionSummary aliveCount={count} deadCount={deadCount} excludedHumans={excludedHumans} />
+          <CountAdjustBar value={count} onChange={setCount} label="Alive count (adjust)" />
           <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 12 }}>
-            Confidence {(result.avgConfidence * 100).toFixed(0)}% · {result.inferenceMs}ms
+            Confidence {(result.avgConfidence * 100).toFixed(0)}% · {result.inferenceMs}ms · people never counted
           </Text>
           <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} label="Save to house" />
           <Pressable onPress={() => void save()} style={[{ marginTop: 16, borderRadius: 14, overflow: 'hidden' }, SHADOW.neon]}>

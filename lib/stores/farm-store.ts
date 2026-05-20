@@ -1,20 +1,20 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Farm, PoultryHouse } from '@/types/domain';
+import type { Farm, LivestockPen } from '@/types/domain';
 
 interface FarmState {
   farms: Farm[];
-  houses: PoultryHouse[];
+  houses: LivestockPen[];
   selectedFarmId: string | null;
   addFarm: (input: Omit<Farm, 'id' | 'createdAt' | 'ownerId'> & { ownerId?: string }) => Farm;
   updateFarm: (id: string, patch: Partial<Farm>) => void;
   deleteFarm: (id: string) => void;
   selectFarm: (id: string | null) => void;
-  addHouse: (input: Omit<PoultryHouse, 'id'>) => PoultryHouse;
-  updateHouse: (id: string, patch: Partial<PoultryHouse>) => void;
+  addHouse: (input: Omit<LivestockPen, 'id'>) => LivestockPen;
+  updateHouse: (id: string, patch: Partial<LivestockPen>) => void;
   deleteHouse: (id: string) => void;
-  housesForFarm: (farmId: string) => PoultryHouse[];
+  housesForFarm: (farmId: string) => LivestockPen[];
 }
 
 let counter = 0;
@@ -28,6 +28,7 @@ export const useFarmStore = create<FarmState>()(
       selectedFarmId: null,
 
       addFarm: (input) => {
+        const livestockType = input.livestockType ?? input.flockType ?? 'mixed';
         const farm: Farm = {
           id: nextId('f'),
           ownerId: input.ownerId ?? '',
@@ -36,7 +37,8 @@ export const useFarmStore = create<FarmState>()(
           coords: input.coords,
           imageUrl: input.imageUrl,
           capacity: input.capacity,
-          flockType: input.flockType,
+          livestockType,
+          flockType: livestockType,
           createdAt: Date.now(),
         };
         set((s) => ({
@@ -59,7 +61,7 @@ export const useFarmStore = create<FarmState>()(
       selectFarm: (id) => set({ selectedFarmId: id }),
 
       addHouse: (input) => {
-        const house: PoultryHouse = { id: nextId('h'), ...input };
+        const house: LivestockPen = { id: nextId('h'), ...input };
         set((s) => ({ houses: [...s.houses, house] }));
         return house;
       },
@@ -75,6 +77,17 @@ export const useFarmStore = create<FarmState>()(
     {
       name: 'poultra-farms',
       storage: createJSONStorage(() => AsyncStorage),
+      migrate: (persisted: unknown) => {
+        const state = persisted as { farms?: Farm[]; houses?: LivestockPen[] };
+        if (state?.farms) {
+          state.farms = state.farms.map((f) => {
+            const legacy = f as Farm & { flockType?: Farm['livestockType'] };
+            const livestockType = legacy.livestockType ?? legacy.flockType ?? 'mixed';
+            return { ...legacy, livestockType, flockType: livestockType };
+          });
+        }
+        return state as unknown as FarmState;
+      },
     },
   ),
 );

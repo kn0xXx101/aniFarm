@@ -38,7 +38,7 @@ export const BUNDLED_MODEL: ModelVersion = {
   checksum: '',
   sizeBytes: 0,
   releasedAt: 0,
-  changelog: 'Initial bundled model (YOLOv8n, int8 quantized)',
+  changelog: 'Multi-class livestock model: alive, dead, human (excluded)',
 };
 
 /** Fetch available model versions from the API. */

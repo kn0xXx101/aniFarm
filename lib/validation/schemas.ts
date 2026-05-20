@@ -38,7 +38,21 @@ export const newFarmSchema = z.object({
     .string()
     .min(1, 'Capacity is required')
     .refine((v) => Number(v) > 0, 'Capacity must be a positive number'),
-  flockType: z.enum(['broiler', 'layer', 'breeder', 'mixed']),
+  livestockType: z.enum([
+    'broiler',
+    'layer',
+    'breeder',
+    'poultry_mixed',
+    'cattle_beef',
+    'cattle_dairy',
+    'sheep',
+    'goat',
+    'pig',
+    'horse',
+    'fish',
+    'mixed',
+    'other',
+  ]),
 });
 
 export type NewFarmInput = z.infer<typeof newFarmSchema>;

@@ -24,9 +24,9 @@ export const ENTITLEMENT_MAP: Record<string, SubscriptionTier> = {
 
 /** App Store / Play Store product identifiers */
 export const PRODUCT_IDS = {
-  basic: 'poultra_basic_monthly',
-  pro_monthly: 'poultra_pro_monthly',
-  pro_annual: 'poultra_pro_annual',
+  basic: 'anifarm_basic_monthly',
+  pro_monthly: 'anifarm_pro_monthly',
+  pro_annual: 'anifarm_pro_annual',
 } as const;
 
 let initialised = false;

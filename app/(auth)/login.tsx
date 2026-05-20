@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { ScrollView, KeyboardAvoidingView, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Link } from 'expo-router';
-import { Mail, Lock, Phone, Sparkles } from 'lucide-react-native';
+import { Mail, Lock, Phone } from 'lucide-react-native';
+
+import { BrandMarkIcon } from '@/components/brand/brand-icon';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { AmbientScene } from '@/components/neo3d/ambient-scene';
@@ -81,7 +83,7 @@ export default function Login() {
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
               />
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, zIndex: 1 }}>
-                <Sparkles size={14} color={COLORS.primary} />
+                <BrandMarkIcon size={14} color={COLORS.primary} />
                 <Text style={{ fontFamily: FONTS.semibold, color: COLORS.primary, fontSize: 12 }}>Sign in</Text>
               </View>
               <Text style={{ fontFamily: FONTS.extrabold, color: COLORS.ink, fontSize: 28, zIndex: 1 }}>

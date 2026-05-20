@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DetectionOverlay } from '@/components/count/detection-overlay';
+import { DetectionSummary } from '@/components/count/detection-summary';
 import { HousePicker } from '@/components/count/house-picker';
 import { CountAdjustBar } from '@/components/count/count-adjust-bar';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
@@ -12,7 +13,8 @@ import { useSessionStore } from '@/lib/stores/session-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { useToast } from '@/components/ui/toast';
 import { evaluateHouseAlerts } from '@/lib/alerts';
-import { generateStreamFrame as detectStreamFrame, trackUpdate, type TrackedBird } from '@/lib/ai/counting-service';
+import { generateStreamFrame as detectStreamFrame, trackUpdate, type TrackedAnimal } from '@/lib/ai/counting-service';
+import { livestockUnit } from '@/lib/livestock';
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 export default function LiveCount() {
@@ -39,13 +41,16 @@ export default function LiveCount() {
   const [manualOffset, setManualOffset] = useState(0);
   const [boxes, setBoxes] = useState<import('@/types/domain').BoundingBox[]>([]);
   const [detectedCount, setDetectedCount] = useState(0);
+  const [deadCount, setDeadCount] = useState(0);
+  const [excludedHumans, setExcludedHumans] = useState(0);
   const [avgConfidence, setAvgConfidence] = useState(0);
   const [fps, setFps] = useState(0);
   const [tick, setTick] = useState(0);
   const startRef = useRef<number | null>(null);
   const pausedDurationRef = useRef<number>(0);
   const pausedAtRef = useRef<number | null>(null);
-  const tracksRef = useRef<TrackedBird[]>([]);
+  const tracksRef = useRef<TrackedAnimal[]>([]);
+  const unit = livestockUnit(farm?.livestockType ?? farm?.flockType);
   const allTrackIds = useRef<Set<number>>(new Set());
   const lastTimeRef = useRef<number>(Date.now());
   const [previewSize, setPreviewSize] = useState({ w: 1, h: 1 });
@@ -68,6 +73,8 @@ export default function LiveCount() {
     tracksRef.current = tracked;
     tracked.forEach((t) => allTrackIds.current.add(t.trackId));
     setBoxes(frame.boxes);
+    setDeadCount(frame.deadCount);
+    setExcludedHumans(frame.excludedHumans);
     setAvgConfidence(frame.avgConfidence);
     setDetectedCount(allTrackIds.current.size);
     const dt = now - lastTimeRef.current;
@@ -108,6 +115,8 @@ export default function LiveCount() {
     pausedAtRef.current = null;
     setManualOffset(0);
     setDetectedCount(0);
+    setDeadCount(0);
+    setExcludedHumans(0);
     setBoxes([]);
     setFps(0);
     setAvgConfidence(0);
@@ -119,7 +128,17 @@ export default function LiveCount() {
     const totalPaused =
       pausedDurationRef.current + (pausedAtRef.current ? Date.now() - pausedAtRef.current : 0);
     const durationMs = startRef.current ? Date.now() - startRef.current - totalPaused : 0;
-    addSession({ farmId: farm.id, houseId, mode: 'live', count: trackCount, avgConfidence, durationMs });
+    addSession({
+      farmId: farm.id,
+      houseId,
+      mode: 'live',
+      count: trackCount,
+      aliveCount: trackCount,
+      deadCount,
+      excludedHumans,
+      avgConfidence,
+      durationMs,
+    });
     const house = farmHouses.find((h) => h.id === houseId);
     updateHouse(houseId, { currentCount: trackCount, lastCountedAt: Date.now() });
     if (house) {
@@ -127,6 +146,7 @@ export default function LiveCount() {
         farmId: farm.id,
         farmName: farm.name,
         house: { ...house, currentCount: trackCount, lastCountedAt: Date.now() },
+        deadDetected: deadCount,
       });
     }
     addAlert({
@@ -134,7 +154,7 @@ export default function LiveCount() {
       kind: 'count-complete',
       severity: 'info',
       title: 'Live count complete',
-      message: `${trackCount.toLocaleString()} birds · ${(avgConfidence * 100).toFixed(0)}% confidence`,
+      message: `${trackCount.toLocaleString()} alive · ${deadCount} dead · ${excludedHumans} people excluded`,
     });
     try {
       const { processSyncQueue } = await import('@/lib/sync/queue');
@@ -142,7 +162,11 @@ export default function LiveCount() {
     } catch {
       /* sync optional */
     }
-    toast.toast({ title: 'Session saved', description: `${trackCount.toLocaleString()} birds`, variant: 'success' });
+    toast.toast({
+      title: 'Session saved',
+      description: `${trackCount.toLocaleString()} alive ${unit}`,
+      variant: 'success',
+    });
     router.back();
   };
 
@@ -175,7 +199,7 @@ export default function LiveCount() {
         >
           {status === 'idle' ? (
             <Text style={styles.previewHint}>
-              Mock camera in Expo Go{'\n'}Tap ▶ to run AI counting
+              Mock camera in Expo Go{'\n'}Counts alive livestock · flags dead · ignores people
             </Text>
           ) : null}
 
@@ -186,7 +210,7 @@ export default function LiveCount() {
           {status !== 'idle' ? (
             <View style={styles.statsOverlay}>
               <Text style={styles.statsValue}>{trackCount}</Text>
-              <Text style={styles.statsLabel}>birds</Text>
+              <Text style={styles.statsLabel}>alive {unit}</Text>
               <Text style={styles.statsMeta}>
                 {fps} fps · {(avgConfidence * 100).toFixed(0)}%
               </Text>
@@ -196,11 +220,20 @@ export default function LiveCount() {
       </View>
 
       <View style={[styles.bottomPanel, { paddingBottom: Math.max(insets.bottom, compact ? 8 : 12) }]}>
+        {status !== 'idle' ? (
+          <DetectionSummary
+            variant="compact"
+            aliveCount={trackCount}
+            deadCount={deadCount}
+            excludedHumans={excludedHumans}
+          />
+        ) : null}
+
         <CountAdjustBar
           variant="dark"
           value={trackCount}
           onChange={(v) => setManualOffset(v - detectedCount)}
-          label="Manual adjust"
+          label={`Alive ${unit} (adjust)`}
         />
 
         <ScrollView

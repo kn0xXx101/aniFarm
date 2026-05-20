@@ -1,10 +1,16 @@
 # Changelog
 
-All notable changes to **Poultra** are documented here.
+All notable changes to **aniFarm** are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+
+### Added
+
+- **CCTV live engine** — mock/live detection with smoothed alive counts, dead flags, and staff exclusion (`lib/cctv/live-engine.ts`)
+- **Unified count alerts** — `evaluateCountResult` for live, image, video, and CCTV; `deadAlertMin` setting
+- **CCTV UI** — alive / dead / excluded summary on feed cards
 
 ### Fixed
 
@@ -14,6 +20,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Rebrand** — App name `Poultra` → **aniFarm** (config, drawer, reports, docs, API defaults, bundle `ai.anifarm.app`)
 - **App name** — Display name `Poultra AI` → `Poultra` (config, drawer, reports, docs)
 
 ### Added

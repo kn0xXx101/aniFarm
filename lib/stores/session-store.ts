@@ -14,6 +14,9 @@ interface SessionState {
     houseId?: string;
     mode: CountingMode;
     count: number;
+    aliveCount?: number;
+    deadCount?: number;
+    excludedHumans?: number;
     avgConfidence: number;
     durationMs: number;
     thumbnailUri?: string;
@@ -44,12 +47,16 @@ export const useSessionStore = create<SessionState>()(
         get().sessions.filter((s) => s.syncStatus === 'pending'),
 
       addSession: (input) => {
+        const aliveCount = input.aliveCount ?? input.count;
         const session: CountingSession = {
           id: nextId(),
           farmId: input.farmId,
           houseId: input.houseId,
           mode: input.mode,
-          count: input.count,
+          count: aliveCount,
+          aliveCount,
+          deadCount: input.deadCount ?? 0,
+          excludedHumans: input.excludedHumans ?? 0,
           avgConfidence: input.avgConfidence,
           durationMs: input.durationMs,
           thumbnailUri: input.thumbnailUri,
@@ -93,6 +100,18 @@ export const useSessionStore = create<SessionState>()(
     {
       name: 'poultra-sessions',
       storage: createJSONStorage(() => AsyncStorage),
+      migrate: (persisted: unknown) => {
+        const state = persisted as { sessions?: CountingSession[] };
+        if (state?.sessions) {
+          state.sessions = state.sessions.map((s) => ({
+            ...s,
+            aliveCount: s.aliveCount ?? s.count,
+            deadCount: s.deadCount ?? 0,
+            excludedHumans: s.excludedHumans ?? 0,
+          }));
+        }
+        return state as SessionState;
+      },
     },
   ),
 );

@@ -79,7 +79,6 @@ export function BrandMark() {
   return (
     <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: 18 }}>
       {BRAND.name}
-      <Text style={{ color: COLORS.secondary }}> AI</Text>
     </Text>
   );
 }

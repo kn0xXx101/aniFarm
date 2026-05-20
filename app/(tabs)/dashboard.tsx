@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { ScrollView, View, Pressable, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
-  Bird,
   Camera,
   Image as ImageIcon,
   Video,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { FarmIcon } from '@/components/brand/brand-icon';
 import { Text } from '@/components/ui/text';
 import { LineAreaChart } from '@/components/line-area-chart';
 import { NeoScreen } from '@/components/neo3d/neo-screen';
@@ -75,7 +75,7 @@ export default function Dashboard() {
       <StaggerIn index={1}>
         <LandingHero
           badge={`Good day, ${firstName}`}
-          title="Your flock"
+          title="Your livestock"
           highlight="command center."
           subtitle="Launch AI counts, monitor capacity, and track trends."
           actions={
@@ -124,10 +124,10 @@ export default function Dashboard() {
 
       <StaggerIn index={2}>
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-          <MetricCube value={`${farms.length}`} label="Farms" icon={<Bird size={18} color={COLORS.primary} />} />
+          <MetricCube value={`${farms.length}`} label="Farms" icon={<FarmIcon size={18} color={COLORS.primary} />} />
           <MetricCube
             value={formatCompact(totalBirds)}
-            label="Birds"
+            label="Alive"
             glowColor={COLORS.secondary}
             icon={<TrendingUp size={18} color={COLORS.secondary} />}
           />
@@ -150,7 +150,7 @@ export default function Dashboard() {
                   {lastSession.mode === 'live' ? 'Live counting' : `${lastSession.mode} session`}
                 </Text>
                 <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 4 }}>
-                  {lastSession.count.toLocaleString()} birds
+                  {lastSession.count.toLocaleString()} alive
                 </Text>
               </View>
               <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: COLORS.primaryLight }}>
@@ -226,7 +226,7 @@ export default function Dashboard() {
 
       <SectionHeading
         eyebrow="Analytics"
-        title="Flock trend"
+        title="Head count trend"
         actionLabel="Full insights"
         onAction={() => router.push('/(tabs)/analytics')}
       />

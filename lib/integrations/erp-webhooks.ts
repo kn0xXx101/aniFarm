@@ -104,9 +104,9 @@ export async function fireWebhook(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Poultra-Event': event,
-            'X-Poultra-Farm': farmId,
-            ...(config.secret ? { 'X-Poultra-Signature': await sign(payload, config.secret) } : {}),
+            'X-aniFarm-Event': event,
+            'X-aniFarm-Farm': farmId,
+            ...(config.secret ? { 'X-aniFarm-Signature': await sign(payload, config.secret) } : {}),
           },
           body: JSON.stringify(payload),
         });

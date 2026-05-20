@@ -11,6 +11,8 @@ import { Card3D } from '@/components/ui/card-3d';
 import { useCctvStore } from '@/lib/stores/cctv-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useCctvFeeds } from '@/lib/cctv/use-cctv-feeds';
+import { DetectionSummary } from '@/components/count/detection-summary';
+import { isMockApiMode } from '@/lib/api/config';
 import { COLORS, FONTS } from '@/lib/design-system';
 import type { CctvFeed, CctvFeedStatus } from '@/types/domain';
 
@@ -50,7 +52,9 @@ function FeedCard({ feed }: { feed: CctvFeed }) {
 
   const house = houses.find((h) => h.id === feed.houseId);
   const farm = farms.find((f) => f.id === feed.farmId);
-  const lastCount = runtime?.lastCount;
+  const lastCount = runtime?.lastAliveCount ?? runtime?.lastCount;
+  const lastDead = runtime?.lastDeadCount ?? 0;
+  const lastExcluded = runtime?.lastExcludedHumans ?? 0;
   const lastAt = runtime?.lastCountedAt;
   const confidence = runtime?.avgConfidence;
 
@@ -103,39 +107,30 @@ function FeedCard({ feed }: { feed: CctvFeed }) {
 
       {/* Count display */}
       {feed.enabled && lastCount != null ? (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 16,
-            backgroundColor: COLORS.surfaceMuted,
-            borderRadius: 12,
-            padding: 12,
-            marginBottom: 12,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: COLORS.inkMuted, fontSize: 11, fontFamily: FONTS.medium, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Last count
-            </Text>
-            <Text style={{ fontFamily: FONTS.extrabold, color: COLORS.primary, fontSize: 28, lineHeight: 32 }}>
-              {lastCount.toLocaleString()}
-            </Text>
-            <Text style={{ color: COLORS.inkMuted, fontSize: 11, marginTop: 2 }}>birds</Text>
-          </View>
-          <View style={{ alignItems: 'flex-end' }}>
+        <View style={{ marginBottom: 12, gap: 10 }}>
+          <DetectionSummary
+            variant="compact"
+            aliveCount={lastCount}
+            deadCount={lastDead}
+            excludedHumans={lastExcluded}
+          />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             {confidence != null ? (
-              <View>
-                <Text style={{ color: COLORS.inkMuted, fontSize: 11, fontFamily: FONTS.medium }}>Confidence</Text>
-                <Text style={{ fontFamily: FONTS.bold, color: COLORS.secondary, fontSize: 16 }}>
-                  {(confidence * 100).toFixed(0)}%
-                </Text>
-              </View>
-            ) : null}
+              <Text style={{ color: COLORS.inkMuted, fontSize: 12, fontFamily: FONTS.medium }}>
+                {(confidence * 100).toFixed(0)}% model confidence
+              </Text>
+            ) : (
+              <View />
+            )}
             {timeAgo ? (
-              <Text style={{ color: COLORS.inkMuted, fontSize: 11, marginTop: 6 }}>{timeAgo}</Text>
+              <Text style={{ color: COLORS.inkMuted, fontSize: 11 }}>{timeAgo}</Text>
             ) : null}
           </View>
+          {lastDead > 0 ? (
+            <Text style={{ color: COLORS.danger, fontSize: 11, fontFamily: FONTS.semibold }}>
+              Dead animals flagged — check pen and alerts
+            </Text>
+          ) : null}
         </View>
       ) : feed.enabled ? (
         <View
@@ -233,7 +228,7 @@ function EmptyFeeds({ onAdd }: { onAdd: () => void }) {
         No CCTV feeds yet
       </Text>
       <Text style={{ color: COLORS.inkMuted, fontSize: 14, textAlign: 'center', lineHeight: 21, marginBottom: 28 }}>
-        Connect your barn cameras. The server counts birds automatically — no phone needed in the barn.
+        Connect barn, pen, or paddock cameras. Live AI counts herds and flocks, flags mortality, and ignores people in frame.
       </Text>
       <Pressable
         onPress={onAdd}
@@ -306,11 +301,11 @@ export default function CctvTab() {
 
       <SectionHeading
         eyebrow="Live feeds"
-        title="Camera monitoring"
+        title="Live herd & flock monitoring"
         description={
           feeds.length > 0
-            ? `${feeds.length} feed${feeds.length !== 1 ? 's' : ''} · ${onlineCount} online`
-            : 'Server-side AI counting from your barn cameras'
+            ? `${feeds.length} feed${feeds.length !== 1 ? 's' : ''} · ${onlineCount} online${isMockApiMode() ? ' · demo simulation' : ''}`
+            : 'Continuous AI: alive totals, dead detection, staff excluded'
         }
       />
 

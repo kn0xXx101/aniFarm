@@ -1,25 +1,26 @@
 /**
- * Evaluates operational rules after counts and house updates.
- * Fires both in-app alerts and local push notifications for threshold breaches.
+ * Evaluates operational rules after counts and pen updates.
  */
 
-import type { PoultryHouse } from '@/types/domain';
+import type { LivestockPen } from '@/types/domain';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { scheduleLocalAlert } from '@/lib/notifications';
 
 export interface EvaluateHouseAlertsInput {
   farmId: string;
-  house: PoultryHouse;
-  /** Optional label for alert copy */
+  house: LivestockPen;
   farmName?: string;
+  /** Dead animals detected in the latest AI pass */
+  deadDetected?: number;
 }
 
-/**
- * Run threshold checks for a house. Call after saving a count or editing mortality.
- * Adds in-app alerts and schedules local push notifications when push is enabled.
- */
-export function evaluateHouseAlerts({ farmId, house, farmName }: EvaluateHouseAlertsInput): void {
+export function evaluateHouseAlerts({
+  farmId,
+  house,
+  farmName,
+  deadDetected = 0,
+}: EvaluateHouseAlertsInput): void {
   const settings = useSettingsStore.getState();
   const addAlert = useAlertStore.getState().addAlert;
 
@@ -29,14 +30,22 @@ export function evaluateHouseAlerts({ farmId, house, farmName }: EvaluateHouseAl
   if (house.mortality7d >= settings.mortalityThreshold) {
     const severity = house.mortality7d >= settings.mortalityThreshold * 1.5 ? 'critical' : 'warning';
     const title = 'Mortality above threshold';
-    const message = `${house.mortality7d} birds in 7d at ${location} (limit: ${settings.mortalityThreshold}).`;
+    const message = `${house.mortality7d} losses in 7d at ${location} (limit: ${settings.mortalityThreshold}).`;
     addAlert({ farmId, kind: 'mortality', severity, title, message });
     if (settings.pushEnabled) {
       void scheduleLocalAlert(title, message);
     }
   }
 
-  // densityThreshold used as capacity % proxy until floor area exists on house model
+  if (deadDetected >= settings.deadAlertMin) {
+    const title = 'Dead animals detected';
+    const message = `AI flagged ${deadDetected} deceased animal${deadDetected === 1 ? '' : 's'} at ${location}. Verify welfare and remove carcasses.`;
+    addAlert({ farmId, kind: 'mortality_detected', severity: deadDetected >= 3 ? 'critical' : 'warning', title, message });
+    if (settings.pushEnabled) {
+      void scheduleLocalAlert(title, message);
+    }
+  }
+
   if (capacityPct >= settings.densityThreshold) {
     const severity = capacityPct >= 95 ? 'critical' : 'warning';
     const title = 'Capacity above threshold';

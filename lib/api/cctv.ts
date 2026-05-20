@@ -1,20 +1,14 @@
 /**
- * CCTV API — register feeds with the backend and poll for count updates.
+ * CCTV API — register feeds, WebSocket live counts, polling fallback.
  *
- * The backend Python worker:
- *   1. Receives the RTSP/HLS stream URL
- *   2. Runs YOLOv8 inference at the configured interval
- *   3. POSTs count results to POST /sessions (existing endpoint)
- *   4. Exposes GET /cctv/feeds/:id/latest for polling
- *
- * WebSocket path: ws://<host>/cctv/ws?feedId=<id>
- * Polling path:   GET /cctv/feeds/:id/latest
+ * Live mode: backend worker runs YOLO on RTSP/HLS and pushes counts.
+ * Mock mode: client uses `lib/cctv/live-engine` (same alive/dead/human classes as manual counts).
  */
 
 import { apiRequest } from '@/lib/api/client';
+import { isMockApiMode } from '@/lib/api/config';
+import { simulateCctvDetection } from '@/lib/cctv/live-engine';
 import type { CctvFeed, CctvCountUpdate } from '@/types/domain';
-
-// ── Feed registration ─────────────────────────────────────────────────────────
 
 export interface RegisterFeedPayload {
   farmId: string;
@@ -32,6 +26,9 @@ export interface RegisterFeedResult {
 export async function registerCctvFeed(
   payload: RegisterFeedPayload,
 ): Promise<RegisterFeedResult> {
+  if (isMockApiMode()) {
+    return { feedId: `mock_${Date.now()}`, status: 'registered' };
+  }
   return apiRequest<RegisterFeedResult>('/cctv/feeds', {
     method: 'POST',
     body: payload,
@@ -39,6 +36,7 @@ export async function registerCctvFeed(
 }
 
 export async function deleteCctvFeed(feedId: string): Promise<void> {
+  if (isMockApiMode()) return;
   await apiRequest(`/cctv/feeds/${feedId}`, { method: 'DELETE' });
 }
 
@@ -46,12 +44,14 @@ export async function updateCctvFeed(
   feedId: string,
   patch: Partial<RegisterFeedPayload & { enabled: boolean }>,
 ): Promise<void> {
+  if (isMockApiMode()) return;
   await apiRequest(`/cctv/feeds/${feedId}`, { method: 'PATCH', body: patch });
 }
 
-// ── Count polling ─────────────────────────────────────────────────────────────
-
 export async function fetchLatestCount(feedId: string): Promise<CctvCountUpdate | null> {
+  if (isMockApiMode()) {
+    return simulateCctvDetection(feedId);
+  }
   try {
     return await apiRequest<CctvCountUpdate>(`/cctv/feeds/${feedId}/latest`);
   } catch {
@@ -59,9 +59,7 @@ export async function fetchLatestCount(feedId: string): Promise<CctvCountUpdate 
   }
 }
 
-// ── WebSocket live updates ────────────────────────────────────────────────────
-
-const WS_BASE = (process.env.EXPO_PUBLIC_API_URL ?? 'https://api.poultra.ai/v1')
+const WS_BASE = (process.env.EXPO_PUBLIC_API_URL ?? 'https://api.anifarm.app/v1')
   .replace(/^https?/, 'wss')
   .replace(/\/$/, '');
 
@@ -73,17 +71,38 @@ export interface CctvSocket {
 }
 
 /**
- * Open a WebSocket connection for a single feed.
- * Falls back gracefully if WebSocket is unavailable.
+ * Open live counting for a feed — WebSocket in live API mode, interval simulation in mock.
  */
 export function openCctvSocket(
-  feedId: string,
+  feed: CctvFeed,
   onCount: CountHandler,
   onStatus?: StatusHandler,
 ): CctvSocket {
+  if (isMockApiMode()) {
+    const intervalMs = Math.max(5, feed.intervalSeconds ?? 30) * 1000;
+    let closed = false;
+
+    const tick = () => {
+      if (closed) return;
+      onStatus?.('connected');
+      onCount(simulateCctvDetection(feed.id));
+    };
+
+    tick();
+    const timer = setInterval(tick, intervalMs);
+
+    return {
+      close: () => {
+        closed = true;
+        clearInterval(timer);
+      },
+    };
+  }
+
   let ws: WebSocket | null = null;
   let closed = false;
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  const feedId = feed.id;
 
   const connect = () => {
     if (closed) return;
@@ -97,7 +116,7 @@ export function openCctvSocket(
           const update = JSON.parse(e.data as string) as CctvCountUpdate;
           onCount(update);
         } catch {
-          // ignore malformed frames
+          /* ignore malformed frames */
         }
       };
 
@@ -106,7 +125,6 @@ export function openCctvSocket(
       ws.onclose = () => {
         onStatus?.('disconnected');
         if (!closed) {
-          // Reconnect after 5s
           reconnectTimer = setTimeout(connect, 5000);
         }
       };
@@ -129,11 +147,6 @@ export function openCctvSocket(
   };
 }
 
-// ── Polling fallback ──────────────────────────────────────────────────────────
-
-/**
- * Poll a feed at its configured interval when WebSocket is unavailable.
- */
 export function startPolling(
   feed: CctvFeed,
   onCount: CountHandler,

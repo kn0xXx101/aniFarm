@@ -47,7 +47,7 @@ export default function ReportsScreen() {
         series,
         sessions: farmSessions,
       });
-      await exportPdf(`poultra-${farm.id}-${range}.pdf`, html);
+      await exportPdf(`anifarm-${farm.id}-${range}.pdf`, html);
       toast.toast({ title: 'PDF exported', variant: 'success' });
     } catch (e) {
       toast.toast({ title: 'Export failed', description: String(e), variant: 'destructive' });
@@ -60,7 +60,7 @@ export default function ReportsScreen() {
     if (!farm) return;
     setBusy('csv');
     try {
-      await exportTextFile(`poultra-${farm.id}-${range}.csv`, sessionsToCSV(farmSessions), 'text/csv');
+      await exportTextFile(`anifarm-${farm.id}-${range}.csv`, sessionsToCSV(farmSessions), 'text/csv');
       toast.toast({ title: 'CSV exported', variant: 'success' });
     } finally {
       setBusy(null);
@@ -72,7 +72,7 @@ export default function ReportsScreen() {
     setBusy('xlsx');
     try {
       const tsv = sessionsToCSV(farmSessions).replace(/,/g, '\t');
-      await exportTextFile(`poultra-${farm.id}-${range}.xls`, tsv, 'application/vnd.ms-excel');
+      await exportTextFile(`anifarm-${farm.id}-${range}.xls`, tsv, 'application/vnd.ms-excel');
       toast.toast({ title: 'Excel exported', variant: 'success' });
     } finally {
       setBusy(null);
@@ -139,7 +139,7 @@ export default function ReportsScreen() {
           </View>
           <View className="flex-row gap-3">
             <View className="flex-1 bg-primary/8 border border-primary/20 rounded-2xl px-3 py-2.5">
-              <Text variant="muted" size="xs">Birds</Text>
+              <Text variant="muted" size="xs">Alive</Text>
               <Text className="font-bold text-xl text-primary">{totalBirds.toLocaleString()}</Text>
             </View>
             <View className="flex-1 bg-muted rounded-2xl px-3 py-2.5">

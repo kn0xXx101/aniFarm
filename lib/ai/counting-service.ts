@@ -1,35 +1,37 @@
 /**
- * Poultra AI — On-device counting service.
+ * aniFarm — On-device livestock counting service.
  *
- * Production stack:
- *   - YOLOv8n trained on Roboflow poultry datasets
- *   - Exported to TensorFlow Lite (int8 quantization for Android NNAPI)
- *   - Inference via `react-native-fast-tflite` on Skia frame processors
- *   - Multi-object tracking via ByteTrack (persistent IDs) to dedupe across frames
+ * Detects alive and dead animals across species (poultry, cattle, sheep, goats, pigs, etc.).
+ * People in frame are classified as `human` and excluded from flock totals.
  *
- * This module ships a deterministic-but-realistic mock pipeline so the MVP UI
- * is fully exercisable on Expo Go and web preview without bundling a 17 MB model.
- * The interface (`detectFromImage`, `detectStream`, `trackUpdate`) is identical
- * to the production implementation that lives behind a feature flag — swap in
- * the real inferencer in `lib/ai/inference.native.ts` (see README §10).
+ * Production: YOLO / TFLite multi-class model (livestock_alive, livestock_dead, human excluded).
+ * Supports all livestock species — poultry, cattle, sheep, goats, pigs, horses, fish, etc.
+ * MVP: deterministic mock pipeline for Expo Go and web.
  */
 
-import type { BoundingBox } from '@/types/domain';
+import type { BoundingBox, DetectionClass } from '@/types/domain';
+import { boxesForTracking, summarizeDetections } from '@/lib/livestock';
 
 export interface DetectionResult {
   boxes: BoundingBox[];
+  /** Alive animals only (primary operational count) */
   count: number;
+  aliveCount: number;
+  deadCount: number;
+  excludedHumans: number;
   avgConfidence: number;
   inferenceMs: number;
 }
 
-export interface TrackedBird extends BoundingBox {
+export interface TrackedAnimal extends BoundingBox {
   trackId: number;
   firstSeenAt: number;
   lastSeenAt: number;
 }
 
-// ---- Deterministic PRNG for stable demo output --------------------------------
+/** @deprecated Use TrackedAnimal */
+export type TrackedBird = TrackedAnimal;
+
 function mulberry32(seed: number) {
   return () => {
     seed |= 0;
@@ -50,67 +52,92 @@ function hashString(s: string): number {
   return h >>> 0;
 }
 
-/** Generate plausible bird detections for an image URI. */
-export function detectFromImage(uri: string, opts?: { target?: number }): DetectionResult {
-  const start = Date.now();
-  const rng = mulberry32(hashString(uri || 'default'));
-  const target = opts?.target ?? Math.floor(40 + rng() * 90); // 40-130 birds
-  const boxes: BoundingBox[] = [];
-  let totalConf = 0;
-  for (let i = 0; i < target; i++) {
-    const w = 0.05 + rng() * 0.05;
-    const h = w * (0.9 + rng() * 0.3);
-    const x = rng() * (1 - w);
-    const y = rng() * (1 - h);
-    const confidence = 0.7 + rng() * 0.28;
-    totalConf += confidence;
-    boxes.push({ id: i, x, y, w, h, confidence });
-  }
-  return {
-    boxes,
-    count: boxes.length,
-    avgConfidence: boxes.length ? totalConf / boxes.length : 0,
-    inferenceMs: Date.now() - start + Math.floor(80 + rng() * 80),
-  };
+function makeBox(
+  rng: () => number,
+  id: number,
+  cls: DetectionClass,
+  confidenceBase: number,
+): BoundingBox {
+  const w = cls === 'human' ? 0.08 + rng() * 0.06 : 0.05 + rng() * 0.05;
+  const h = w * (cls === 'human' ? 1.8 + rng() * 0.4 : 0.9 + rng() * 0.3);
+  const x = rng() * (1 - w);
+  const y = rng() * (1 - h);
+  const confidence = confidenceBase + rng() * 0.22;
+  return { id, x, y, w, h, confidence, class: cls };
 }
 
-/** Streaming frame iterator used by the live camera screen. Pure JS, no native deps. */
-export function generateStreamFrame(tick: number, target = 78): DetectionResult {
-  const rng = mulberry32(tick * 9301 + 49297);
-  const drift = Math.sin(tick / 6) * 4;
-  const count = Math.max(20, Math.round(target + drift + (rng() - 0.5) * 6));
+function generateClassifiedBoxes(rng: () => number, aliveTarget: number): BoundingBox[] {
+  const deadTarget = Math.max(0, Math.floor(aliveTarget * (0.02 + rng() * 0.04)));
+  const humanTarget = rng() > 0.55 ? 1 + Math.floor(rng() * 2) : 0;
   const boxes: BoundingBox[] = [];
-  let totalConf = 0;
-  for (let i = 0; i < count; i++) {
-    const w = 0.06 + rng() * 0.05;
-    const h = w * (0.9 + rng() * 0.3);
-    const x = rng() * (1 - w);
-    const y = rng() * (1 - h);
-    const confidence = 0.74 + rng() * 0.24;
-    totalConf += confidence;
-    boxes.push({ id: i, x, y, w, h, confidence });
+  let id = 0;
+
+  for (let i = 0; i < aliveTarget; i++) {
+    boxes.push(makeBox(rng, id++, 'livestock_alive', 0.72));
   }
+  for (let i = 0; i < deadTarget; i++) {
+    boxes.push(makeBox(rng, id++, 'livestock_dead', 0.68));
+  }
+  for (let i = 0; i < humanTarget; i++) {
+    boxes.push(makeBox(rng, id++, 'human', 0.82));
+  }
+
+  return boxes;
+}
+
+function finalizeResult(boxes: BoundingBox[], inferenceMs: number): DetectionResult {
+  const { aliveCount, deadCount, excludedHumans, count } = summarizeDetections(boxes);
+  const livestock = boxes.filter((b) => b.class !== 'human');
+  const avgConfidence = livestock.length
+    ? livestock.reduce((s, b) => s + b.confidence, 0) / livestock.length
+    : 0;
+
   return {
     boxes,
     count,
-    avgConfidence: totalConf / Math.max(1, count),
-    inferenceMs: 28 + Math.floor(rng() * 14),
+    aliveCount,
+    deadCount,
+    excludedHumans,
+    avgConfidence,
+    inferenceMs,
   };
 }
 
+/** Generate plausible livestock detections for an image URI. */
+export function detectFromImage(uri: string, opts?: { target?: number }): DetectionResult {
+  const start = Date.now();
+  const rng = mulberry32(hashString(uri || 'default'));
+  const aliveTarget = opts?.target ?? Math.floor(40 + rng() * 90);
+  const boxes = generateClassifiedBoxes(rng, aliveTarget);
+  return finalizeResult(boxes, Date.now() - start + Math.floor(80 + rng() * 80));
+}
+
+/** Streaming frame iterator for live / video counting. */
+export function generateStreamFrame(tick: number, target = 78): DetectionResult {
+  const rng = mulberry32(tick * 9301 + 49297);
+  const drift = Math.sin(tick / 6) * 4;
+  const aliveTarget = Math.max(20, Math.round(target + drift + (rng() - 0.5) * 6));
+  const boxes = generateClassifiedBoxes(rng, aliveTarget);
+  return finalizeResult(boxes, 28 + Math.floor(rng() * 14));
+}
+
+/** Alias used by video count and inference modules */
+export const detectStreamFrame = generateStreamFrame;
+
 /**
- * Simplified ByteTrack-style update. Matches new detections to existing tracks
- * via IOU; produces stable IDs so we can dedupe across frames.
+ * ByteTrack-style update — only `livestock_alive` boxes are tracked for unique head count.
  */
 export function trackUpdate(
-  prev: TrackedBird[],
+  prev: TrackedAnimal[],
   next: BoundingBox[],
   now: number,
   iouThreshold = 0.3,
-): TrackedBird[] {
-  const out: TrackedBird[] = [];
+): TrackedAnimal[] {
+  const alive = boxesForTracking(next);
+  const out: TrackedAnimal[] = [];
   const used = new Set<number>();
-  for (const det of next) {
+
+  for (const det of alive) {
     let bestIdx = -1;
     let bestIou = iouThreshold;
     for (let i = 0; i < prev.length; i++) {

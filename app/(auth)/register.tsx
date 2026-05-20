@@ -3,7 +3,9 @@ import { View, ScrollView, KeyboardAvoidingView, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, Lock, User, Phone, Bird } from 'lucide-react-native';
+import { Mail, Lock, User, Phone } from 'lucide-react-native';
+
+import { BrandMarkIcon } from '@/components/brand/brand-icon';
 
 import { Text } from '@/components/ui/text';
 import { Input } from '@/components/ui/input';
@@ -58,7 +60,7 @@ export default function Register() {
           <SafeAreaView edges={['top']}>
             <View className="px-6 pt-2">
               <View className="size-14 rounded-2xl bg-white/25 items-center justify-center mb-4">
-                <Bird size={22} color="white" />
+                <BrandMarkIcon size={22} color="white" />
               </View>
               <Text className="text-3xl font-extrabold text-white">Create account</Text>
               <Text className="text-white/85 mt-1">

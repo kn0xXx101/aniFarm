@@ -29,7 +29,7 @@ export default function AdminDashboard() {
       <View className="flex-row flex-wrap gap-3 mb-4">
         <StatCard label="Farms" value={String(farms.length)} icon={<Building2 size={16} color="#00FFA3" />} />
         <StatCard label="Sessions" value={String(sessions.length)} icon={<Activity size={16} color="#00FFA3" />} />
-        <StatCard label="Total birds" value={totalBirds.toLocaleString()} icon={<Users size={16} color="#00FFA3" />} tone="success" />
+        <StatCard label="Total alive" value={totalBirds.toLocaleString()} icon={<Users size={16} color="#00FFA3" />} tone="success" />
         <StatCard label="Active alerts" value={String(activeAlerts)} icon={<AlertTriangle size={16} color="#FFD600" />} tone="warning" />
       </View>
 
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
         <CardContent className="p-4">
           <Text className="font-semibold text-base">Platform throughput</Text>
           <Text variant="muted" size="xs" className="mt-0.5 mb-3">
-            Aggregated bird counts · 30d
+            Aggregated livestock counts · 30d
           </Text>
           <LineAreaChart data={series} height={180} stroke="#00FFA3" />
         </CardContent>
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
                 <View>
                   <Text className="font-semibold text-base">{farm.name}</Text>
                   <Text variant="muted" size="xs">
-                    {farm.location} · {farm.flockType}
+                    {farm.location} · {farm.livestockType ?? farm.flockType}
                   </Text>
                 </View>
               </View>
