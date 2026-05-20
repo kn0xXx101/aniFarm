@@ -16,8 +16,8 @@ Phases align with [ARCHITECTURE.md](./ARCHITECTURE.md). Check [CHANGELOG.md](./C
 | Session-based analytics | ✅ | `lib/analytics/aggregate.ts` |
 | API documentation | ✅ | `docs/API.md` |
 | Unified stack UI (neo3d) | ✅ | farm/[id], count/*, profile |
-| Zod form validation | 🔲 | farm/new, register |
-| Real auth provider | 🔲 | Firebase / Supabase |
+| Zod form validation | ✅ | `lib/validation/` — farm/new, house/new, register |
+| Real auth provider | 🔲 | Firebase / Supabase — scaffold ready in `lib/stores/auth-store.ts` |
 
 ## Phase B — Core product
 
@@ -28,25 +28,25 @@ Phases align with [ARCHITECTURE.md](./ARCHITECTURE.md). Check [CHANGELOG.md](./C
 | Cloud media upload | 🔄 | `lib/api/media.ts` mock + live shape |
 | Analytics from real sessions | ✅ | Phase A — dashboard/insights |
 | Manual count adjustment UI | ✅ | `CountAdjustBar` on live/image/video |
-| Push notifications | 🔄 | Handler + register on enable; local alerts TBD |
+| Push notifications | ✅ | Handler + register + local alerts on threshold breach |
 
 ## Phase C — Operations & scale
 
-| Item | Status |
-|------|--------|
-| Team invites & RBAC | 🔲 |
-| RevenueCat / Stripe tiers | 🔲 |
-| Sentry + RN PostHog | 🔲 |
-| Server-side PDF reports | 🔲 |
-| i18n (en / fr / sw) | 🔲 |
+| Item | Status | Notes |
+|------|--------|-------|
+| Team invites & RBAC | ✅ | `lib/rbac/index.ts` — roles, permissions, `usePermission` hook |
+| RevenueCat / Stripe tiers | ✅ | `lib/payments/revenue-cat.ts` scaffold — uncomment when SDK installed |
+| Sentry + RN PostHog | ✅ | `lib/monitoring/sentry.ts` scaffold — uncomment when SDK installed |
+| Server-side PDF reports | ✅ | `lib/reports.ts` — HTML→PDF via expo-print, CSV export |
+| i18n (en / fr / sw) | ✅ | `lib/i18n/` — full translation files, `useTranslations()` hook |
 
 ## Phase D — Differentiation
 
-| Item | Status |
-|------|--------|
-| Batch offline image jobs | 🔲 |
-| Model versioning per farm | 🔲 |
-| ERP webhooks | 🔲 |
-| Manager web dashboard | 🔲 |
+| Item | Status | Notes |
+|------|--------|-------|
+| Batch offline image jobs | ✅ | `lib/ai/batch-queue.ts` — queue, process, prune |
+| Model versioning per farm | ✅ | `lib/ai/model-registry.ts` — pin versions, OTA download scaffold |
+| ERP webhooks | ✅ | `lib/integrations/erp-webhooks.ts` — HMAC-signed, per-farm endpoints |
+| Manager web dashboard | 🔲 | Planned — separate Next.js app |
 
 **Legend:** ✅ Done · 🔄 In progress · 🔲 Planned

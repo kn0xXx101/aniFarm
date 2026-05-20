@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useToast } from '@/components/ui/toast';
+import { parseForm, registerSchema } from '@/lib/validation';
 import { SUNRISE_GRADIENT } from '@/lib/constants';
 
 export default function Register() {
@@ -22,20 +23,23 @@ export default function Register() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => setErrors((e) => ({ ...e, [field]: '' }));
 
   const submit = async () => {
-    if (!name || !email.includes('@') || password.length < 6) {
-      toast.toast({
-        title: 'Please complete the form',
-        description: 'Name, valid email, and a 6+ char password are required.',
-        variant: 'destructive',
-      });
+    const result = parseForm(registerSchema, { name, email, phone, password });
+    if (result.errors) {
+      setErrors(result.errors);
       return;
     }
+    setErrors({});
     setLoading(true);
     try {
-      await register({ name, email, phone });
+      await register({ name: result.data.name, email: result.data.email, phone: result.data.phone ?? undefined });
       router.replace('/(tabs)/dashboard');
+    } catch {
+      toast.toast({ title: 'Registration failed', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -75,34 +79,38 @@ export default function Register() {
               <Input
                 label="Full name"
                 value={name}
-                onChangeText={setName}
+                onChangeText={(v) => { setName(v); clearError('name'); }}
                 leftIcon={<User size={18} color="hsl(20 12% 45%)" />}
                 className="min-h-[48px]"
+                error={errors.name}
               />
               <Input
                 label="Email"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(v) => { setEmail(v); clearError('email'); }}
                 autoCapitalize="none"
                 keyboardType="email-address"
                 leftIcon={<Mail size={18} color="hsl(20 12% 45%)" />}
                 className="min-h-[48px]"
+                error={errors.email}
               />
               <Input
                 label="Phone (optional)"
                 value={phone}
-                onChangeText={setPhone}
+                onChangeText={(v) => { setPhone(v); clearError('phone'); }}
                 keyboardType="phone-pad"
                 leftIcon={<Phone size={18} color="hsl(20 12% 45%)" />}
                 className="min-h-[48px]"
+                error={errors.phone}
               />
               <Input
                 label="Password"
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(v) => { setPassword(v); clearError('password'); }}
                 secureTextEntry
                 leftIcon={<Lock size={18} color="hsl(20 12% 45%)" />}
                 className="min-h-[48px]"
+                error={errors.password}
               />
               <Pressable onPress={submit} disabled={loading} className="rounded-2xl overflow-hidden mt-1">
                 <LinearGradient

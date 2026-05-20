@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useToast } from '@/components/ui/toast';
+import { parseForm, newFarmSchema } from '@/lib/validation';
 import type { Farm } from '@/types/domain';
 
 const TYPES: Farm['flockType'][] = ['broiler', 'layer', 'breeder', 'mixed'];
@@ -21,17 +22,20 @@ export default function NewFarm() {
   const [location, setLocation] = useState('');
   const [capacity, setCapacity] = useState('');
   const [flockType, setFlockType] = useState<Farm['flockType']>('broiler');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = () => {
-    if (!name || !location || !capacity) {
-      toast.toast({ title: 'Missing fields', description: 'Name, location, and capacity are required', variant: 'destructive' });
+    const result = parseForm(newFarmSchema, { name, location, capacity, flockType });
+    if (result.errors) {
+      setErrors(result.errors);
       return;
     }
+    setErrors({});
     addFarm({
-      name,
-      location,
-      capacity: Number(capacity) || 0,
-      flockType,
+      name: result.data.name,
+      location: result.data.location,
+      capacity: Number(result.data.capacity),
+      flockType: result.data.flockType,
     });
     toast.toast({ title: 'Farm created', variant: 'success' });
     router.back();
@@ -45,22 +49,31 @@ export default function NewFarm() {
       </Text>
 
       <View className="gap-4">
-        <Input label="Farm name" value={name} onChangeText={setName} placeholder="e.g. Greenfield Broilers" className="min-h-[48px]" />
+        <Input
+          label="Farm name"
+          value={name}
+          onChangeText={(v) => { setName(v); setErrors((e) => ({ ...e, name: '' })); }}
+          placeholder="e.g. Greenfield Broilers"
+          className="min-h-[48px]"
+          error={errors.name}
+        />
         <Input
           label="Location"
           value={location}
-          onChangeText={setLocation}
+          onChangeText={(v) => { setLocation(v); setErrors((e) => ({ ...e, location: '' })); }}
           placeholder="City, country"
           leftIcon={<MapPin size={18} color="hsl(20 12% 45%)" />}
           className="min-h-[48px]"
+          error={errors.location}
         />
         <Input
           label="Capacity (birds)"
           value={capacity}
-          onChangeText={setCapacity}
+          onChangeText={(v) => { setCapacity(v); setErrors((e) => ({ ...e, capacity: '' })); }}
           keyboardType="number-pad"
           placeholder="8000"
           className="min-h-[48px]"
+          error={errors.capacity}
         />
 
         <View>

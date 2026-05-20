@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useToast } from '@/components/ui/toast';
+import { parseForm, newHouseSchema } from '@/lib/validation';
 
 export default function NewHouse() {
   const router = useRouter();
@@ -15,21 +16,26 @@ export default function NewHouse() {
   const farms = useFarmStore((s) => s.farms);
   const addHouse = useFarmStore((s) => s.addHouse);
 
-  const [selectedFarm, setSelectedFarm] = useState<string | undefined>(
-    typeof farmId === 'string' ? farmId : farms[0]?.id,
+  const [selectedFarm, setSelectedFarm] = useState<string>(
+    typeof farmId === 'string' ? farmId : (farms[0]?.id ?? ''),
   );
   const [name, setName] = useState('');
   const [capacity, setCapacity] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => setErrors((e) => ({ ...e, [field]: '' }));
 
   const submit = () => {
-    if (!selectedFarm || !name || !capacity) {
-      toast.toast({ title: 'Missing fields', variant: 'destructive' });
+    const result = parseForm(newHouseSchema, { farmId: selectedFarm, name, capacity });
+    if (result.errors) {
+      setErrors(result.errors);
       return;
     }
+    setErrors({});
     addHouse({
-      farmId: selectedFarm,
-      name,
-      capacity: Number(capacity) || 0,
+      farmId: result.data.farmId,
+      name: result.data.name,
+      capacity: Number(result.data.capacity),
       currentCount: 0,
       mortality7d: 0,
     });
@@ -51,7 +57,7 @@ export default function NewHouse() {
             {farms.map((f) => (
               <Pressable
                 key={f.id}
-                onPress={() => setSelectedFarm(f.id)}
+                onPress={() => { setSelectedFarm(f.id); clearError('farmId'); }}
                 className={`px-3 py-2 rounded-xl border min-h-[44px] justify-center ${
                   selectedFarm === f.id ? 'bg-primary border-primary' : 'bg-card border-border'
                 }`}
@@ -62,15 +68,24 @@ export default function NewHouse() {
               </Pressable>
             ))}
           </View>
+          {errors.farmId ? <Text className="text-destructive text-xs mt-1">{errors.farmId}</Text> : null}
         </View>
-        <Input label="House name" value={name} onChangeText={setName} placeholder="House A" className="min-h-[48px]" />
+        <Input
+          label="House name"
+          value={name}
+          onChangeText={(v) => { setName(v); clearError('name'); }}
+          placeholder="House A"
+          className="min-h-[48px]"
+          error={errors.name}
+        />
         <Input
           label="Capacity"
           value={capacity}
-          onChangeText={setCapacity}
+          onChangeText={(v) => { setCapacity(v); clearError('capacity'); }}
           keyboardType="number-pad"
           placeholder="6000"
           className="min-h-[48px]"
+          error={errors.capacity}
         />
         <Button onPress={submit} size="lg">
           <Text className="text-primary-foreground font-semibold">Save house</Text>

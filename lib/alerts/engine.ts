@@ -1,10 +1,12 @@
 /**
  * Evaluates operational rules after counts and house updates.
+ * Fires both in-app alerts and local push notifications for threshold breaches.
  */
 
 import type { PoultryHouse } from '@/types/domain';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { useSettingsStore } from '@/lib/stores/settings-store';
+import { scheduleLocalAlert } from '@/lib/notifications';
 
 export interface EvaluateHouseAlertsInput {
   farmId: string;
@@ -15,6 +17,7 @@ export interface EvaluateHouseAlertsInput {
 
 /**
  * Run threshold checks for a house. Call after saving a count or editing mortality.
+ * Adds in-app alerts and schedules local push notifications when push is enabled.
  */
 export function evaluateHouseAlerts({ farmId, house, farmName }: EvaluateHouseAlertsInput): void {
   const settings = useSettingsStore.getState();
@@ -24,23 +27,23 @@ export function evaluateHouseAlerts({ farmId, house, farmName }: EvaluateHouseAl
   const location = farmName ? `${farmName} · ${house.name}` : house.name;
 
   if (house.mortality7d >= settings.mortalityThreshold) {
-    addAlert({
-      farmId,
-      kind: 'mortality',
-      severity: house.mortality7d >= settings.mortalityThreshold * 1.5 ? 'critical' : 'warning',
-      title: 'Mortality above threshold',
-      message: `${house.mortality7d} birds in 7d at ${location} (limit: ${settings.mortalityThreshold}).`,
-    });
+    const severity = house.mortality7d >= settings.mortalityThreshold * 1.5 ? 'critical' : 'warning';
+    const title = 'Mortality above threshold';
+    const message = `${house.mortality7d} birds in 7d at ${location} (limit: ${settings.mortalityThreshold}).`;
+    addAlert({ farmId, kind: 'mortality', severity, title, message });
+    if (settings.pushEnabled) {
+      void scheduleLocalAlert(title, message);
+    }
   }
 
   // densityThreshold used as capacity % proxy until floor area exists on house model
   if (capacityPct >= settings.densityThreshold) {
-    addAlert({
-      farmId,
-      kind: 'overcrowding',
-      severity: capacityPct >= 95 ? 'critical' : 'warning',
-      title: 'Capacity above threshold',
-      message: `${location} is at ${capacityPct}% capacity (threshold: ${settings.densityThreshold}%).`,
-    });
+    const severity = capacityPct >= 95 ? 'critical' : 'warning';
+    const title = 'Capacity above threshold';
+    const message = `${location} is at ${capacityPct}% capacity (threshold: ${settings.densityThreshold}%).`;
+    addAlert({ farmId, kind: 'overcrowding', severity, title, message });
+    if (settings.pushEnabled) {
+      void scheduleLocalAlert(title, message);
+    }
   }
 }
