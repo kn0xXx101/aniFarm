@@ -11,7 +11,8 @@ import { SectionHeading } from '@/components/neo3d/section-heading';
 import { Button } from '@/components/ui/button';
 import { Card3D } from '@/components/ui/card-3d';
 import { useFarmStore } from '@/lib/stores/farm-store';
-import { buildAnalytics } from '@/lib/mock-data';
+import { buildAnalyticsFromSessions } from '@/lib/analytics';
+import { useSessionStore } from '@/lib/stores/session-store';
 import { COLORS, FONTS } from '@/lib/design-system';
 
 type Range = '7d' | '30d' | '90d';
@@ -19,13 +20,14 @@ type Range = '7d' | '30d' | '90d';
 export default function AnalyticsTab() {
   const router = useRouter();
   const farms = useFarmStore((s) => s.farms);
+  const sessions = useSessionStore((s) => s.sessions);
   const [range, setRange] = useState<Range>('30d');
   const [metric, setMetric] = useState<'count' | 'mortality'>('count');
 
   const series = useMemo(() => {
     const days = range === '7d' ? 7 : range === '30d' ? 30 : 90;
-    return buildAnalytics(days);
-  }, [range]);
+    return buildAnalyticsFromSessions(sessions, days);
+  }, [range, sessions]);
 
   const total = series.reduce((s, p) => s + p[metric], 0);
   const avg = Math.round(total / Math.max(1, series.length));

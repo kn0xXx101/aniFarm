@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, type ViewProps } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { SPRING_CONFIGS } from '@/lib/animations';
 import { cn } from '@/lib/utils';
@@ -21,9 +21,14 @@ export function Progress({
   ...props
 }: ProgressProps) {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+  const width = useSharedValue(percentage);
+
+  useEffect(() => {
+    width.value = withSpring(percentage, SPRING_CONFIGS.gentle);
+  }, [percentage, width]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    width: `${withSpring(percentage, SPRING_CONFIGS.gentle)}%`,
+    width: `${width.value}%`,
   }));
 
   return (

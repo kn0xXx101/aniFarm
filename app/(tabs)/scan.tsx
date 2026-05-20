@@ -16,9 +16,9 @@ import { useFarmStore } from '@/lib/stores/farm-store';
 import { COLORS, FONTS } from '@/lib/design-system';
 
 const MODES = [
-  { icon: Camera, title: 'Live counting', subtitle: 'Real-time AI from camera', meta: 'Tracking · YOLO', path: '/count/live' as const, color: COLORS.primary },
-  { icon: ImageIcon, title: 'Image counting', subtitle: 'Upload overhead photos', meta: 'Batch · Deduped', path: '/count/image' as const, color: COLORS.secondary },
-  { icon: Video, title: 'Video counting', subtitle: 'Analyze recordings', meta: 'Frame · Multi-pass', path: '/count/video' as const, color: COLORS.accent },
+  { icon: Camera, title: 'Live counting', subtitle: 'Real-time AI from camera', meta: 'Tracking · YOLO', path: '/(tabs)/count-live' as const, color: COLORS.primary },
+  { icon: ImageIcon, title: 'Image counting', subtitle: 'Upload overhead photos', meta: 'Batch · Deduped', path: '/(tabs)/count-image' as const, color: COLORS.secondary },
+  { icon: Video, title: 'Video counting', subtitle: 'Analyze recordings', meta: 'Frame · Multi-pass', path: '/(tabs)/count-video' as const, color: COLORS.accent },
 ];
 
 export default function CountTab() {
@@ -89,7 +89,7 @@ export default function CountTab() {
           title="No sessions yet"
           description="Start your first count with one of the modes above."
           actionLabel="Live count"
-          onAction={() => router.push('/count/live')}
+          onAction={() => router.push('/(tabs)/count-live')}
         />
       ) : null}
     </NeoScreen>

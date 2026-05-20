@@ -1,5 +1,4 @@
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
 import { Home, ScanLine, Warehouse, User } from 'lucide-react-native';
 
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
@@ -7,6 +6,7 @@ import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 export default function TabLayout() {
   return (
     <Tabs
+      initialRouteName="dashboard"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
@@ -23,7 +23,7 @@ export default function TabLayout() {
           position: 'absolute',
           height: LAYOUT.tabBarHeight,
           paddingTop: 6,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+          paddingBottom: typeof window !== 'undefined' ? 10 : 20,
           backgroundColor: COLORS.surface,
           borderTopColor: COLORS.borderSoft,
           borderTopWidth: 1,
@@ -35,12 +35,14 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="dashboard" options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Home color={color} size={size} /> }} />
-      <Tabs.Screen name="count" options={{ title: 'Scan', tabBarIcon: ({ color, size }) => <ScanLine color={color} size={size} /> }} />
+      <Tabs.Screen name="scan" options={{ title: 'Scan', tabBarIcon: ({ color, size }) => <ScanLine color={color} size={size} /> }} />
       <Tabs.Screen name="farms" options={{ title: 'Farms', tabBarIcon: ({ color, size }) => <Warehouse color={color} size={size} /> }} />
       <Tabs.Screen name="you" options={{ title: 'You', tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }} />
       <Tabs.Screen name="analytics" options={{ href: null }} />
       <Tabs.Screen name="alerts" options={{ href: null }} />
-      <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="count-live" options={{ href: null }} />
+      <Tabs.Screen name="count-image" options={{ href: null, tabBarStyle: { display: 'none' } }} />
+      <Tabs.Screen name="count-video" options={{ href: null, tabBarStyle: { display: 'none' } }} />
     </Tabs>
   );
 }

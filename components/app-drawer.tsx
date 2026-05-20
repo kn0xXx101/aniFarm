@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Pressable, View, useWindowDimensions, Platform } from 'react-native';
+import { Pressable, View, useWindowDimensions } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -179,7 +179,7 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
                         <View className="size-9 rounded-2xl bg-black/30 items-center justify-center border border-white/20">
                           <Sparkles size={18} color="white" />
                         </View>
-                        <Text className="text-white font-bold text-lg" style={{ letterSpacing: 1 }}>POULTRA AI</Text>
+                        <Text className="text-white font-bold text-lg" style={{ letterSpacing: 1 }}>POULTRA</Text>
                       </View>
                       <Pressable
                         onPress={close}
@@ -284,7 +284,7 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
               <SafeAreaView edges={['bottom']}>
                 <View className="px-5 py-3 border-t border-border">
                   <Text variant="muted" size="xs" style={{ letterSpacing: 1 }}>
-                    POULTRA AI · v1.0.0 · {Platform.OS.toUpperCase()}
+                    POULTRA · v1.0.0 · {typeof window !== 'undefined' ? 'WEB' : 'NATIVE'}
                   </Text>
                 </View>
               </SafeAreaView>

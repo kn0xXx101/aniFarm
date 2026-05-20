@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, KeyboardAvoidingView, Pressable, Platform, View } from 'react-native';
+import { ScrollView, KeyboardAvoidingView, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Link } from 'expo-router';
 import { Mail, Lock, Phone, Sparkles } from 'lucide-react-native';
@@ -64,7 +64,7 @@ export default function Login() {
     <View style={{ flex: 1, backgroundColor: COLORS.canvas }}>
       <AmbientScene />
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <KeyboardAvoidingView behavior={typeof window === 'undefined' ? 'padding' : undefined} style={{ flex: 1 }}>
           <ScrollView
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingHorizontal: horizontal, paddingBottom: bottom + 16, paddingTop: 8 }}

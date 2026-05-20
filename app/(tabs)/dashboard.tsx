@@ -33,7 +33,7 @@ import { useSessionStore } from '@/lib/stores/session-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { useOnlineStatus, useAutoSync } from '@/lib/sync';
 import { useSettingsStore } from '@/lib/stores/settings-store';
-import { buildAnalytics } from '@/lib/mock-data';
+import { buildAnalyticsFromSessions } from '@/lib/analytics';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
@@ -50,9 +50,10 @@ export default function Dashboard() {
   const autoSync = useSettingsStore((s) => s.autoSync);
   useAutoSync(autoSync);
 
-  const series = useMemo(() => buildAnalytics(14), []);
+  const series = useMemo(() => buildAnalyticsFromSessions(sessions, 14), [sessions]);
   const totalBirds = houses.reduce((sum, h) => sum + h.currentCount, 0);
   const pendingSync = sessions.filter((s) => s.syncStatus === 'pending').length;
+  const failedSync = sessions.filter((s) => s.syncStatus === 'failed').length;
   const unreadAlerts = alerts.filter((a) => !a.read).length;
   const lastSession = sessions[0];
   const firstName = user?.name?.split(' ')[0] ?? 'Operator';
@@ -66,6 +67,7 @@ export default function Dashboard() {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
           <NeoChip label={online ? 'Online' : 'Offline'} active={online} color={online ? COLORS.primary : COLORS.warning} />
           {pendingSync > 0 ? <NeoChip label={`${pendingSync} sync`} color={COLORS.secondary} /> : null}
+          {failedSync > 0 ? <NeoChip label={`${failedSync} failed`} color={COLORS.danger} /> : null}
           {unreadAlerts > 0 ? <NeoChip label={`${unreadAlerts} alerts`} color={COLORS.danger} /> : null}
         </View>
       </StaggerIn>
@@ -79,7 +81,7 @@ export default function Dashboard() {
           actions={
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <Pressable
-                onPress={() => router.push('/count/live')}
+                onPress={() => router.push('/(tabs)/count-live')}
                 style={[{ flex: 1, borderRadius: 16, overflow: 'hidden', minHeight: 48 }, SHADOW.neon]}
               >
                 <LinearGradient
@@ -166,7 +168,7 @@ export default function Dashboard() {
         title="Pick your workflow"
         description="Tap a card to launch AI counting."
         actionLabel="All modes"
-        onAction={() => router.push('/(tabs)/count')}
+        onAction={() => router.push('/(tabs)/scan')}
       />
 
       <ScrollView
@@ -182,7 +184,7 @@ export default function Dashboard() {
           subtitle="Real-time camera AI"
           meta="YOLO · Tracking"
           glowColor={COLORS.primary}
-          onPress={() => router.push('/count/live')}
+          onPress={() => router.push('/(tabs)/count-live')}
         />
         <ScanModeCard
           icon={<ImageIcon size={22} color={COLORS.secondary} />}
@@ -190,7 +192,7 @@ export default function Dashboard() {
           subtitle="Upload overhead shots"
           meta="Batch · High accuracy"
           glowColor={COLORS.secondary}
-          onPress={() => router.push('/count/image')}
+          onPress={() => router.push('/(tabs)/count-image')}
         />
         <ScanModeCard
           icon={<Video size={22} color={COLORS.accent} />}
@@ -198,7 +200,7 @@ export default function Dashboard() {
           subtitle="Process recordings"
           meta="Frame track · Deduped"
           glowColor={COLORS.accent}
-          onPress={() => router.push('/count/video')}
+          onPress={() => router.push('/(tabs)/count-video')}
         />
       </ScrollView>
 

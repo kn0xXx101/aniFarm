@@ -21,13 +21,27 @@ import { COLORS } from '@/lib/design-system';
 import { initPostHog } from '@/lib/posthog';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ToastProvider } from '@/components/ui/toast';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { isMockApi } from '@/lib/api';
+import { isExpoGo } from '@/lib/expo-go';
+import { useSettingsStore } from '@/lib/stores/settings-store';
 
 import { SplashScreen, Stack } from 'expo-router';
 
 void SplashScreen.preventAutoHideAsync();
 
+const STACK_HEADER = {
+  headerShown: true,
+  headerStyle: { backgroundColor: COLORS.canvas },
+  headerTintColor: COLORS.ink,
+  headerTitleStyle: { color: COLORS.ink },
+  headerShadowVisible: false,
+  contentStyle: { backgroundColor: COLORS.canvas },
+} as const;
+
 export default function RootLayout() {
   const { setColorScheme } = useColorScheme();
+  const pushEnabled = useSettingsStore((s) => s.pushEnabled);
 
   const [loaded, error] = useFonts({
     Outfit_400Regular,
@@ -50,7 +64,20 @@ export default function RootLayout() {
 
   useEffect(() => {
     initPostHog();
+    if (__DEV__ && isMockApi()) {
+      console.info('[Poultra] API mode: mock — set EXPO_PUBLIC_API_MODE=live for real backend');
+    }
   }, []);
+
+  useEffect(() => {
+    if (!pushEnabled || isExpoGo()) return;
+    void import('@/lib/notifications')
+      .then((m) => m.registerForPushNotifications())
+      .catch((err) => {
+        console.warn('Failed to register for push notifications:', err);
+        // Notifications are optional, so we just log the error
+      });
+  }, [pushEnabled]);
 
   if (!loaded && !error) {
     return null;
@@ -62,6 +89,7 @@ export default function RootLayout() {
         <ThemeProvider value={LIGHT_THEME}>
           <StatusBar style="light" />
           <ToastProvider>
+            <ErrorBoundary>
             <Stack
               screenOptions={{
                 headerShown: false,
@@ -73,17 +101,15 @@ export default function RootLayout() {
               <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="farm/[id]" options={{ headerShown: true, title: 'Farm details' }} />
-              <Stack.Screen name="farm/new" options={{ presentation: 'modal', headerShown: true, title: 'New farm' }} />
-              <Stack.Screen name="house/new" options={{ presentation: 'modal', headerShown: true, title: 'New house' }} />
-              <Stack.Screen name="count/live" options={{ headerShown: true, title: 'Live count' }} />
-              <Stack.Screen name="count/image" options={{ headerShown: true, title: 'Image count' }} />
-              <Stack.Screen name="count/video" options={{ headerShown: true, title: 'Video count' }} />
-              <Stack.Screen name="reports/index" options={{ headerShown: true, title: 'Reports' }} />
-              <Stack.Screen name="subscription" options={{ headerShown: true, title: 'Subscription' }} />
-              <Stack.Screen name="profile" options={{ headerShown: true, title: 'Profile' }} />
-              <Stack.Screen name="admin" options={{ headerShown: true, title: 'Admin' }} />
+              <Stack.Screen name="farm/[id]" options={{ ...STACK_HEADER, title: 'Farm details' }} />
+              <Stack.Screen name="farm/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New farm' }} />
+              <Stack.Screen name="house/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New house' }} />
+              <Stack.Screen name="reports/index" options={{ ...STACK_HEADER, title: 'Reports' }} />
+              <Stack.Screen name="subscription" options={{ ...STACK_HEADER, title: 'Subscription' }} />
+              <Stack.Screen name="profile" options={{ ...STACK_HEADER, title: 'Profile' }} />
+              <Stack.Screen name="admin" options={{ ...STACK_HEADER, title: 'Admin' }} />
             </Stack>
+            </ErrorBoundary>
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>

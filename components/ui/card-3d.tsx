@@ -17,7 +17,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SPRING_3D } from '@/lib/animations-3d';
 import { GRADIENTS_3D } from '@/lib/constants-3d';
 import { COLORS, LAYOUT } from '@/lib/design-system';
-import { cn } from '@/lib/utils';
 
 type CardVariant = 'glass' | 'neon' | 'solid' | 'gradient';
 type CardSize = 'sm' | 'md' | 'lg';
@@ -53,6 +52,7 @@ interface Card3DProps extends ViewProps {
   gradientColors?: readonly [string, string, ...string[]];
   onPress?: () => void;
   className?: string;
+  /** @deprecated Use style — className kept for NativeWind compat */
 }
 
 export function Card3D({
@@ -64,7 +64,6 @@ export function Card3D({
   glowColor = COLORS.primary,
   gradientColors,
   onPress,
-  className,
   style,
   ...props
 }: Card3DProps) {
@@ -104,12 +103,13 @@ export function Card3D({
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { perspective: 900 },
-      { rotateX: `${rotateX.value}deg` },
-      { rotateY: `${rotateY.value}deg` },
-      { scale: scale.value },
-    ],
+    transform: tiltEnabled
+      ? [
+          { rotateX: `${rotateX.value}deg` },
+          { rotateY: `${rotateY.value}deg` },
+          { scale: scale.value },
+        ]
+      : [{ scale: scale.value }],
   }));
 
   const shadowStyle = useAnimatedStyle(() => ({
@@ -129,7 +129,7 @@ export function Card3D({
   };
 
   const content = (
-    <Animated.View style={[animatedStyle, shadowStyle, cardStyle, style]} className={className} {...props}>
+    <Animated.View style={[animatedStyle, shadowStyle, cardStyle, style]} {...props}>
       {variant === 'gradient' && gradientColors ? (
         <LinearGradient
           colors={gradientColors as [string, string, ...string[]]}

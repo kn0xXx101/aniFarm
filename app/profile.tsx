@@ -1,205 +1,294 @@
-import { View, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import type { ReactNode } from 'react';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Bell, Globe, Moon, Sun, LogOut, ShieldCheck, ChevronRight, Mail, Database, Sparkles } from 'lucide-react-native';
+import {
+  Bell,
+  Globe,
+  LogOut,
+  ShieldCheck,
+  ChevronRight,
+  Mail,
+  Database,
+  Sparkles,
+} from 'lucide-react-native';
 
 import { Text } from '@/components/ui/text';
-import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { NeoScreen } from '@/components/neo3d/neo-screen';
+import { SectionHeading } from '@/components/neo3d/section-heading';
+import { Card3D } from '@/components/ui/card-3d';
+import { SurfaceCard } from '@/components/ui/surface-card';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
-import { SUNRISE_GRADIENT, NEON } from '@/lib/constants';
+import { registerForPushNotifications } from '@/lib/notifications';
+import { COLORS, FONTS } from '@/lib/design-system';
+
+function SettingToggle({
+  icon,
+  title,
+  subtitle,
+  checked,
+  onToggle,
+}: {
+  icon: ReactNode;
+  title: string;
+  subtitle?: string;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        minHeight: 56,
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
+        <View
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 14,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: COLORS.primaryLight,
+            borderWidth: 1,
+            borderColor: COLORS.border,
+          }}
+        >
+          {icon}
+        </View>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink, fontSize: 16 }}>{title}</Text>
+          {subtitle ? (
+            <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 2 }} numberOfLines={1}>
+              {subtitle}
+            </Text>
+          ) : null}
+        </View>
+      </View>
+      <Switch checked={checked} onCheckedChange={onToggle} />
+    </View>
+  );
+}
 
 export default function Profile() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
-  const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
   const settings = useSettingsStore();
   const syncPending = useSessionStore((s) => s.syncPending);
   const pendingCount = useSessionStore((s) => s.sessions.filter((x) => x.syncStatus === 'pending').length);
   const toast = useToast();
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 60 }}>
-      {/* Gradient hero */}
-      <View className="overflow-hidden">
-        <LinearGradient
-          colors={[...SUNRISE_GRADIENT]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ paddingBottom: 56 }}
-        >
-          <SafeAreaView edges={['top']}>
-            <View className="items-center px-6 pt-6">
-              <View
-                className="size-24 rounded-full items-center justify-center mb-3"
-                style={{
-                  backgroundColor: NEON.bgDeep,
-                  borderWidth: 3,
-                  borderColor: 'rgba(255,255,255,0.7)',
-                  shadowColor: '#000',
-                  shadowOpacity: 0.3,
-                  shadowRadius: 12,
-                }}
-              >
-                <Text className="text-4xl font-bold" style={{ color: NEON.green }}>
-                  {user?.name?.[0]?.toUpperCase() ?? 'P'}
-                </Text>
-              </View>
-              <Text className="text-2xl font-extrabold text-white">{user?.name}</Text>
-              <Text className="text-white/80 text-sm mt-0.5">{user?.email}</Text>
-              <View className="flex-row items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 mt-2">
-                <Sparkles size={12} color="white" />
-                <Text className="text-white text-xs font-semibold capitalize">{user?.tier} plan</Text>
-              </View>
-            </View>
-          </SafeAreaView>
-        </LinearGradient>
-      </View>
+    <NeoScreen withTabs={false}>
+      <SectionHeading eyebrow="Account" title="Profile & settings" description="Notifications, sync, and plan." />
 
-      <View className="px-5 -mt-6 mb-6">
-        <View className="rounded-3xl bg-card border border-primary/30 p-4 flex-row gap-3" style={{
-          shadowColor: NEON.green,
-          shadowOpacity: 0.2,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 0 },
-          elevation: 4,
-        }}>
-          <Pressable
-            onPress={() => router.push('/subscription')}
-            className="flex-1 items-center py-2"
-          >
-            <Text className="text-2xl font-extrabold text-primary capitalize">{user?.tier}</Text>
-            <Text variant="muted" size="xs">Current plan</Text>
-          </Pressable>
-          <View className="w-px bg-border" />
-          <View className="flex-1 items-center py-2">
-            <Text className="text-2xl font-extrabold">{pendingCount}</Text>
-            <Text variant="muted" size="xs">Pending sync</Text>
-          </View>
-        </View>
-      </View>
-
-      <Card className="mb-3 mx-5">
-        <CardContent className="p-0">
-          <Pressable
-            onPress={() => router.push('/subscription')}
-            className="flex-row items-center justify-between p-4 min-h-[56px]"
-          >
-            <View className="flex-row items-center gap-3">
-              <View className="size-9 rounded-lg bg-primary/10 items-center justify-center">
-                <ShieldCheck size={18} color="#00FFA3" />
-              </View>
-              <View>
-                <Text className="font-semibold">Subscription</Text>
-                <Text variant="muted" size="xs" className="capitalize">{user?.tier} plan</Text>
-              </View>
-            </View>
-            <ChevronRight size={18} color="hsl(150 10% 50%)" />
-          </Pressable>
-        </CardContent>
-      </Card>
-
-      <Card className="mb-3 mx-5">
-        <CardContent className="p-0">
-          <View className="flex-row items-center justify-between p-4 min-h-[56px] border-b border-border">
-            <View className="flex-row items-center gap-3">
-              <View className="size-9 rounded-lg bg-muted items-center justify-center">
-                <Bell size={18} color="#00FFA3" />
-              </View>
-              <Text className="font-semibold">Push notifications</Text>
-            </View>
-            <Switch checked={settings.pushEnabled} onCheckedChange={() => settings.toggle('pushEnabled')} />
-          </View>
-          <View className="flex-row items-center justify-between p-4 min-h-[56px] border-b border-border">
-            <View className="flex-row items-center gap-3">
-              <View className="size-9 rounded-lg bg-muted items-center justify-center">
-                <Mail size={18} color="#00FFA3" />
-              </View>
-              <Text className="font-semibold">Email summary</Text>
-            </View>
-            <Switch checked={settings.emailEnabled} onCheckedChange={() => settings.toggle('emailEnabled')} />
-          </View>
-          <View className="flex-row items-center justify-between p-4 min-h-[56px] border-b border-border">
-            <View className="flex-row items-center gap-3">
-              <View className="size-9 rounded-lg bg-muted items-center justify-center">
-                {isDarkColorScheme ? (
-                  <Moon size={18} color="hsl(142 72% 29%)" />
-                ) : (
-                  <Sun size={18} color="hsl(142 72% 29%)" />
-                )}
-              </View>
-              <Text className="font-semibold">Dark mode</Text>
-            </View>
-            <Switch checked={isDarkColorScheme} onCheckedChange={toggleColorScheme} />
-          </View>
-          <View className="flex-row items-center justify-between p-4 min-h-[56px] border-b border-border">
-            <View className="flex-row items-center gap-3">
-              <View className="size-9 rounded-lg bg-muted items-center justify-center">
-                <Database size={18} color="hsl(142 72% 29%)" />
-              </View>
-              <View>
-                <Text className="font-semibold">Auto-sync</Text>
-                <Text variant="muted" size="xs">
-                  {pendingCount} pending
-                </Text>
-              </View>
-            </View>
-            <Switch checked={settings.autoSync} onCheckedChange={() => settings.toggle('autoSync')} />
-          </View>
-          <Pressable
-            className="flex-row items-center justify-between p-4 min-h-[56px]"
-            onPress={async () => {
-              const n = await syncPending();
-              toast.toast({ title: 'Synced', description: `${n} session${n === 1 ? '' : 's'} uploaded`, variant: 'success' });
+      <Card3D variant="neon" glowColor={COLORS.primary} style={{ marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <View
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: COLORS.primaryLight,
+              borderWidth: 1,
+              borderColor: COLORS.border,
             }}
           >
-            <View className="flex-row items-center gap-3">
-              <View className="size-9 rounded-lg bg-muted items-center justify-center">
-                <Globe size={18} color="hsl(142 72% 29%)" />
-              </View>
-              <Text className="font-semibold">Sync now</Text>
+            <Text style={{ fontFamily: FONTS.extrabold, color: COLORS.primary, fontSize: 28 }}>
+              {user?.name?.[0]?.toUpperCase() ?? 'P'}
+            </Text>
+          </View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 20 }} numberOfLines={1}>
+              {user?.name}
+            </Text>
+            <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 4 }} numberOfLines={1}>
+              {user?.email}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+              <Sparkles size={12} color={COLORS.secondary} />
+              <Text style={{ color: COLORS.secondary, fontSize: 12, fontFamily: FONTS.semibold, textTransform: 'capitalize' }}>
+                {user?.tier} plan
+              </Text>
             </View>
-            <ChevronRight size={18} color="hsl(150 10% 50%)" />
-          </Pressable>
-        </CardContent>
-      </Card>
+          </View>
+        </View>
+      </Card3D>
 
-      <Card className="mb-3 mx-5">
-        <CardContent className="p-0">
-          <Pressable
-            className="flex-row items-center justify-between p-4 min-h-[56px]"
-            onPress={() => router.push('/admin')}
-          >
-            <View className="flex-row items-center gap-3">
-              <View className="size-9 rounded-lg bg-primary/10 items-center justify-center">
-                <ShieldCheck size={18} color="#00FFA3" />
-              </View>
-              <Text className="font-semibold">Admin dashboard</Text>
+      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
+        <Card3D variant="glass" style={{ flex: 1 }} onPress={() => router.push('/subscription')}>
+          <Text style={{ fontFamily: FONTS.extrabold, color: COLORS.primary, fontSize: 22, textTransform: 'capitalize' }}>
+            {user?.tier}
+          </Text>
+          <Text style={{ color: COLORS.inkMuted, fontSize: 12, marginTop: 4 }}>Current plan</Text>
+        </Card3D>
+        <Card3D variant="glass" style={{ flex: 1 }}>
+          <Text style={{ fontFamily: FONTS.extrabold, color: COLORS.ink, fontSize: 22 }}>{pendingCount}</Text>
+          <Text style={{ color: COLORS.inkMuted, fontSize: 12, marginTop: 4 }}>Pending sync</Text>
+        </Card3D>
+      </View>
+
+      <SectionHeading eyebrow="Preferences" title="Notifications & data" />
+      <SurfaceCard padded={false} style={{ marginBottom: 20, overflow: 'hidden' }}>
+        <SettingToggle
+          icon={<Bell size={20} color={COLORS.primary} />}
+          title="Push notifications"
+          checked={settings.pushEnabled}
+          onToggle={() => {
+            const enabling = !settings.pushEnabled;
+            settings.toggle('pushEnabled');
+            if (enabling) void registerForPushNotifications();
+          }}
+        />
+        <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
+        <SettingToggle
+          icon={<Mail size={20} color={COLORS.secondary} />}
+          title="Email summary"
+          checked={settings.emailEnabled}
+          onToggle={() => settings.toggle('emailEnabled')}
+        />
+        <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
+        <SettingToggle
+          icon={<Database size={20} color={COLORS.accent} />}
+          title="Auto-sync"
+          subtitle={`${pendingCount} pending`}
+          checked={settings.autoSync}
+          onToggle={() => settings.toggle('autoSync')}
+        />
+        <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
+        <Pressable
+          onPress={async () => {
+            const n = await syncPending({ force: true });
+            toast.toast({
+              title: n > 0 ? 'Synced' : 'Nothing to sync',
+              description:
+                n > 0 ? `${n} session${n === 1 ? '' : 's'} uploaded` : 'Check connection or retry failed items',
+              variant: n > 0 ? 'success' : 'default',
+            });
+          }}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            minHeight: 56,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: COLORS.primaryLight,
+                borderWidth: 1,
+                borderColor: COLORS.border,
+              }}
+            >
+              <Globe size={20} color={COLORS.primary} />
             </View>
-            <ChevronRight size={18} color="hsl(150 10% 50%)" />
-          </Pressable>
-        </CardContent>
-      </Card>
+            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink, fontSize: 16 }}>Sync now</Text>
+          </View>
+          <ChevronRight size={20} color={COLORS.inkMuted} />
+        </Pressable>
+      </SurfaceCard>
 
-      <Button
-        variant="outline"
-        className="mx-5"
+      <SurfaceCard padded={false} style={{ marginBottom: 20, overflow: 'hidden' }}>
+        <Pressable
+          onPress={() => router.push('/subscription')}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            minHeight: 56,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: COLORS.primaryLight,
+                borderWidth: 1,
+                borderColor: COLORS.border,
+              }}
+            >
+              <ShieldCheck size={20} color={COLORS.primary} />
+            </View>
+            <View>
+              <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink, fontSize: 16 }}>Subscription</Text>
+              <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
+                {user?.tier} plan
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color={COLORS.inkMuted} />
+        </Pressable>
+        <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
+        <Pressable
+          onPress={() => router.push('/admin')}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            minHeight: 56,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: COLORS.primaryLight,
+                borderWidth: 1,
+                borderColor: COLORS.border,
+              }}
+            >
+              <ShieldCheck size={20} color={COLORS.accent} />
+            </View>
+            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink, fontSize: 16 }}>Admin dashboard</Text>
+          </View>
+          <ChevronRight size={20} color={COLORS.inkMuted} />
+        </Pressable>
+      </SurfaceCard>
+
+      <Card3D
+        variant="glass"
+        glowColor={COLORS.danger}
         onPress={() => {
           signOut();
           router.replace('/(auth)/login');
         }}
       >
-        <LogOut size={16} color="hsl(0 84% 56%)" />
-        <Text className="ml-2 text-destructive font-semibold">Sign out</Text>
-      </Button>
-    </ScrollView>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <LogOut size={20} color={COLORS.danger} />
+          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.danger }}>Sign out</Text>
+        </View>
+      </Card3D>
+    </NeoScreen>
   );
 }

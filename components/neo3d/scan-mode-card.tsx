@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
 import { Card3D } from '@/components/ui/card-3d';
@@ -28,8 +28,12 @@ export function ScanModeCard({
   width = 272,
 }: ScanModeCardProps) {
   return (
-    <View style={wide ? { marginBottom: 12 } : { width, marginRight: 12 }}>
-      <Card3D variant="neon" size="md" glowColor={glowColor} onPress={onPress}>
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      style={wide ? { marginBottom: 12 } : { width, marginRight: 12 }}
+    >
+      <Card3D variant="neon" size="md" glowColor={glowColor}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
           <View
             style={{
@@ -59,6 +63,6 @@ export function ScanModeCard({
           <ChevronRight size={20} color={COLORS.inkMuted} style={{ marginTop: 4 }} />
         </View>
       </Card3D>
-    </View>
+    </Pressable>
   );
 }

@@ -60,7 +60,8 @@ export interface CountingSession {
   durationMs: number;
   thumbnailUri?: string;
   createdAt: number;
-  syncStatus: 'synced' | 'pending';
+  syncStatus: 'synced' | 'pending' | 'failed';
+  syncError?: string;
   notes?: string;
 }
 
