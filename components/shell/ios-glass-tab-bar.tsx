@@ -1,5 +1,6 @@
 import { Platform, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
@@ -60,7 +61,15 @@ export function IosGlassTabBar({ state, descriptors, navigation, style }: Bottom
         )}
         {!isTinted ? <View style={styles.glassTint} pointerEvents="none" /> : null}
         <View style={[styles.glassBorder, isTinted && styles.tintedBorder]} pointerEvents="none" />
-        {!isTinted ? <View style={styles.glassHighlight} pointerEvents="none" /> : null}
+        {!isTinted ? (
+          <LinearGradient
+            colors={['rgba(255,255,255,0.13)', 'transparent']}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.glassHighlight}
+            pointerEvents="none"
+          />
+        ) : null}
 
         <View style={styles.row}>
           {visibleRoutes.map((route) => {
@@ -169,10 +178,9 @@ const styles = StyleSheet.create({
   glassHighlight: {
     position: 'absolute',
     top: 0,
-    left: 16,
-    right: 16,
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    left: 0,
+    right: 0,
+    height: 28,
     borderRadius: 999,
   },
   row: {
