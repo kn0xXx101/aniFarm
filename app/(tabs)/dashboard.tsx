@@ -1,0 +1,242 @@
+import { useMemo } from 'react';
+import { ScrollView, View, Pressable, useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
+import {
+  Bird,
+  Camera,
+  Image as ImageIcon,
+  Video,
+  Wifi,
+  WifiOff,
+  Shield,
+  BarChart3,
+  Zap,
+  TrendingUp,
+} from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { Text } from '@/components/ui/text';
+import { LineAreaChart } from '@/components/line-area-chart';
+import { NeoScreen } from '@/components/neo3d/neo-screen';
+import { TopBar } from '@/components/shell/top-bar';
+import { FarmSelector } from '@/components/layout/farm-selector';
+import { LandingHero } from '@/components/neo3d/landing-hero';
+import { MetricCube } from '@/components/neo3d/metric-cube';
+import { SectionHeading } from '@/components/neo3d/section-heading';
+import { ScanModeCard } from '@/components/neo3d/scan-mode-card';
+import { StaggerIn } from '@/components/neo3d/stagger-in';
+import { NeoChip } from '@/components/neo3d/neo-chip';
+import { Card3D } from '@/components/ui/card-3d';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useFarmStore } from '@/lib/stores/farm-store';
+import { useSessionStore } from '@/lib/stores/session-store';
+import { useAlertStore } from '@/lib/stores/alert-store';
+import { useOnlineStatus, useAutoSync } from '@/lib/sync';
+import { useSettingsStore } from '@/lib/stores/settings-store';
+import { buildAnalytics } from '@/lib/mock-data';
+import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { useScreenInsets } from '@/hooks/useScreenInsets';
+
+export default function Dashboard() {
+  const router = useRouter();
+  const { width } = useWindowDimensions();
+  const { horizontal } = useScreenInsets(true);
+  const user = useAuthStore((s) => s.user);
+  const farms = useFarmStore((s) => s.farms);
+  const houses = useFarmStore((s) => s.houses);
+  const sessions = useSessionStore((s) => s.sessions);
+  const alerts = useAlertStore((s) => s.alerts);
+  const online = useOnlineStatus();
+  const autoSync = useSettingsStore((s) => s.autoSync);
+  useAutoSync(autoSync);
+
+  const series = useMemo(() => buildAnalytics(14), []);
+  const totalBirds = houses.reduce((sum, h) => sum + h.currentCount, 0);
+  const pendingSync = sessions.filter((s) => s.syncStatus === 'pending').length;
+  const unreadAlerts = alerts.filter((a) => !a.read).length;
+  const lastSession = sessions[0];
+  const firstName = user?.name?.split(' ')[0] ?? 'Operator';
+  const featureCardWidth = (width - horizontal * 2 - 12) / 2;
+
+  return (
+    <NeoScreen padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+      <TopBar showBrand />
+
+      <StaggerIn index={0}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+          <NeoChip label={online ? 'Online' : 'Offline'} active={online} color={online ? COLORS.primary : COLORS.warning} />
+          {pendingSync > 0 ? <NeoChip label={`${pendingSync} sync`} color={COLORS.secondary} /> : null}
+          {unreadAlerts > 0 ? <NeoChip label={`${unreadAlerts} alerts`} color={COLORS.danger} /> : null}
+        </View>
+      </StaggerIn>
+
+      <StaggerIn index={1}>
+        <LandingHero
+          badge={`Good day, ${firstName}`}
+          title="Your flock"
+          highlight="command center."
+          subtitle="Launch AI counts, monitor capacity, and track trends."
+          actions={
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                onPress={() => router.push('/count/live')}
+                style={[{ flex: 1, borderRadius: 16, overflow: 'hidden', minHeight: 48 }, SHADOW.neon]}
+              >
+                <LinearGradient
+                  colors={[...GRADIENTS.hero]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    paddingVertical: 14,
+                    paddingHorizontal: 12,
+                  }}
+                >
+                  <Zap size={18} color={COLORS.canvas} />
+                  <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 15 }}>Start scan</Text>
+                </LinearGradient>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push('/(tabs)/farms')}
+                style={{
+                  flex: 1,
+                  borderRadius: 16,
+                  minHeight: 48,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: COLORS.border,
+                  backgroundColor: COLORS.surfaceMuted,
+                }}
+              >
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 15 }}>Farms</Text>
+              </Pressable>
+            </View>
+          }
+        />
+      </StaggerIn>
+
+      <StaggerIn index={2}>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
+          <MetricCube value={`${farms.length}`} label="Farms" icon={<Bird size={18} color={COLORS.primary} />} />
+          <MetricCube
+            value={formatCompact(totalBirds)}
+            label="Birds"
+            glowColor={COLORS.secondary}
+            icon={<TrendingUp size={18} color={COLORS.secondary} />}
+          />
+          <MetricCube
+            value={`${sessions.length}`}
+            label="Sessions"
+            glowColor={COLORS.accent}
+            icon={<BarChart3 size={18} color={COLORS.accent} />}
+          />
+        </View>
+      </StaggerIn>
+
+      {lastSession ? (
+        <StaggerIn index={3}>
+          <Card3D variant="neon" glowColor={COLORS.secondary} onPress={() => router.push('/(tabs)/count')} style={{ marginBottom: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={{ fontFamily: FONTS.semibold, color: COLORS.secondary, fontSize: 11 }}>CONTINUE</Text>
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 17, marginTop: 4 }} numberOfLines={1}>
+                  {lastSession.mode === 'live' ? 'Live counting' : `${lastSession.mode} session`}
+                </Text>
+                <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 4 }}>
+                  {lastSession.count.toLocaleString()} birds
+                </Text>
+              </View>
+              <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: COLORS.primaryLight }}>
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary }}>Resume</Text>
+              </View>
+            </View>
+          </Card3D>
+        </StaggerIn>
+      ) : null}
+
+      <FarmSelector />
+
+      <SectionHeading
+        eyebrow="Scan modes"
+        title="Pick your workflow"
+        description="Tap a card to launch AI counting."
+        actionLabel="All modes"
+        onAction={() => router.push('/(tabs)/count')}
+      />
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        nestedScrollEnabled
+        style={{ marginHorizontal: -horizontal, marginBottom: 20 }}
+        contentContainerStyle={{ paddingHorizontal: horizontal, paddingRight: horizontal + 8 }}
+      >
+        <ScanModeCard
+          icon={<Camera size={22} color={COLORS.primary} />}
+          title="Live counting"
+          subtitle="Real-time camera AI"
+          meta="YOLO · Tracking"
+          glowColor={COLORS.primary}
+          onPress={() => router.push('/count/live')}
+        />
+        <ScanModeCard
+          icon={<ImageIcon size={22} color={COLORS.secondary} />}
+          title="Image counting"
+          subtitle="Upload overhead shots"
+          meta="Batch · High accuracy"
+          glowColor={COLORS.secondary}
+          onPress={() => router.push('/count/image')}
+        />
+        <ScanModeCard
+          icon={<Video size={22} color={COLORS.accent} />}
+          title="Video counting"
+          subtitle="Process recordings"
+          meta="Frame track · Deduped"
+          glowColor={COLORS.accent}
+          onPress={() => router.push('/count/video')}
+        />
+      </ScrollView>
+
+      <SectionHeading eyebrow="Capabilities" title="Built for the field" />
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+        {[
+          { icon: online ? Wifi : WifiOff, title: 'Sync', body: online ? 'Connected' : 'Offline queue', color: COLORS.primary },
+          { icon: Shield, title: 'Secure', body: 'Farm-level access', color: COLORS.secondary },
+          { icon: BarChart3, title: 'Insights', body: '14-day trends', color: COLORS.accent },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <View key={item.title} style={{ width: featureCardWidth }}>
+              <Card3D variant="glass" size="sm">
+                <Icon size={20} color={item.color} />
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, marginTop: 8 }}>{item.title}</Text>
+                <Text style={{ color: COLORS.inkMuted, fontSize: 12, marginTop: 2 }}>{item.body}</Text>
+              </Card3D>
+            </View>
+          );
+        })}
+      </View>
+
+      <SectionHeading
+        eyebrow="Analytics"
+        title="Flock trend"
+        actionLabel="Full insights"
+        onAction={() => router.push('/(tabs)/analytics')}
+      />
+      <Card3D variant="glass" style={{ marginBottom: 8 }}>
+        <LineAreaChart data={series} height={150} stroke={COLORS.primary} />
+      </Card3D>
+    </NeoScreen>
+  );
+}
+
+function formatCompact(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return String(n);
+}
