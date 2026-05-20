@@ -1,67 +1,112 @@
+/**
+ * Button — iOS 26 Liquid Glass slider style.
+ *
+ * Every variant is a pill-shaped track with a frosted glass surface.
+ * On press, a translucent fill slides in from the left (the "slider" effect)
+ * with a leading thumb dot — matching the iOS 26 interactive button language.
+ *
+ * Variants:
+ *   default     — primary green gradient pill, dark label
+ *   secondary   — cyan-tinted glass pill
+ *   outline     — neutral glass pill, primary label
+ *   destructive — danger-tinted glass pill
+ *   ghost       — no surface, just the fill animation
+ *   link        — plain text, no surface or fill
+ */
+
 import React from 'react';
-import { ActivityIndicator, View, type PressableProps } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  View,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { cva, type VariantProps } from 'class-variance-authority';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { AnimatedPressable } from '@/components/ui/primitives/animated-pressable';
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
-import { SlidingButton } from '@/components/ui/sliding-button';
-import { COLORS, FONTS, GRADIENTS } from '@/lib/design-system';
+import { useSlideFill } from '@/components/ui/slide-fill-overlay';
+import { COLORS, FONTS, GRADIENTS, LAYOUT } from '@/lib/design-system';
 import { IOS_GLASS } from '@/lib/ios-glass';
 import { cn } from '@/lib/utils';
 import { Text } from './text';
 
-const buttonVariants = cva('flex-row items-center justify-center overflow-hidden', {
-  variants: {
-    variant: {
-      default: '',
-      destructive: 'bg-destructive',
-      outline: '',
-      secondary: '',
-      ghost: 'bg-transparent',
-      link: 'bg-transparent',
-    },
-    size: {
-      default: 'min-h-[48px] px-5 py-2.5',
-      sm: 'min-h-[40px] px-3',
-      lg: 'min-h-[52px] px-8',
-      icon: 'h-11 w-11',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-    size: 'default',
-  },
-});
+// ── Size tokens ───────────────────────────────────────────────────────────────
 
-const buttonTextVariants = cva('text-center text-sm font-semibold', {
-  variants: {
-    variant: {
-      default: 'text-primary-foreground',
-      destructive: 'text-destructive-foreground',
-      outline: 'text-foreground',
-      secondary: 'text-secondary-foreground',
-      ghost: 'text-foreground',
-      link: 'text-primary underline',
-    },
-    size: {
-      default: '',
-      sm: 'text-xs',
-      lg: 'text-base',
-      icon: '',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-    size: 'default',
-  },
-});
+const SIZE = {
+  sm:      { minHeight: 36, paddingH: 14, paddingV: 6,  fontSize: 13, radius: LAYOUT.radiusPill },
+  default: { minHeight: 48, paddingH: 20, paddingV: 10, fontSize: 14, radius: LAYOUT.radiusPill },
+  lg:      { minHeight: 56, paddingH: 28, paddingV: 14, fontSize: 16, radius: LAYOUT.radiusPill },
+  icon:    { minHeight: 44, paddingH: 0,  paddingV: 0,  fontSize: 14, radius: LAYOUT.radiusPill },
+} as const;
 
-export interface ButtonProps
-  extends Omit<PressableProps, 'children'>, VariantProps<typeof buttonVariants> {
+// ── Variant tokens ────────────────────────────────────────────────────────────
+
+type Variant = 'default' | 'secondary' | 'outline' | 'destructive' | 'ghost' | 'link';
+
+const VARIANT_CONFIG: Record<Variant, {
+  surface: 'gradient' | 'accent' | 'glass' | 'none';
+  accentColor: string;
+  fillColor: string;
+  labelColor: string;
+  labelColorActive: string;
+}> = {
+  default: {
+    surface: 'gradient',
+    accentColor: COLORS.primary,
+    fillColor: COLORS.primaryDark,
+    labelColor: COLORS.canvas,
+    labelColorActive: COLORS.canvas,
+  },
+  secondary: {
+    surface: 'accent',
+    accentColor: COLORS.secondary,
+    fillColor: COLORS.secondaryDark,
+    labelColor: COLORS.secondary,
+    labelColorActive: COLORS.ink,
+  },
+  outline: {
+    surface: 'glass',
+    accentColor: COLORS.primary,
+    fillColor: COLORS.primaryDark,
+    labelColor: COLORS.primary,
+    labelColorActive: COLORS.canvas,
+  },
+  destructive: {
+    surface: 'accent',
+    accentColor: COLORS.danger,
+    fillColor: COLORS.danger,
+    labelColor: COLORS.danger,
+    labelColorActive: COLORS.ink,
+  },
+  ghost: {
+    surface: 'none',
+    accentColor: COLORS.primary,
+    fillColor: COLORS.primaryDark,
+    labelColor: COLORS.inkMuted,
+    labelColorActive: COLORS.ink,
+  },
+  link: {
+    surface: 'none',
+    accentColor: COLORS.primary,
+    fillColor: 'transparent',
+    labelColor: COLORS.primary,
+    labelColorActive: COLORS.primaryDark,
+  },
+};
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+export interface ButtonProps extends Omit<PressableProps, 'children'> {
+  variant?: Variant;
+  size?: keyof typeof SIZE;
   loading?: boolean;
   className?: string;
   textClassName?: string;
+  style?: StyleProp<ViewStyle>;
   children: React.ReactNode;
 }
 
@@ -74,33 +119,63 @@ export const Button = React.forwardRef<View, ButtonProps>(
       disabled,
       className,
       textClassName,
+      style,
       children,
+      onPressIn,
+      onPressOut,
       ...props
     },
     ref,
   ) => {
-    const isDefault = variant === 'default';
-    const isGlass = variant === 'outline' || variant === 'secondary';
-    const isDestructive = variant === 'destructive';
     const isDisabled = disabled || loading;
+    const isLink = variant === 'link';
+    const sz = SIZE[size];
+    const cfg = VARIANT_CONFIG[variant];
 
-    const fillColor = isDefault
-      ? COLORS.primaryDark
-      : isDestructive
-        ? COLORS.danger
-        : isGlass
-          ? COLORS.primary
-          : COLORS.primary;
+    const { onPressIn: fillIn, onPressOut: fillOut, Fill, onLayout } = useSlideFill({
+      disabled: isDisabled,
+      fillColor: cfg.fillColor,
+      shape: size === 'icon' ? 'circle' : 'pill',
+      borderRadius: sz.radius,
+    });
 
-    const content =
+    // ── Link — plain text, no surface ──────────────────────────────────────
+    if (isLink) {
+      return (
+        <AnimatedPressable
+          ref={ref}
+          disabled={isDisabled}
+          hapticFeedback="light"
+          className={className}
+          style={[{ opacity: isDisabled ? 0.45 : 1 }, style]}
+          accessibilityRole="button"
+          {...props}
+        >
+          <Text
+            style={{
+              fontFamily: FONTS.semibold,
+              fontSize: sz.fontSize,
+              color: cfg.labelColor,
+              textDecorationLine: 'underline',
+            }}
+          >
+            {children}
+          </Text>
+        </AnimatedPressable>
+      );
+    }
+
+    // ── Label ──────────────────────────────────────────────────────────────
+    const label =
       typeof children === 'string' ? (
         <Text
-          className={cn(
-            buttonTextVariants({ variant, size }),
-            loading && 'opacity-0',
-            textClassName,
-          )}
-          style={isDefault ? { fontFamily: FONTS.bold, color: COLORS.canvas } : { fontFamily: FONTS.semibold }}
+          className={textClassName}
+          style={{
+            fontFamily: variant === 'default' ? FONTS.bold : FONTS.semibold,
+            fontSize: sz.fontSize,
+            color: cfg.labelColor,
+            opacity: loading ? 0 : 1,
+          }}
         >
           {children}
         </Text>
@@ -108,92 +183,162 @@ export const Button = React.forwardRef<View, ButtonProps>(
         children
       );
 
+    // ── Inner content (label + spinner) ────────────────────────────────────
     const inner = (
-      <>
-        {content}
-        {loading && (
+      <View
+        style={[
+          styles.inner,
+          {
+            minHeight: sz.minHeight,
+            paddingHorizontal: size === 'icon' ? 0 : sz.paddingH,
+            paddingVertical: sz.paddingV,
+            minWidth: size === 'icon' ? sz.minHeight : undefined,
+          },
+        ]}
+      >
+        {label}
+        {loading ? (
           <Animated.View
             entering={FadeIn.duration(150)}
             exiting={FadeOut.duration(100)}
-            className="absolute inset-0 items-center justify-center"
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
           >
-            <ActivityIndicator size="small" color={isDefault ? COLORS.canvas : COLORS.ink} />
+            <View style={styles.spinnerWrap}>
+              <ActivityIndicator
+                size="small"
+                color={variant === 'default' ? COLORS.canvas : COLORS.primary}
+              />
+            </View>
           </Animated.View>
-        )}
-      </>
+        ) : null}
+      </View>
     );
 
-    if (isDefault) {
+    // ── Shell surface ──────────────────────────────────────────────────────
+    const shellStyle: StyleProp<ViewStyle> = [
+      { borderRadius: sz.radius, overflow: 'hidden', opacity: isDisabled ? 0.45 : 1 },
+      style,
+    ];
+
+    // Gradient default button
+    if (cfg.surface === 'gradient') {
       return (
-        <SlidingButton
+        <AnimatedPressable
           ref={ref}
           disabled={isDisabled}
+          hapticFeedback="medium"
+          className={className}
+          style={shellStyle}
+          onLayout={onLayout}
+          onPressIn={(e) => { fillIn(); onPressIn?.(e); }}
+          onPressOut={(e) => { fillOut(); onPressOut?.(e); }}
           accessibilityRole="button"
-          borderRadius={IOS_GLASS.radiusPill}
-          fillColor={COLORS.primaryDark}
-          className={cn(buttonVariants({ variant, size }), className)}
-          style={{ overflow: 'hidden' }}
           {...props}
         >
+          {/* Gradient base */}
           <LinearGradient
             colors={[...GRADIENTS.hero]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
+          {/* Top highlight shimmer */}
           <View
             pointerEvents="none"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 16,
-              right: 16,
-              height: 1,
-              backgroundColor: 'rgba(255,255,255,0.25)',
-            }}
+            style={[
+              styles.shimmer,
+              { borderRadius: sz.radius },
+            ]}
           />
-          <View className={cn(buttonVariants({ variant, size }))}>{inner}</View>
-        </SlidingButton>
+          {/* Slide fill overlay (darkens on press) */}
+          <Fill />
+          {inner}
+        </AnimatedPressable>
       );
     }
 
-    if (isGlass) {
+    // Glass / accent / none surfaces
+    if (cfg.surface === 'glass' || cfg.surface === 'accent') {
       return (
-        <SlidingButton
+        <AnimatedPressable
+          ref={ref}
           disabled={isDisabled}
-          accessibilityRole="button"
+          hapticFeedback="light"
           className={className}
-          borderRadius={IOS_GLASS.radiusPill}
-          fillColor={fillColor}
+          style={[{ borderRadius: sz.radius, opacity: isDisabled ? 0.45 : 1 }, style]}
+          onLayout={onLayout}
+          onPressIn={(e) => { fillIn(); onPressIn?.(e); }}
+          onPressOut={(e) => { fillOut(); onPressOut?.(e); }}
+          accessibilityRole="button"
           {...props}
         >
           <IosGlassSurface
-            variant={variant === 'secondary' ? 'accent' : 'glass'}
-            radius={IOS_GLASS.radiusPill}
+            variant={cfg.surface === 'accent' ? 'accent' : 'glass'}
+            radius={sz.radius}
             padding={0}
-            accentColor={variant === 'secondary' ? COLORS.secondary : COLORS.primary}
+            accentColor={cfg.accentColor}
             shadow="soft"
+            style={{ overflow: 'hidden' }}
           >
-            <View className={cn(buttonVariants({ variant, size }))}>{inner}</View>
+            <Fill />
+            {inner}
           </IosGlassSurface>
-        </SlidingButton>
+        </AnimatedPressable>
       );
     }
 
+    // Ghost — no surface, just fill animation
     return (
-      <SlidingButton
+      <AnimatedPressable
+        ref={ref}
         disabled={isDisabled}
+        hapticFeedback="light"
+        className={className}
+        style={[
+          styles.ghost,
+          { borderRadius: sz.radius, opacity: isDisabled ? 0.45 : 1 },
+          style,
+        ]}
+        onLayout={onLayout}
+        onPressIn={(e) => { fillIn(); onPressIn?.(e); }}
+        onPressOut={(e) => { fillOut(); onPressOut?.(e); }}
         accessibilityRole="button"
-        borderRadius={IOS_GLASS.radiusPill}
-        fillColor={fillColor}
-        className={cn(buttonVariants({ variant, size }), className)}
         {...props}
       >
+        <Fill />
         {inner}
-      </SlidingButton>
+      </AnimatedPressable>
     );
   },
 );
 
 Button.displayName = 'Button';
+
+const styles = StyleSheet.create({
+  inner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    zIndex: 1,
+  },
+  spinnerWrap: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shimmer: {
+    position: 'absolute',
+    top: 0,
+    left: 16,
+    right: 16,
+    height: StyleSheet.hairlineWidth * 2,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+    zIndex: 1,
+  },
+  ghost: {
+    overflow: 'hidden',
+  },
+});
