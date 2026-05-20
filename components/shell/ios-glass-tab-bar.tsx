@@ -100,12 +100,11 @@ export function IosGlassTabBar({ state, descriptors, navigation, style }: Bottom
                 onLongPress={onLongPress}
                 style={styles.item}
               >
-                {isFocused ? <View style={styles.activePill} /> : null}
                 <View style={styles.itemInner}>
                   {options.tabBarIcon?.({
                     focused: isFocused,
                     color,
-                    size: isFocused ? 23 : 21,
+                    size: 22,
                   })}
                   <Text
                     numberOfLines={1}
@@ -119,6 +118,7 @@ export function IosGlassTabBar({ state, descriptors, navigation, style }: Bottom
                   >
                     {String(label)}
                   </Text>
+                  {isFocused ? <View style={styles.dot} /> : <View style={styles.dotPlaceholder} />}
                 </View>
               </Pressable>
             );
@@ -187,23 +187,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
-  },
-  activePill: {
-    position: 'absolute',
-    top: 4,
-    bottom: 4,
-    left: 4,
-    right: 4,
-    borderRadius: 999,
-    backgroundColor: 'rgba(107, 191, 123, 0.18)',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(107, 191, 123, 0.35)',
+    paddingVertical: 4,
   },
   itemInner: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
-    zIndex: 1,
+    gap: 2,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    marginTop: 2,
+  },
+  dotPlaceholder: {
+    width: 4,
+    height: 4,
+    marginTop: 2,
   },
   label: {
     fontSize: 10,
