@@ -1,29 +1,31 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View, type PressableProps } from 'react-native';
+import { ActivityIndicator, View, type PressableProps } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { SlidingButton, SliderButtonLabel, type SlidingButtonTone } from '@/components/ui/sliding-button';
-import { COLORS, FONTS } from '@/lib/design-system';
-import { IOS_SLIDER } from '@/lib/ios-slider-style';
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
+import { SlidingButton } from '@/components/ui/sliding-button';
+import { COLORS, FONTS, GRADIENTS } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
 import { cn } from '@/lib/utils';
 import { Text } from './text';
 
-const buttonVariants = cva('w-full', {
+const buttonVariants = cva('flex-row items-center justify-center overflow-hidden', {
   variants: {
     variant: {
       default: '',
-      destructive: '',
+      destructive: 'bg-destructive',
       outline: '',
       secondary: '',
-      ghost: '',
-      link: '',
+      ghost: 'bg-transparent',
+      link: 'bg-transparent',
     },
     size: {
-      default: '',
-      sm: '',
-      lg: '',
-      icon: '',
+      default: 'min-h-[48px] px-5 py-2.5',
+      sm: 'min-h-[40px] px-3',
+      lg: 'min-h-[52px] px-8',
+      icon: 'h-11 w-11',
     },
   },
   defaultVariants: {
@@ -32,25 +34,28 @@ const buttonVariants = cva('w-full', {
   },
 });
 
-function variantToTone(variant: string | null | undefined): SlidingButtonTone {
-  switch (variant) {
-    case 'destructive':
-      return 'danger';
-    case 'secondary':
-      return 'secondary';
-    case 'outline':
-    case 'ghost':
-      return 'ghost';
-    default:
-      return 'primary';
-  }
-}
-
-function sizeToSliderSize(size: string | null | undefined): 'sm' | 'default' | 'lg' {
-  if (size === 'sm' || size === 'icon') return 'sm';
-  if (size === 'lg') return 'lg';
-  return 'default';
-}
+const buttonTextVariants = cva('text-center text-sm font-semibold', {
+  variants: {
+    variant: {
+      default: 'text-primary-foreground',
+      destructive: 'text-destructive-foreground',
+      outline: 'text-foreground',
+      secondary: 'text-secondary-foreground',
+      ghost: 'text-foreground',
+      link: 'text-primary underline',
+    },
+    size: {
+      default: '',
+      sm: 'text-xs',
+      lg: 'text-base',
+      icon: '',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+});
 
 export interface ButtonProps
   extends Omit<PressableProps, 'children'>, VariantProps<typeof buttonVariants> {
@@ -74,76 +79,115 @@ export const Button = React.forwardRef<View, ButtonProps>(
     },
     ref,
   ) => {
-    const tone = variantToTone(variant);
-    const sliderSize = sizeToSliderSize(size);
+    const isDefault = variant === 'default';
+    const isGlass = variant === 'outline' || variant === 'secondary';
+    const isDestructive = variant === 'destructive';
     const isDisabled = disabled || loading;
-    const isLink = variant === 'link';
-    const selected = tone !== 'ghost';
+
+    const fillColor = isDefault
+      ? COLORS.primaryDark
+      : isDestructive
+        ? COLORS.danger
+        : isGlass
+          ? COLORS.primary
+          : COLORS.primary;
 
     const content =
       typeof children === 'string' ? (
-        <SliderButtonLabel tone={tone} selected={selected} size={sliderSize}>
+        <Text
+          className={cn(
+            buttonTextVariants({ variant, size }),
+            loading && 'opacity-0',
+            textClassName,
+          )}
+          style={isDefault ? { fontFamily: FONTS.bold, color: COLORS.canvas } : { fontFamily: FONTS.semibold }}
+        >
           {children}
-        </SliderButtonLabel>
+        </Text>
       ) : (
         children
       );
 
     const inner = (
-      <View
-        style={{
-          paddingVertical: sliderSize === 'lg' ? 12 : sliderSize === 'sm' ? 6 : 8,
-          paddingHorizontal: size === 'icon' ? 0 : sliderSize === 'lg' ? 24 : 16,
-          minWidth: size === 'icon' ? 44 : undefined,
-          minHeight: size === 'icon' ? 44 : undefined,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+      <>
         {content}
         {loading && (
           <Animated.View
             entering={FadeIn.duration(150)}
             exiting={FadeOut.duration(100)}
-            style={StyleSheet.absoluteFillObject}
-            className="items-center justify-center"
+            className="absolute inset-0 items-center justify-center"
           >
-            <ActivityIndicator size="small" color={COLORS.primary} />
+            <ActivityIndicator size="small" color={isDefault ? COLORS.canvas : COLORS.ink} />
           </Animated.View>
         )}
-      </View>
+      </>
     );
 
-    if (isLink) {
+    if (isDefault) {
       return (
         <SlidingButton
           ref={ref}
           disabled={isDisabled}
-          tone="ghost"
-          bare
-          className={cn(className)}
           accessibilityRole="button"
+          borderRadius={IOS_GLASS.radiusPill}
+          fillColor={COLORS.primaryDark}
+          className={cn(buttonVariants({ variant, size }), className)}
+          style={{ overflow: 'hidden' }}
           {...props}
         >
-          <Text
-            className={textClassName}
-            style={{ fontFamily: FONTS.semibold, color: COLORS.primary, textDecorationLine: 'underline' }}
+          <LinearGradient
+            colors={[...GRADIENTS.hero]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            pointerEvents="none"
+          />
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 16,
+              right: 16,
+              height: 1,
+              backgroundColor: 'rgba(255,255,255,0.25)',
+            }}
+          />
+          <View className={cn(buttonVariants({ variant, size }))}>{inner}</View>
+        </SlidingButton>
+      );
+    }
+
+    if (isGlass) {
+      return (
+        <SlidingButton
+          disabled={isDisabled}
+          accessibilityRole="button"
+          className={className}
+          borderRadius={IOS_GLASS.radiusPill}
+          fillColor={fillColor}
+          {...props}
+        >
+          <IosGlassSurface
+            variant={variant === 'secondary' ? 'accent' : 'glass'}
+            radius={IOS_GLASS.radiusPill}
+            padding={0}
+            accentColor={variant === 'secondary' ? COLORS.secondary : COLORS.primary}
+            shadow="soft"
           >
-            {children}
-          </Text>
+            <View className={cn(buttonVariants({ variant, size }))}>{inner}</View>
+          </IosGlassSurface>
         </SlidingButton>
       );
     }
 
     return (
       <SlidingButton
-        ref={ref}
         disabled={isDisabled}
-        tone={tone}
-        size={sliderSize}
-        borderRadius={IOS_SLIDER.radius}
-        className={cn(buttonVariants({ variant, size }), className)}
         accessibilityRole="button"
+        borderRadius={IOS_GLASS.radiusPill}
+        fillColor={fillColor}
+        className={cn(buttonVariants({ variant, size }), className)}
         {...props}
       >
         {inner}

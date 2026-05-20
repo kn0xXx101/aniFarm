@@ -34,10 +34,10 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
       <SlidingButton
         onPress={() => router.back()}
         accessibilityLabel="Go back"
-        tone="ghost"
-        shape="circle"
-        size="sm"
-        bare
+        borderRadius={14}
+        fillShape="circle"
+        fillColor={COLORS.primary}
+        backgroundColor={dark ? 'rgba(255,255,255,0.12)' : COLORS.surfaceMuted}
         style={{
           width: 40,
           height: 40,

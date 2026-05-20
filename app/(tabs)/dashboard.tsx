@@ -12,6 +12,7 @@ import {
   Zap,
   TrendingUp,
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { FarmIcon } from '@/components/brand/brand-icon';
 import { Text } from '@/components/ui/text';
@@ -26,7 +27,8 @@ import { ScanModeCard } from '@/components/neo3d/scan-mode-card';
 import { StaggerIn } from '@/components/neo3d/stagger-in';
 import { NeoChip } from '@/components/neo3d/neo-chip';
 import { Card3D } from '@/components/ui/card-3d';
-import { SlidingButton, SliderButtonLabel } from '@/components/ui/sliding-button';
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
+import { SlidingButton } from '@/components/ui/sliding-button';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
@@ -34,7 +36,7 @@ import { useAlertStore } from '@/lib/stores/alert-store';
 import { useOnlineStatus, useAutoSync } from '@/lib/sync';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { buildAnalyticsFromSessions } from '@/lib/analytics';
-import { COLORS, FONTS, SHADOW } from '@/lib/design-system';
+import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
@@ -83,28 +85,39 @@ export default function Dashboard() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               <SlidingButton
                 onPress={() => router.push('/(tabs)/count-live')}
-                tone="primary"
-                size="lg"
-                style={[{ flex: 1 }, SHADOW.neon]}
+                style={[{ flex: 1, minHeight: 48 }, SHADOW.neon]}
+                borderRadius={999}
+                fillColor={COLORS.primaryDark}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 12 }}>
-                  <Zap size={18} color={COLORS.primary} />
-                  <SliderButtonLabel tone="primary" size="lg">
-                    Start scan
-                  </SliderButtonLabel>
-                </View>
+                <LinearGradient
+                  colors={[...GRADIENTS.hero]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    paddingVertical: 14,
+                    paddingHorizontal: 12,
+                    minHeight: 48,
+                  }}
+                >
+                  <Zap size={18} color={COLORS.canvas} />
+                  <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 15 }}>Start scan</Text>
+                </LinearGradient>
               </SlidingButton>
               <SlidingButton
                 onPress={() => router.push('/(tabs)/farms')}
-                tone="ghost"
-                size="lg"
-                style={{ flex: 1 }}
+                style={{ flex: 1, minHeight: 48 }}
+                borderRadius={999}
+                fillColor={COLORS.primary}
               >
-                <View style={{ paddingVertical: 10, paddingHorizontal: 12, alignItems: 'center' }}>
-                  <SliderButtonLabel tone="ghost" selected={false} size="lg">
-                    Farms
-                  </SliderButtonLabel>
-                </View>
+                <IosGlassSurface variant="glass" radius={999} padding={0} shadow="soft">
+                  <View style={{ flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 }}>
+                    <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 15 }}>Farms</Text>
+                  </View>
+                </IosGlassSurface>
               </SlidingButton>
             </View>
           }

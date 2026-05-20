@@ -4,7 +4,6 @@ import RNSlider from '@react-native-community/slider';
 import { Text } from '@/components/ui/text';
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { COLORS, FONTS } from '@/lib/design-system';
-import { IOS_SLIDER } from '@/lib/ios-slider-style';
 import { IOS_GLASS } from '@/lib/ios-glass';
 import { triggerHaptic } from '@/lib/animations';
 
@@ -40,13 +39,13 @@ export function ValueSlider({
     <IosGlassSurface
       variant={isDark ? 'glass' : 'glass'}
       radius={IOS_GLASS.radiusMd}
-      padding={IOS_SLIDER.trackPadding + 8}
+      padding={12}
       shadow="none"
       style={isDark ? { backgroundColor: 'rgba(0,0,0,0.35)' } : undefined}
     >
       <View style={styles.header}>
         {label ? (
-          <Text style={{ fontFamily: FONTS.medium, color: ink, fontSize: IOS_SLIDER.labelSize }} numberOfLines={1}>
+          <Text style={{ fontFamily: FONTS.medium, color: ink, fontSize: 13 }} numberOfLines={1}>
             {label}
           </Text>
         ) : (

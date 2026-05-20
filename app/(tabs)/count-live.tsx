@@ -257,10 +257,10 @@ export default function LiveCount() {
           <SlidingButton
             onPress={() => router.back()}
             accessibilityLabel="Go back"
-            tone="ghost"
-            shape="circle"
-            size="sm"
-            bare
+            borderRadius={14}
+            fillShape="circle"
+            fillColor={COLORS.primary}
+            backgroundColor="rgba(255,255,255,0.10)"
             style={styles.backBtn}
           >
             <Text style={styles.backText}>←</Text>

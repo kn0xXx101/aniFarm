@@ -23,40 +23,47 @@ export function CountControlButton({
   accessibilityLabel,
   style,
 }: CountControlButtonProps) {
-  const tone =
-    variant === 'primary' ? 'primary' : variant === 'pause' ? 'danger' : variant === 'save' ? 'secondary' : 'ghost';
+  const radius = size / 2;
+  const bg =
+    variant === 'primary'
+      ? COLORS.primary
+      : variant === 'pause'
+        ? COLORS.danger
+        : variant === 'save'
+          ? 'rgba(123,168,196,0.22)'
+          : 'rgba(255,255,255,0.10)';
+
+  const borderColor =
+    variant === 'save' ? COLORS.secondary : variant === 'side' ? 'rgba(255,255,255,0.14)' : 'transparent';
 
   return (
     <SlidingButton
       onPress={onPress}
       disabled={disabled}
       accessibilityLabel={accessibilityLabel}
-      tone={tone}
-      shape="circle"
-      size="sm"
-      bare
+      borderRadius={radius}
+      fillShape="circle"
+      fillColor={
+        variant === 'primary' ? COLORS.primary : variant === 'pause' ? COLORS.danger : COLORS.secondary
+      }
+      backgroundColor={bg}
       style={[
         {
           width: size,
           height: size,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderWidth: variant === 'side' || variant === 'save' ? 1 : 0,
+          borderColor,
           opacity: disabled ? 0.35 : 1,
         },
+        variant === 'primary' && styles.primaryGlow,
+        variant === 'pause' && styles.pauseGlow,
         style,
       ]}
     >
       {typeof children === 'string' ? (
-        <Text
-          style={[
-            styles.glyph,
-            size < 52 && { fontSize: 20 },
-            variant === 'primary' && { color: COLORS.primary },
-            variant === 'pause' && { color: COLORS.danger },
-            variant === 'save' && { color: COLORS.secondary },
-            variant === 'side' && styles.glyphMuted,
-          ]}
-        >
-          {children}
-        </Text>
+        <Text style={[styles.glyph, size < 52 && { fontSize: 20 }]}>{children}</Text>
       ) : (
         children
       )}
@@ -67,10 +74,21 @@ export function CountControlButton({
 const styles = StyleSheet.create({
   glyph: {
     fontSize: 24,
-    color: COLORS.ink,
+    color: '#fff',
     fontFamily: FONTS.bold,
   },
-  glyphMuted: {
-    color: COLORS.canvas,
+  primaryGlow: {
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  pauseGlow: {
+    shadowColor: COLORS.danger,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
   },
 });

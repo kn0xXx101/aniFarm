@@ -19,7 +19,7 @@ export {
   type AvatarFallbackProps,
 } from './avatar';
 export { Button, type ButtonProps } from './button';
-export { SlidingButton, SliderButtonLabel, type SlidingButtonProps, type SlidingButtonTone } from './sliding-button';
+export { SlidingButton, type SlidingButtonProps } from './sliding-button';
 export { SegmentSlider, type SegmentOption } from './segment-slider';
 export { ValueSlider } from './value-slider';
 export { Input, type InputProps } from './input';

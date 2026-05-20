@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -27,10 +28,12 @@ import { AniFarmLogo } from '@/components/brand/ani-farm-logo';
 import { AmbientScene } from '@/components/neo3d/ambient-scene';
 import { FloatingLeaf } from '@/components/neo3d/floating-leaf';
 import { Card3D } from '@/components/ui/card-3d';
-import { SlidingButton, SliderButtonLabel } from '@/components/ui/sliding-button';
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
+import { SlidingButton } from '@/components/ui/sliding-button';
+import { IOS_GLASS } from '@/lib/ios-glass';
 import { Text } from '@/components/ui/text';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
-import { BRAND, COLORS, FONTS, LAYOUT, SHADOW } from '@/lib/design-system';
+import { BRAND, COLORS, FONTS, GRADIENTS, LAYOUT, SHADOW } from '@/lib/design-system';
 
 const FEATURES = [
   {
@@ -111,30 +114,46 @@ function PrimaryButton({
   onPress: () => void;
   variant?: 'filled' | 'ghost';
 }) {
-  const isFilled = variant === 'filled';
+  if (variant === 'ghost') {
+    return (
+      <SlidingButton
+        onPress={onPress}
+        borderRadius={IOS_GLASS.radiusPill}
+        fillColor={COLORS.primary}
+      >
+        <IosGlassSurface variant="glass" radius={IOS_GLASS.radiusPill} padding={0} shadow="soft">
+          <View style={{ paddingVertical: 14, paddingHorizontal: 24, alignItems: 'center' }}>
+            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkSecondary, fontSize: 16 }}>{label}</Text>
+          </View>
+        </IosGlassSurface>
+      </SlidingButton>
+    );
+  }
 
   return (
     <SlidingButton
       onPress={onPress}
-      tone={isFilled ? 'primary' : 'ghost'}
-      size="lg"
-      style={isFilled ? SHADOW.neon : undefined}
+      borderRadius={IOS_GLASS.radiusPill}
+      fillColor={COLORS.primaryDark}
+      style={SHADOW.neon}
     >
-      <View
+      <LinearGradient
+        colors={[...GRADIENTS.hero]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
-          paddingVertical: isFilled ? 12 : 10,
-          paddingHorizontal: isFilled ? 24 : 20,
+          paddingVertical: 16,
+          paddingHorizontal: 28,
+          borderRadius: IOS_GLASS.radiusPill,
         }}
       >
-        <SliderButtonLabel tone={isFilled ? 'primary' : 'ghost'} selected={isFilled} size="lg">
-          {label}
-        </SliderButtonLabel>
-        {isFilled ? <ChevronRight size={20} color={COLORS.primary} /> : null}
-      </View>
+        <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 17 }}>{label}</Text>
+        <ChevronRight size={20} color={COLORS.canvas} />
+      </LinearGradient>
     </SlidingButton>
   );
 }

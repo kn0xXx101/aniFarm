@@ -7,12 +7,6 @@ import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { IOS_GLASS } from '@/lib/ios-glass';
-import {
-  getSliderLabelColor,
-  getSliderThumbColors,
-  iosSliderStyles,
-  IOS_SLIDER,
-} from '@/lib/ios-slider-style';
 import { SPRING_CONFIGS, triggerHaptic } from '@/lib/animations';
 
 export interface SegmentOption<T extends string> {
@@ -27,7 +21,7 @@ interface SegmentSliderProps<T extends string> {
 }
 
 /**
- * iOS 26 segmented control — glass track with sliding thumb between options.
+ * iOS-style segmented control with a sliding thumb between options.
  */
 export function SegmentSlider<T extends string>({ options, value, onChange }: SegmentSliderProps<T>) {
   const isTinted = useSettingsStore((s) => s.uiStyle) === 'tinted';
@@ -60,19 +54,21 @@ export function SegmentSlider<T extends string>({ options, value, onChange }: Se
     transform: [{ translateX: thumbX.value }],
   }));
 
-  const thumbColors = getSliderThumbColors('primary', isTinted);
   const segW = trackWidth > 0 ? trackWidth / options.length : 0;
 
   return (
-    <IosGlassSurface variant="glass" radius={IOS_GLASS.radiusPill} padding={IOS_SLIDER.trackPadding} shadow="none">
-      <View style={iosSliderStyles.track} onLayout={onTrackLayout}>
+    <IosGlassSurface variant="glass" radius={IOS_GLASS.radiusPill} padding={4} shadow="none">
+      <View style={styles.track} onLayout={onTrackLayout}>
         {segW > 0 ? (
           <Animated.View
             pointerEvents="none"
             style={[
-              iosSliderStyles.thumb,
-              { width: segW - IOS_SLIDER.thumbInset * 2 },
-              thumbColors,
+              styles.thumb,
+              {
+                width: segW - 4,
+                backgroundColor: isTinted ? COLORS.primaryLight : 'rgba(107,191,123,0.22)',
+                borderColor: isTinted ? COLORS.primary : 'rgba(107,191,123,0.45)',
+              },
               thumbStyle,
             ]}
           />
@@ -88,8 +84,8 @@ export function SegmentSlider<T extends string>({ options, value, onChange }: Se
             <Text
               style={{
                 fontFamily: value === opt.value ? FONTS.bold : FONTS.medium,
-                fontSize: IOS_SLIDER.labelSize,
-                color: getSliderLabelColor('primary', value === opt.value),
+                fontSize: 13,
+                color: value === opt.value ? COLORS.primary : COLORS.inkMuted,
               }}
             >
               {opt.label}
@@ -102,6 +98,19 @@ export function SegmentSlider<T extends string>({ options, value, onChange }: Se
 }
 
 const styles = StyleSheet.create({
+  track: {
+    flexDirection: 'row',
+    position: 'relative',
+    minHeight: 40,
+  },
+  thumb: {
+    position: 'absolute',
+    top: 2,
+    left: 2,
+    bottom: 2,
+    borderRadius: IOS_GLASS.radiusPill,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
   segment: {
     flex: 1,
     alignItems: 'center',
