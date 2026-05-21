@@ -35,8 +35,8 @@ export const COLORS = {
   human: '#8B9299',
 
   ink: '#F0EDE6',
-  inkSecondary: '#B8B4AC',
-  inkMuted: '#7A766E',
+  inkSecondary: '#C4C0B8',
+  inkMuted: '#9A968E',
 
   border: 'rgba(107, 191, 123, 0.32)',
   borderSoft: 'rgba(255, 255, 255, 0.08)',
@@ -59,6 +59,29 @@ export const FONTS = {
   semibold: 'DMSans_600SemiBold',
   medium: 'DMSans_500Medium',
   regular: 'DMSans_400Regular',
+} as const;
+
+/** Minimum readable sizes — use these instead of raw 10–11px */
+export const TYPE = {
+  eyebrow: {
+    fontFamily: FONTS.semibold,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.8,
+    color: COLORS.primary,
+  },
+  title: { fontFamily: FONTS.bold, fontSize: 20, lineHeight: 26, color: COLORS.ink },
+  titleSm: { fontFamily: FONTS.bold, fontSize: 17, lineHeight: 22, color: COLORS.ink },
+  body: { fontFamily: FONTS.regular, fontSize: 15, lineHeight: 22, color: COLORS.ink },
+  bodySm: { fontFamily: FONTS.regular, fontSize: 14, lineHeight: 20, color: COLORS.ink },
+  bodySecondary: { fontFamily: FONTS.regular, fontSize: 14, lineHeight: 20, color: COLORS.inkSecondary },
+  caption: { fontFamily: FONTS.medium, fontSize: 12, lineHeight: 17, color: COLORS.inkMuted },
+  label: { fontFamily: FONTS.semibold, fontSize: 13, lineHeight: 18, color: COLORS.ink },
+  button: { fontFamily: FONTS.bold, fontSize: 15, lineHeight: 20 },
+  buttonSm: { fontFamily: FONTS.semibold, fontSize: 14, lineHeight: 18 },
+  display: { fontFamily: FONTS.display, fontSize: 28, lineHeight: 34, color: COLORS.ink },
+  displaySm: { fontFamily: FONTS.display, fontSize: 22, lineHeight: 28, color: COLORS.ink },
+  tab: { fontFamily: FONTS.semibold, fontSize: 11, lineHeight: 14 },
 } as const;
 
 export const GRADIENTS = {

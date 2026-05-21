@@ -1,87 +1,149 @@
-import { View, ScrollView } from 'react-native';
-import { Users, Building2, Activity, AlertTriangle, Smartphone, DollarSign } from 'lucide-react-native';
+import { useMemo } from 'react';
+import { View } from 'react-native';
+import { Building2, Activity, Users, AlertTriangle } from 'lucide-react-native';
 
+import { NeoScreen } from '@/components/neo3d/neo-screen';
+import { SectionHeading } from '@/components/neo3d/section-heading';
+import { MetricCube } from '@/components/neo3d/metric-cube';
+import { StaggerIn } from '@/components/neo3d/stagger-in';
+import { Card3D } from '@/components/ui/card-3d';
 import { Text } from '@/components/ui/text';
-import { Card, CardContent } from '@/components/ui/card';
-import { StatCard } from '@/components/stat-card';
+import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { LineAreaChart } from '@/components/line-area-chart';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { buildAnalyticsFromSessions } from '@/lib/analytics';
-import { COLORS } from '@/lib/design-system';
+import { COLORS, FONTS, TYPE, LAYOUT } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
+import { useBreakpoint } from '@/hooks/useBreakpoint';
+
+function FarmStatBox({
+  label,
+  value,
+  valueColor = COLORS.ink,
+}: {
+  label: string;
+  value: string;
+  valueColor?: string;
+}) {
+  return (
+    <View style={{ flex: 1, minWidth: 0 }}>
+      <IosGlassSurface variant="glass" radius={IOS_GLASS.radiusSm} padding={10} shadow="none">
+        <Text style={TYPE.caption}>{label}</Text>
+        <Text style={[TYPE.label, { color: valueColor, marginTop: 4 }]} numberOfLines={1}>
+          {value}
+        </Text>
+      </IosGlassSurface>
+    </View>
+  );
+}
 
 export default function AdminDashboard() {
   const farms = useFarmStore((s) => s.farms);
   const sessions = useSessionStore((s) => s.sessions);
   const alerts = useAlertStore((s) => s.alerts);
-  const series = buildAnalyticsFromSessions(sessions, 30);
+  const { width, isNarrow } = useBreakpoint();
+  const series = useMemo(() => buildAnalyticsFromSessions(sessions, 30), [sessions]);
 
-  const totalBirds = sessions.reduce((sum, s) => sum + s.count, 0);
+  const totalAlive = sessions.reduce((sum, s) => sum + (s.aliveCount ?? s.count), 0);
   const activeAlerts = alerts.filter((a) => !a.read).length;
+  const metricMinW = (width - LAYOUT.screenPadding * 2 - 10) / 2;
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
-      <Text className="text-2xl font-bold text-foreground mb-1">Admin overview</Text>
-      <Text variant="muted" size="sm" className="mb-5">
-        Operator view — farms, sessions, devices &amp; alert volume.
-      </Text>
+    <NeoScreen scroll withTabs={false} padded contentStyle={{ paddingTop: 8 }}>
+      <StaggerIn index={0}>
+        <SectionHeading
+          eyebrow="Operator"
+          title="Admin overview"
+          description="Farms, sessions, livestock totals, and alert volume across the platform."
+        />
+      </StaggerIn>
 
-      <View className="flex-row flex-wrap gap-3 mb-4">
-        <StatCard label="Farms" value={String(farms.length)} icon={<Building2 size={16} color={COLORS.primary} />} />
-        <StatCard label="Sessions" value={String(sessions.length)} icon={<Activity size={16} color={COLORS.primary} />} />
-        <StatCard label="Total alive" value={totalBirds.toLocaleString()} icon={<Users size={16} color={COLORS.primary} />} tone="success" />
-        <StatCard label="Active alerts" value={String(activeAlerts)} icon={<AlertTriangle size={16} color="#FFD600" />} tone="warning" />
-      </View>
+      <StaggerIn index={1}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+          <View style={{ width: metricMinW - 5, flexGrow: 1 }}>
+            <MetricCube
+              value={String(farms.length)}
+              label="Farms"
+              icon={<Building2 size={18} color={COLORS.primary} />}
+              glowColor={COLORS.primary}
+            />
+          </View>
+          <View style={{ width: metricMinW - 5, flexGrow: 1 }}>
+            <MetricCube
+              value={String(sessions.length)}
+              label="Sessions"
+              icon={<Activity size={18} color={COLORS.secondary} />}
+              glowColor={COLORS.secondary}
+            />
+          </View>
+          <View style={{ width: metricMinW - 5, flexGrow: 1 }}>
+            <MetricCube
+              value={totalAlive.toLocaleString()}
+              label="Total alive"
+              icon={<Users size={18} color={COLORS.primary} />}
+              glowColor={COLORS.primary}
+            />
+          </View>
+          <View style={{ width: metricMinW - 5, flexGrow: 1 }}>
+            <MetricCube
+              value={String(activeAlerts)}
+              label="Active alerts"
+              icon={<AlertTriangle size={18} color={COLORS.warning} />}
+              glowColor={COLORS.warning}
+            />
+          </View>
+        </View>
+      </StaggerIn>
 
-      <Card className="mb-4">
-        <CardContent className="p-4">
-          <Text className="font-semibold text-base">Platform throughput</Text>
-          <Text variant="muted" size="xs" className="mt-0.5 mb-3">
-            Aggregated livestock counts · 30d
+      <StaggerIn index={2}>
+        <Card3D variant="glass" size="md" style={{ marginBottom: 20 }}>
+          <Text style={TYPE.label}>Platform throughput</Text>
+          <Text style={[TYPE.caption, { marginTop: 4, marginBottom: 12 }]}>
+            Aggregated alive counts · last 30 days
           </Text>
-          <LineAreaChart data={series} height={180} stroke={COLORS.primary} />
-        </CardContent>
-      </Card>
+          <LineAreaChart data={series} height={isNarrow ? 160 : 180} stroke={COLORS.primary} />
+        </Card3D>
+      </StaggerIn>
+
+      <StaggerIn index={3}>
+        <SectionHeading title="Farms" description={`${farms.length} registered`} />
+      </StaggerIn>
 
       {farms.length === 0 ? (
-        <View className="rounded-2xl border border-border bg-card p-6 items-center">
-          <Text variant="muted" className="text-center">No farms registered yet.</Text>
-        </View>
+        <Card3D variant="glass" size="md">
+          <Text style={[TYPE.bodySecondary, { textAlign: 'center' }]}>No farms registered yet.</Text>
+        </Card3D>
       ) : (
-        farms.map((farm) => {
+        farms.map((farm, i) => {
           const farmSessions = sessions.filter((s) => s.farmId === farm.id);
           const farmAlerts = alerts.filter((a) => a.farmId === farm.id && !a.read);
+          const livestock = farm.livestockType ?? farm.flockType ?? '—';
+
           return (
-            <View key={farm.id} className="rounded-2xl border border-border bg-card p-4 mb-2">
-              <View className="flex-row items-center justify-between mb-2">
-                <View>
-                  <Text className="font-semibold text-base">{farm.name}</Text>
-                  <Text variant="muted" size="xs">
-                    {farm.location} · {farm.livestockType ?? farm.flockType}
-                  </Text>
+            <StaggerIn key={farm.id} index={4 + i}>
+              <Card3D variant="glass" size="md" style={{ marginBottom: 10 }}>
+                <Text style={TYPE.label} numberOfLines={1}>
+                  {farm.name}
+                </Text>
+                <Text style={[TYPE.caption, { marginTop: 2, marginBottom: 12 }]} numberOfLines={1}>
+                  {farm.location} · {livestock}
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <FarmStatBox label="Sessions" value={String(farmSessions.length)} />
+                  <FarmStatBox label="Capacity" value={farm.capacity.toLocaleString()} />
+                  <FarmStatBox
+                    label="Alerts"
+                    value={farmAlerts.length > 0 ? String(farmAlerts.length) : 'None'}
+                    valueColor={farmAlerts.length > 0 ? COLORS.warning : COLORS.primary}
+                  />
                 </View>
-              </View>
-              <View className="flex-row gap-3">
-                <View className="flex-1 bg-muted rounded-lg px-3 py-1.5">
-                  <Text variant="muted" size="xs">Sessions</Text>
-                  <Text className="font-semibold">{farmSessions.length}</Text>
-                </View>
-                <View className="flex-1 bg-muted rounded-lg px-3 py-1.5">
-                  <Text variant="muted" size="xs">Capacity</Text>
-                  <Text className="font-semibold">{farm.capacity.toLocaleString()}</Text>
-                </View>
-                <View className="flex-1 bg-muted rounded-lg px-3 py-1.5">
-                  <Text variant="muted" size="xs">Alerts</Text>
-                  <Text className={`font-semibold ${farmAlerts.length > 0 ? 'text-yellow-400' : 'text-primary'}`}>
-                    {farmAlerts.length > 0 ? farmAlerts.length : 'None'}
-                  </Text>
-                </View>
-              </View>
-            </View>
+              </Card3D>
+            </StaggerIn>
           );
         })
       )}
-    </ScrollView>
+    </NeoScreen>
   );
 }

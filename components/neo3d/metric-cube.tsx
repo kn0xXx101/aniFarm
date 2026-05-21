@@ -3,7 +3,7 @@ import { View, useWindowDimensions } from 'react-native';
 
 import { Card3D } from '@/components/ui/card-3d';
 import { Text } from '@/components/ui/text';
-import { COLORS, FONTS } from '@/lib/design-system';
+import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 
 interface MetricCubeProps {
   value: string;
@@ -27,16 +27,7 @@ export function MetricCube({ value, label, icon, glowColor = COLORS.primary }: M
           >
             {value}
           </Text>
-          <Text
-            numberOfLines={1}
-            style={{
-              color: COLORS.inkMuted,
-              fontFamily: FONTS.medium,
-              fontSize: 11,
-              marginTop: 4,
-              textAlign: 'center',
-            }}
-          >
+          <Text numberOfLines={1} style={[TYPE.caption, { marginTop: 4, textAlign: 'center' }]}>
             {label}
           </Text>
         </View>

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { View, Pressable, Text, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Upload, Video as VideoIcon, Check } from 'lucide-react-native';
 
 import { CountScreenShell } from '@/components/count/count-screen-shell';
 import { CountSectionHeading } from '@/components/count/count-section-heading';
+import { CountPillButton } from '@/components/count/count-pill-button';
 import { DetectionSummary } from '@/components/count/detection-summary';
 import { SimpleProgress } from '@/components/count/simple-progress';
 import { HousePicker } from '@/components/count/house-picker';
@@ -15,7 +15,7 @@ import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
 import { detectStreamFrame, trackUpdate, type TrackedAnimal } from '@/lib/ai/counting-service';
 import { evaluateHouseAlerts } from '@/lib/alerts';
-import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { COLORS, FONTS } from '@/lib/design-system';
 
 export default function VideoCount() {
   const router = useRouter();
@@ -141,10 +141,13 @@ export default function VideoCount() {
           <VideoIcon size={36} color={COLORS.secondary} />
           <Text style={{ color: COLORS.inkMuted, marginTop: 8 }}>{filename ?? 'No video'}</Text>
         </View>
-        <Pressable onPress={() => void pick()} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border }}>
-          <Upload size={18} color={COLORS.primary} />
-          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink }}>Choose video</Text>
-        </Pressable>
+        <CountPillButton
+          label="Choose video"
+          icon={Upload}
+          variant="outline"
+          onPress={() => void pick()}
+          style={{ width: '100%' }}
+        />
       </View>
 
       {(running || done) && (
@@ -156,32 +159,33 @@ export default function VideoCount() {
           {done ? (
             <>
               <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} />
-              <Pressable onPress={() => void save()} style={[{ marginTop: 16, borderRadius: 14, overflow: 'hidden' }, SHADOW.neon]}>
-                <LinearGradient colors={[...GRADIENTS.hero]} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14 }}>
-                  <Check size={18} color={COLORS.canvas} />
-                  <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas }}>Save session</Text>
-                </LinearGradient>
-              </Pressable>
+              <CountPillButton
+                label="Save session"
+                icon={Check}
+                variant="default"
+                onPress={() => void save()}
+                style={{ marginTop: 16, width: '100%' }}
+              />
             </>
           ) : null}
         </View>
       )}
 
       {!running && !done ? (
-        <Pressable
+        <CountPillButton
+          label="Process video"
+          icon={VideoIcon}
+          variant="secondary"
+          size="lg"
+          disabled={!filename}
           onPress={() => {
             setProgress(0);
             setFramesProcessed(0);
             setCount(0);
             setRunning(true);
           }}
-          disabled={!filename}
-          style={[{ borderRadius: 14, overflow: 'hidden', opacity: filename ? 1 : 0.5 }, SHADOW.neon]}
-        >
-          <LinearGradient colors={[COLORS.accent, COLORS.primary]} style={{ paddingVertical: 16, alignItems: 'center' }}>
-            <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas }}>Process video</Text>
-          </LinearGradient>
-        </Pressable>
+          style={{ width: '100%' }}
+        />
       ) : null}
     </CountScreenShell>
   );

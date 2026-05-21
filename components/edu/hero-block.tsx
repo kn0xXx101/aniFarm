@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { Text } from '@/components/ui/text';
 import { BadgePill } from '@/components/edu/badge-pill';
-import { GRADIENTS, SHADOW } from '@/lib/design-system';
+import { FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 
 interface HeroBlockProps {
   badge: string;
@@ -24,15 +24,15 @@ export function HeroBlock({ badge, title, highlight, subtitle, actions }: HeroBl
     >
       <BadgePill label={badge} onDark />
       <Text
-        className="text-white text-3xl font-extrabold mt-4 leading-tight"
-        style={{ fontFamily: 'PlusJakartaSans_800ExtraBold' }}
+        className="text-white mt-4"
+        style={{ fontFamily: FONTS.display, fontSize: 28, lineHeight: 34 }}
       >
         {title}
-        {highlight ? (
-          <Text style={{ fontFamily: 'PlusJakartaSans_800ExtraBold' }}> {highlight}</Text>
-        ) : null}
+        {highlight ? <Text style={{ fontFamily: FONTS.display }}> {highlight}</Text> : null}
       </Text>
-      <Text className="text-white/90 text-base mt-3 leading-6">{subtitle}</Text>
+      <Text className="text-white/90 mt-3" style={{ fontFamily: FONTS.regular, fontSize: 15, lineHeight: 22 }}>
+        {subtitle}
+      </Text>
       {actions ? <View className="mt-5 gap-3">{actions}</View> : null}
     </LinearGradient>
   );

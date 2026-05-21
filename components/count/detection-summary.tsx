@@ -25,7 +25,7 @@ export function DetectionSummary({
     {
       key: 'human',
       value: excludedHumans,
-      color: COLORS.inkMuted,
+      color: COLORS.inkSecondary,
       label: DETECTION_CLASS_LABELS.human,
     },
   ] as const;
@@ -96,12 +96,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: FONTS.medium,
-    fontSize: 10,
+    fontSize: 12,
+    lineHeight: 16,
     color: COLORS.inkMuted,
     marginTop: 2,
     textAlign: 'center',
   },
   labelDark: {
-    color: 'rgba(255,255,255,0.55)',
+    color: 'rgba(255,255,255,0.72)',
   },
 });

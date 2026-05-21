@@ -33,7 +33,8 @@ export function HousePicker({
         <Text
           style={{
             fontFamily: FONTS.semibold,
-            fontSize: 11,
+            fontSize: 12,
+            lineHeight: 16,
             textTransform: 'uppercase',
             letterSpacing: 1,
             color: isDark ? 'rgba(255,255,255,0.7)' : COLORS.inkMuted,

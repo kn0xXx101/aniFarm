@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 import { SurfaceCard } from '@/components/ui/surface-card';
-import { COLORS, FONTS } from '@/lib/design-system';
+import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 
 interface MetricTileProps {
   label: string;
@@ -26,11 +26,11 @@ export function MetricTile({ label, value, hint, icon, tone = 'default', classNa
     <SurfaceCard className={className} variant={tone === 'danger' ? 'danger' : 'default'} style={{ flex: 1, minWidth: 140 }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkMuted, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            {label}
+          <Text style={[TYPE.caption, { textTransform: 'uppercase', letterSpacing: 0.5 }]}>{label}</Text>
+          <Text style={{ fontFamily: FONTS.bold, color: valueColor[tone], fontSize: 24, lineHeight: 28, marginTop: 4 }}>
+            {value}
           </Text>
-          <Text style={{ fontFamily: FONTS.bold, color: valueColor[tone], fontSize: 24, marginTop: 4 }}>{value}</Text>
-          {hint ? <Text style={{ color: COLORS.inkMuted, fontSize: 12, marginTop: 2 }}>{hint}</Text> : null}
+          {hint ? <Text style={[TYPE.caption, { marginTop: 2 }]}>{hint}</Text> : null}
         </View>
         {icon ? <View>{icon}</View> : null}
       </View>

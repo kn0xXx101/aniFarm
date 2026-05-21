@@ -17,7 +17,7 @@ import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { LIGHT_THEME } from '@/lib/constants';
-import { COLORS } from '@/lib/design-system';
+import { COLORS, FONTS } from '@/lib/design-system';
 import { initPostHog } from '@/lib/posthog';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ToastProvider } from '@/components/ui/toast';
@@ -33,7 +33,7 @@ const STACK_HEADER = {
   headerShown: true,
   headerStyle: { backgroundColor: COLORS.canvas },
   headerTintColor: COLORS.ink,
-  headerTitleStyle: { color: COLORS.ink },
+  headerTitleStyle: { color: COLORS.ink, fontFamily: FONTS.semibold, fontSize: 17 },
   headerShadowVisible: false,
   contentStyle: { backgroundColor: COLORS.canvas },
 } as const;

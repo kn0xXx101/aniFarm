@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { COLORS, FONTS } from '@/lib/design-system';
+import { COLORS, TYPE } from '@/lib/design-system';
 
 interface CountSectionHeadingProps {
   eyebrow?: string;
@@ -12,22 +12,11 @@ export function CountSectionHeading({ eyebrow, title, description }: CountSectio
   return (
     <View style={{ marginBottom: 14 }}>
       {eyebrow ? (
-        <Text
-          style={{
-            fontFamily: FONTS.semibold,
-            color: COLORS.primary,
-            fontSize: 11,
-            textTransform: 'uppercase',
-            letterSpacing: 1,
-            marginBottom: 4,
-          }}
-        >
-          {eyebrow}
-        </Text>
+        <Text style={[TYPE.eyebrow, { textTransform: 'uppercase', marginBottom: 4 }]}>{eyebrow}</Text>
       ) : null}
-      <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 20 }}>{title}</Text>
+      <Text style={TYPE.title}>{title}</Text>
       {description ? (
-        <Text style={{ color: COLORS.inkMuted, fontSize: 14, marginTop: 4, lineHeight: 20 }}>{description}</Text>
+        <Text style={[TYPE.bodySecondary, { marginTop: 4 }]}>{description}</Text>
       ) : null}
     </View>
   );

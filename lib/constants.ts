@@ -1,8 +1,8 @@
 import type { Theme } from '@react-navigation/native';
 
-import { BRAND, COLORS, FONTS, GRADIENTS, NEON, LAYOUT, SHADOW } from '@/lib/design-system';
+import { BRAND, COLORS, FONTS, TYPE, GRADIENTS, NEON, LAYOUT, SHADOW } from '@/lib/design-system';
 
-export { BRAND, COLORS, FONTS, GRADIENTS, NEON, LAYOUT, SHADOW };
+export { BRAND, COLORS, FONTS, TYPE, GRADIENTS, NEON, LAYOUT, SHADOW };
 export { SUNRISE_GRADIENT, TROPICAL_GRADIENT, SKY_GRADIENT, SUNSET_GRADIENT } from '@/lib/design-system';
 
 const NAV_COLORS = {

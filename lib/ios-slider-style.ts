@@ -9,9 +9,9 @@ export const IOS_SLIDER = {
   trackMinHeightLg: 48,
   trackMinHeightSm: 36,
   thumbInset: 2,
-  labelSize: 13,
-  labelSizeLg: 15,
-  labelSizeSm: 12,
+  labelSize: 14,
+  labelSizeLg: 16,
+  labelSizeSm: 13,
   radius: IOS_GLASS.radiusPill,
 } as const;
 
@@ -44,7 +44,7 @@ export function getSliderThumbColors(accent: SliderAccent, isTinted: boolean) {
 }
 
 export function getSliderLabelColor(accent: SliderAccent, selected: boolean) {
-  if (!selected) return COLORS.inkMuted;
+  if (!selected) return COLORS.inkSecondary;
   switch (accent) {
     case 'danger':
       return COLORS.danger;

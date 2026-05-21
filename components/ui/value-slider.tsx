@@ -39,7 +39,7 @@ export function ValueSlider({
   const display = value.toLocaleString();
   const pad = compact ? 8 : 12;
   const valueSize = compact ? 17 : 20;
-  const labelSize = compact ? 12 : 13;
+  const labelSize = compact ? 13 : 14;
 
   return (
     <IosGlassSurface
@@ -77,8 +77,8 @@ export function ValueSlider({
         thumbTintColor={COLORS.primary}
       />
       <View style={styles.labels}>
-        <Text style={{ fontFamily: FONTS.regular, fontSize: 11, color: ink }}>{min}</Text>
-        <Text style={{ fontFamily: FONTS.regular, fontSize: 11, color: ink }}>{max}</Text>
+        <Text style={{ fontFamily: FONTS.medium, fontSize: 12, lineHeight: 16, color: ink }}>{min}</Text>
+        <Text style={{ fontFamily: FONTS.medium, fontSize: 12, lineHeight: 16, color: ink }}>{max}</Text>
       </View>
     </IosGlassSurface>
   );

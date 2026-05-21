@@ -215,7 +215,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   label: {
-    fontSize: 10,
-    letterSpacing: 0.15,
+    fontSize: 11,
+    lineHeight: 14,
+    letterSpacing: 0.2,
   },
 });

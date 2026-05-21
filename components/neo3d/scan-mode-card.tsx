@@ -53,10 +53,10 @@ export function ScanModeCard({
             <Text numberOfLines={1} style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 16 }}>
               {title}
             </Text>
-            <Text numberOfLines={2} style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 2 }}>
+            <Text numberOfLines={2} style={{ color: COLORS.inkSecondary, fontSize: 14, lineHeight: 20, marginTop: 2 }}>
               {subtitle}
             </Text>
-            <Text numberOfLines={1} style={{ color: COLORS.secondary, fontSize: 11, marginTop: 6, fontFamily: FONTS.medium }}>
+            <Text numberOfLines={1} style={{ color: COLORS.secondary, fontSize: 12, lineHeight: 16, marginTop: 6, fontFamily: FONTS.medium }}>
               {meta}
             </Text>
           </View>

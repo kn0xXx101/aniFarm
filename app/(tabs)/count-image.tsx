@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Pressable, Image, Text, Platform, type LayoutChangeEvent } from 'react-native';
+import { View, Image, Text, Platform, type LayoutChangeEvent } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Upload, Image as ImageIcon, Check, RotateCcw } from 'lucide-react-native';
 
 import { CountScreenShell } from '@/components/count/count-screen-shell';
 import { CountSectionHeading } from '@/components/count/count-section-heading';
+import { CountPillButton } from '@/components/count/count-pill-button';
 import { DetectionOverlay } from '@/components/count/detection-overlay';
 import { DetectionSummary } from '@/components/count/detection-summary';
 import { HousePicker } from '@/components/count/house-picker';
@@ -15,7 +15,7 @@ import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
 import { detectFromImage, type DetectionResult } from '@/lib/ai/counting-service';
 import { evaluateHouseAlerts } from '@/lib/alerts';
-import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { COLORS, FONTS } from '@/lib/design-system';
 
 export default function ImageCount() {
   const router = useRouter();
@@ -142,20 +142,23 @@ export default function ImageCount() {
       </View>
 
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-        <Pressable
+        <CountPillButton
+          label="Upload"
+          icon={Upload}
+          variant="outline"
           onPress={() => void pickFromDevice()}
-          style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}
-        >
-          <Upload size={18} color={COLORS.primary} />
-          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink }}>Upload</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => { setResult(null); setImageUri(null); }}
-          style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}
-        >
-          <RotateCcw size={18} color={COLORS.primary} />
-          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink }}>Clear</Text>
-        </Pressable>
+          style={{ flex: 1 }}
+        />
+        <CountPillButton
+          label="Clear"
+          icon={RotateCcw}
+          variant="outline"
+          onPress={() => {
+            setResult(null);
+            setImageUri(null);
+          }}
+          style={{ flex: 1 }}
+        />
       </View>
 
       {result ? (
@@ -166,19 +169,24 @@ export default function ImageCount() {
             Confidence {(result.avgConfidence * 100).toFixed(0)}% · {result.inferenceMs}ms · people never counted
           </Text>
           <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} label="Save to house" />
-          <Pressable onPress={() => void save()} style={[{ marginTop: 16, borderRadius: 14, overflow: 'hidden' }, SHADOW.neon]}>
-            <LinearGradient colors={[...GRADIENTS.hero]} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14 }}>
-              <Check size={18} color={COLORS.canvas} />
-              <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas }}>Save session</Text>
-            </LinearGradient>
-          </Pressable>
+          <CountPillButton
+            label="Save session"
+            icon={Check}
+            variant="default"
+            onPress={() => void save()}
+            style={{ marginTop: 16, width: '100%' }}
+          />
         </View>
       ) : (
-        <Pressable onPress={analyze} disabled={analyzing || !imageUri} style={[{ borderRadius: 14, overflow: 'hidden', opacity: analyzing || !imageUri ? 0.5 : 1 }, SHADOW.neon]}>
-          <LinearGradient colors={[...GRADIENTS.hero]} style={{ paddingVertical: 16, alignItems: 'center' }}>
-            <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas }}>{analyzing ? 'Analyzing…' : 'Run AI detection'}</Text>
-          </LinearGradient>
-        </Pressable>
+        <CountPillButton
+          label={analyzing ? 'Analyzing…' : 'Run detection'}
+          variant="default"
+          onPress={() => void analyze()}
+          disabled={analyzing || !imageUri}
+          loading={analyzing}
+          size="lg"
+          style={{ width: '100%' }}
+        />
       )}
     </CountScreenShell>
   );

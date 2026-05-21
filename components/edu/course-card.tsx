@@ -4,7 +4,7 @@ import { Star } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/text';
 import { SurfaceCard } from '@/components/ui/surface-card';
-import { COLORS } from '@/lib/design-system';
+import { COLORS, FONTS } from '@/lib/design-system';
 
 interface CourseCardProps {
   icon: ReactNode;
@@ -34,7 +34,7 @@ export function CourseCard({
           {icon}
         </View>
         <View className="flex-1">
-          <Text className="font-bold text-base" style={{ fontFamily: 'PlusJakartaSans_700Bold' }}>
+          <Text weight="bold" size="base">
             {title}
           </Text>
           <Text variant="muted" size="sm" className="mt-0.5">
@@ -46,7 +46,7 @@ export function CourseCard({
             </Text>
             {rating ? (
               <View className="flex-row items-center gap-1">
-                <Star size={12} color={COLORS.star} fill={COLORS.star} />
+                <Star size={12} color={COLORS.accentWarm} fill={COLORS.accentWarm} />
                 <Text size="xs" className="font-semibold">
                   {rating}
                 </Text>
