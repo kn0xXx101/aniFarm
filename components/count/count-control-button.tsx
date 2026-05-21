@@ -117,24 +117,13 @@ export function CountControlButton({
             ]}
           />
         ) : variant === 'save' ? (
-          // Cyan-tinted glass
-          <>
-            {Platform.OS !== 'web' ? (
-              <BlurView
-                intensity={IOS_GLASS.blurIntensity}
-                tint={IOS_GLASS.tint}
-                style={StyleSheet.absoluteFill}
-              />
-            ) : (
-              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(26,37,32,0.82)' }]} />
-            )}
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: `${COLORS.secondary}28` },
-              ]}
-            />
-          </>
+          // Cyan solid fill
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: COLORS.secondary },
+            ]}
+          />
         ) : (
           // Neutral elevated glass (reset)
           <>
