@@ -143,13 +143,13 @@ export default function ImageCount() {
         {result ? <DetectionOverlay boxes={result.boxes} width={size.w} height={size.h} /> : null}
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16, width: '100%' }}>
         <CountPillButton
           label="Upload"
           icon={Upload}
           variant="outline"
           onPress={() => void pickFromDevice()}
-          style={{ flex: 1 }}
+          style={{ flex: 1, minWidth: 0 }}
         />
         <CountPillButton
           label="Clear"
@@ -159,7 +159,7 @@ export default function ImageCount() {
             setResult(null);
             setImageUri(null);
           }}
-          style={{ flex: 1 }}
+          style={{ flex: 1, minWidth: 0 }}
         />
       </View>
 

@@ -10,6 +10,11 @@ export const IOS_GLASS = {
   radiusSm: 18,
   radiusHero: 32,
   radiusPill: 999,
+  /** Header chrome: brand paw, alerts, back — keep touch targets aligned */
+  headerIconSize: 40,
+  headerIconGlyph: 20,
+  headerChromeRadius: 14,
+  headerClusterGap: 12,
   border: 'rgba(255, 255, 255, 0.2)',
   borderSoft: 'rgba(255, 255, 255, 0.1)',
   highlight: 'rgba(255, 255, 255, 0.14)',
@@ -35,3 +40,11 @@ export const IOS_GLASS = {
 export function isGlassBlurSupported(): boolean {
   return Platform.OS === 'ios' || Platform.OS === 'android';
 }
+
+/** Centered icon well for top-bar pills and glass icon buttons */
+export const headerIconWellStyle = {
+  width: IOS_GLASS.headerIconSize,
+  height: IOS_GLASS.headerIconSize,
+  alignItems: 'center' as const,
+  justifyContent: 'center' as const,
+};

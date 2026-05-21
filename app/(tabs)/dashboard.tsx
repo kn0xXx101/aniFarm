@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import {
   Camera,
   Image as ImageIcon,
@@ -28,7 +28,9 @@ import { StaggerIn } from '@/components/neo3d/stagger-in';
 import { NeoChip } from '@/components/neo3d/neo-chip';
 import { Card3D } from '@/components/ui/card-3d';
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
+import { CountPillButton } from '@/components/count/count-pill-button';
 import { SlidingButton } from '@/components/ui/sliding-button';
+import type { CountingMode } from '@/types/domain';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
@@ -63,7 +65,7 @@ export default function Dashboard() {
   const featureCardWidth = (width - horizontal * 2 - 12) / 2;
 
   return (
-    <NeoScreen padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+    <NeoScreen scroll padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
       <TopBar showBrand />
 
       <StaggerIn index={0}>
@@ -82,10 +84,10 @@ export default function Dashboard() {
           highlight="command center."
           subtitle="Launch AI counts, monitor capacity, and track trends."
           actions={
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+            <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
               <SlidingButton
                 onPress={() => router.push('/(tabs)/count-live')}
-                style={[{ flex: 1, minHeight: 48 }, SHADOW.neon]}
+                style={[{ flex: 1, minWidth: 0, minHeight: 48 }, SHADOW.neon]}
                 borderRadius={999}
                 fillColor={COLORS.primaryDark}
               >
@@ -94,6 +96,7 @@ export default function Dashboard() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{
+                    width: '100%',
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -104,18 +107,28 @@ export default function Dashboard() {
                   }}
                 >
                   <Zap size={18} color={COLORS.canvas} />
-                  <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 15 }}>Start scan</Text>
+                  <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 15, flexShrink: 0 }}>
+                    Start scan
+                  </Text>
                 </LinearGradient>
               </SlidingButton>
               <SlidingButton
                 onPress={() => router.push('/(tabs)/farms')}
-                style={{ flex: 1, minHeight: 48 }}
+                style={{ flex: 1, minWidth: 0, minHeight: 48 }}
                 borderRadius={999}
                 fillColor={COLORS.primary}
               >
-                <IosGlassSurface variant="glass" radius={999} padding={0} shadow="soft">
-                  <View style={{ flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 }}>
-                    <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 15 }}>Farms</Text>
+                <IosGlassSurface variant="glass" radius={999} padding={0} shadow="soft" style={{ width: '100%' }}>
+                  <View
+                    style={{
+                      width: '100%',
+                      minHeight: 48,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      paddingHorizontal: 12,
+                    }}
+                  >
+                    <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 15, flexShrink: 0 }}>Farms</Text>
                   </View>
                 </IosGlassSurface>
               </SlidingButton>
@@ -144,7 +157,12 @@ export default function Dashboard() {
 
       {lastSession ? (
         <StaggerIn index={3}>
-          <Card3D variant="neon" glowColor={COLORS.secondary} onPress={() => router.push('/(tabs)/count')} style={{ marginBottom: 20 }}>
+          <Card3D
+            variant="neon"
+            glowColor={COLORS.secondary}
+            onPress={() => router.push(countRouteForMode(lastSession.mode))}
+            style={{ marginBottom: 20 }}
+          >
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={{ fontFamily: FONTS.semibold, color: COLORS.secondary, fontSize: 11 }}>CONTINUE</Text>
@@ -155,9 +173,12 @@ export default function Dashboard() {
                   {lastSession.count.toLocaleString()} alive
                 </Text>
               </View>
-              <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: COLORS.primaryLight }}>
-                <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary }}>Resume</Text>
-              </View>
+              <CountPillButton
+                label="Resume"
+                variant="default"
+                onPress={() => router.push(countRouteForMode(lastSession.mode))}
+                style={{ flexShrink: 0, minWidth: 96 }}
+              />
             </View>
           </Card3D>
         </StaggerIn>
@@ -237,6 +258,20 @@ export default function Dashboard() {
       </Card3D>
     </NeoScreen>
   );
+}
+
+function countRouteForMode(mode: CountingMode): Href {
+  switch (mode) {
+    case 'image':
+      return '/(tabs)/count-image';
+    case 'video':
+      return '/(tabs)/count-video';
+    case 'cctv':
+      return '/(tabs)/cctv';
+    case 'live':
+    default:
+      return '/(tabs)/count-live';
+  }
 }
 
 function formatCompact(n: number) {

@@ -108,10 +108,11 @@ export default function CountTab() {
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon={<Camera size={26} color={COLORS.primary} />}
+          variant="camera"
+          icon={<Camera size={32} color={COLORS.primary} strokeWidth={2} />}
           title="No sessions yet"
-          description="Start your first count with one of the modes above."
-          actionLabel="Live count"
+          description="Start a live count from the camera, or pick image or video above."
+          actionLabel="Open live camera"
           onAction={() => router.push('/(tabs)/count-live')}
         />
       ) : null}

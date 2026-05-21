@@ -4,6 +4,7 @@ import { View, useWindowDimensions } from 'react-native';
 import { Card3D } from '@/components/ui/card-3d';
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
+import { headerIconWellStyle } from '@/lib/ios-glass';
 
 interface MetricCubeProps {
   value: string;
@@ -18,7 +19,7 @@ export function MetricCube({ value, label, icon, glowColor = COLORS.primary }: M
     <View style={{ flex: 1, minWidth: 0 }}>
       <Card3D variant="glass" size="sm" glowColor={glowColor} onPress={undefined} style={{ flex: 1 }}>
         <View style={{ alignItems: 'center', paddingVertical: 2 }}>
-          {icon ? <View style={{ marginBottom: 6 }}>{icon}</View> : null}
+          {icon ? <View style={[headerIconWellStyle, { marginBottom: 6 }]}>{icon}</View> : null}
           <Text
             numberOfLines={1}
             adjustsFontSizeToFit

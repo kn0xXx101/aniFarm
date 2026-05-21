@@ -9,6 +9,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Play, Pause, RotateCcw, Check } from 'lucide-react-native';
 
+import { CameraPreview } from '@/components/count/camera-preview';
 import { CountControlButton } from '@/components/count/count-control-button';
 import { DetectionOverlay } from '@/components/count/detection-overlay';
 import { DetectionSummary } from '@/components/count/detection-summary';
@@ -302,9 +303,10 @@ export default function LiveCount() {
           }}
         >
           {status === 'idle' ? (
-            <Text style={styles.previewHint}>
-              Mock camera in Expo Go{'\n'}Counts alive livestock · flags dead · ignores people
-            </Text>
+            <CameraPreview
+              active={false}
+              onLayout={({ w, h }) => setPreviewSize({ w, h })}
+            />
           ) : null}
 
           {hasSummary && previewSize.w > 1 ? (
@@ -433,14 +435,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,
-  },
-  previewHint: {
-    fontFamily: FONTS.medium,
-    color: COLORS.inkMuted,
-    textAlign: 'center',
-    fontSize: 13,
-    lineHeight: 20,
-    paddingHorizontal: 24,
   },
   statsOverlay: {
     position: 'absolute',

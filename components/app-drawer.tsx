@@ -175,8 +175,11 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
                   <SafeAreaView edges={['top']}>
                     <View className="px-5 pt-2 flex-row items-center justify-between">
                       <View className="flex-row items-center gap-2">
-                        <View className="size-9 rounded-2xl bg-black/30 items-center justify-center border border-white/20">
-                          <FarmIcon size={18} color="white" />
+                        <View
+                          className="rounded-2xl bg-black/30 items-center justify-center border border-white/20"
+                          style={{ width: 40, height: 40 }}
+                        >
+                          <FarmIcon size={20} color="white" strokeWidth={2.2} />
                         </View>
                         <Text className="text-white font-bold text-lg" style={{ letterSpacing: 1 }}>aniFarm</Text>
                       </View>

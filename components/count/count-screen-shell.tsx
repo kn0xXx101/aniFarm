@@ -6,6 +6,7 @@ import { SlidingButton } from '@/components/ui/sliding-button';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
 
 interface CountScreenShellProps {
   title: string;
@@ -34,13 +35,13 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
       <SlidingButton
         onPress={goBack}
         accessibilityLabel="Go back"
-        borderRadius={14}
+        borderRadius={IOS_GLASS.headerChromeRadius}
         fillShape="circle"
         fillColor={COLORS.primary}
         backgroundColor={dark ? 'rgba(255,255,255,0.12)' : COLORS.surfaceMuted}
         style={{
-          width: 40,
-          height: 40,
+          width: IOS_GLASS.headerIconSize,
+          height: IOS_GLASS.headerIconSize,
           alignItems: 'center',
           justifyContent: 'center',
           borderWidth: 1,

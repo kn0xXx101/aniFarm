@@ -67,7 +67,9 @@ function SlidingButtonInner(
       {...props}
     >
       {slideFill ? <Fill /> : null}
-      <View style={styles.content}>{children}</View>
+      <View style={styles.content}>
+        <View style={styles.contentInner}>{children}</View>
+      </View>
     </AnimatedPressable>
   );
 }
@@ -79,5 +81,13 @@ SlidingButton.displayName = 'SlidingButton';
 const styles = StyleSheet.create({
   content: {
     zIndex: 1,
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  contentInner: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

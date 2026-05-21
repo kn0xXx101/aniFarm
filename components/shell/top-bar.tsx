@@ -8,7 +8,7 @@ import { Text } from '@/components/ui/text';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { COLORS, FONTS } from '@/lib/design-system';
-import { IOS_GLASS } from '@/lib/ios-glass';
+import { headerIconWellStyle, IOS_GLASS } from '@/lib/ios-glass';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { cn } from '@/lib/utils';
 
@@ -40,9 +40,9 @@ export function TopBar({
 
   const alertBtn = showAlerts ? (
     <Pressable onPress={() => router.push('/(tabs)/alerts')} accessibilityLabel="Alerts">
-      <IosGlassSurface variant="glass" radius={14} padding={0} shadow="none">
-        <View style={styles.iconBtn}>
-          <Bell size={20} color={COLORS.ink} />
+      <IosGlassSurface variant="glass" radius={IOS_GLASS.headerChromeRadius} padding={0} shadow="none">
+        <View style={headerIconWellStyle}>
+          <Bell size={IOS_GLASS.headerIconGlyph} color={COLORS.ink} />
           {unread > 0 ? (
             <View style={styles.badge}>
               <Text className="text-[10px] font-bold" style={{ color: COLORS.canvas }}>
@@ -59,7 +59,10 @@ export function TopBar({
     return (
       <View className={cn('flex-row items-center justify-between py-3', className)}>
         <BrandMark />
-        <View className="flex-row items-center gap-2">
+        <View
+          className="flex-row items-center"
+          style={{ gap: IOS_GLASS.headerClusterGap }}
+        >
           {right}
           {alertBtn}
         </View>
@@ -71,8 +74,8 @@ export function TopBar({
     <View className={cn('flex-row items-center gap-3 py-2', className)}>
       {showBack ? (
         <Pressable onPress={goBack} accessibilityLabel="Go back">
-          <IosGlassSurface variant="glass" radius={14} padding={0} shadow="none">
-            <View style={styles.iconBtn}>
+          <IosGlassSurface variant="glass" radius={IOS_GLASS.headerChromeRadius} padding={0} shadow="none">
+            <View style={headerIconWellStyle}>
               <ChevronLeft size={22} color={COLORS.ink} />
             </View>
           </IosGlassSurface>
@@ -98,12 +101,6 @@ export function TopBar({
 }
 
 const styles = StyleSheet.create({
-  iconBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   badge: {
     position: 'absolute',
     top: -2,

@@ -24,10 +24,16 @@ export function FarmSelector() {
         <Card3D variant="glass" size="sm" tiltIntensity={4}>
           <View className="flex-row items-center gap-3">
             <View
-              className="size-10 rounded-xl items-center justify-center"
-              style={{ backgroundColor: COLORS.primaryLight, borderWidth: 1, borderColor: COLORS.border }}
+              className="rounded-xl items-center justify-center"
+              style={{
+                width: 40,
+                height: 40,
+                backgroundColor: COLORS.primaryLight,
+                borderWidth: 1,
+                borderColor: COLORS.border,
+              }}
             >
-              <MapPin size={18} color={COLORS.primary} />
+              <MapPin size={20} color={COLORS.primary} strokeWidth={2.2} />
             </View>
             <View className="flex-1">
               <Text className="text-xs" style={{ fontFamily: FONTS.semibold, color: COLORS.inkMuted }}>

@@ -57,7 +57,7 @@ export default function FarmsTab() {
 
       {farms.length === 0 ? (
         <EmptyState
-          icon={<FarmIcon size={28} color={COLORS.primary} />}
+          icon={<FarmIcon size={28} color={COLORS.primary} strokeWidth={2.2} />}
           title="No farms yet"
           description="Add your first farm to organize counting and analytics."
           actionLabel="Create farm"

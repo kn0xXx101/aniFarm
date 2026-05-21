@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react-native';
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/design-system';
-import { IOS_GLASS } from '@/lib/ios-glass';
+import { headerIconWellStyle, IOS_GLASS } from '@/lib/ios-glass';
 
 interface ActionRowProps {
   icon: ReactNode;
@@ -26,17 +26,8 @@ export function ActionRow({ icon, title, subtitle, onPress, badge }: ActionRowPr
       style={{ marginBottom: 10 }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44 }}>
-        <IosGlassSurface variant="accent" radius={16} padding={0} accentColor={COLORS.primary} shadow="none">
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {icon}
-          </View>
+        <IosGlassSurface variant="accent" radius={IOS_GLASS.headerChromeRadius} padding={0} accentColor={COLORS.primary} shadow="none">
+          <View style={headerIconWellStyle}>{icon}</View>
         </IosGlassSurface>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink, fontSize: 16 }} numberOfLines={1}>

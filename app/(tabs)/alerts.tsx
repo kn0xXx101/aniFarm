@@ -23,7 +23,7 @@ export default function AlertsTab() {
 
       {alerts.length === 0 ? (
         <EmptyState
-          icon={<Check size={28} color={COLORS.primary} />}
+          icon={<Check size={28} color={COLORS.primary} strokeWidth={2.5} />}
           title="All clear"
           description="No alerts right now."
         />

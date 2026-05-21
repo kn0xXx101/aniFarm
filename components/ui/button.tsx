@@ -193,6 +193,8 @@ export const Button = React.forwardRef<View, ButtonProps>(
             paddingHorizontal: size === 'icon' ? 0 : sz.paddingH,
             paddingVertical: sz.paddingV,
             minWidth: size === 'icon' ? sz.minHeight : undefined,
+            alignSelf: 'stretch',
+            width: '100%',
           },
         ]}
       >

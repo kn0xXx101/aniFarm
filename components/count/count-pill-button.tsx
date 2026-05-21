@@ -47,11 +47,13 @@ export function CountPillButton({
     <>
       {Icon ? <Icon size={18} color={ICON_COLOR[variant]} /> : null}
       <Text
+        numberOfLines={1}
         style={{
           fontFamily: variant === 'default' ? FONTS.bold : FONTS.semibold,
           fontSize: size === 'lg' ? 16 : 15,
           lineHeight: size === 'lg' ? 22 : 20,
           color: LABEL_COLOR[variant],
+          flexShrink: 0,
         }}
       >
         {label}
@@ -79,5 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+    flexShrink: 1,
+    minWidth: 0,
   },
 });
