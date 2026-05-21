@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SlidingButton } from '@/components/ui/sliding-button';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 interface CountScreenShellProps {
@@ -15,7 +15,7 @@ interface CountScreenShellProps {
 }
 
 export function CountScreenShell({ title, children, scroll = true, dark = false }: CountScreenShellProps) {
-  const router = useRouter();
+  const goBack = useSmartBack();
   useHideTabBar();
 
   const bg = dark ? '#000' : COLORS.canvas;
@@ -32,7 +32,7 @@ export function CountScreenShell({ title, children, scroll = true, dark = false 
       }}
     >
       <SlidingButton
-        onPress={() => router.back()}
+        onPress={goBack}
         accessibilityLabel="Go back"
         borderRadius={14}
         fillShape="circle"

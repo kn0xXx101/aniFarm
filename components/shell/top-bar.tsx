@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { Bell, ChevronLeft } from 'lucide-react-native';
 
 import { BrandMark } from '@/components/neo3d/landing-hero';
@@ -9,12 +9,15 @@ import { useAlertStore } from '@/lib/stores/alert-store';
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { IOS_GLASS } from '@/lib/ios-glass';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { cn } from '@/lib/utils';
 
 interface TopBarProps {
   title?: string;
   subtitle?: string;
   showBack?: boolean;
+  /** Override inferred parent (e.g. return to You instead of Home). */
+  backTo?: Href;
   showAlerts?: boolean;
   showBrand?: boolean;
   right?: ReactNode;
@@ -25,12 +28,14 @@ export function TopBar({
   title,
   subtitle,
   showBack = false,
+  backTo,
   showAlerts = true,
   showBrand = false,
   right,
   className,
 }: TopBarProps) {
   const router = useRouter();
+  const goBack = useSmartBack(backTo);
   const unread = useAlertStore((s) => s.alerts.filter((a) => !a.read).length);
 
   const alertBtn = showAlerts ? (
@@ -65,7 +70,7 @@ export function TopBar({
   return (
     <View className={cn('flex-row items-center gap-3 py-2', className)}>
       {showBack ? (
-        <Pressable onPress={() => router.back()} accessibilityLabel="Go back">
+        <Pressable onPress={goBack} accessibilityLabel="Go back">
           <IosGlassSurface variant="glass" radius={14} padding={0} shadow="none">
             <View style={styles.iconBtn}>
               <ChevronLeft size={22} color={COLORS.ink} />

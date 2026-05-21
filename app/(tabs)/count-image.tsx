@@ -16,9 +16,11 @@ import { useToast } from '@/components/ui/toast';
 import { detectFromImage, type DetectionResult } from '@/lib/ai/counting-service';
 import { evaluateHouseAlerts } from '@/lib/alerts';
 import { COLORS, FONTS } from '@/lib/design-system';
+import { useSmartBack } from '@/hooks/useSmartBack';
 
 export default function ImageCount() {
   const router = useRouter();
+  const goBack = useSmartBack();
   const farms = useFarmStore((s) => s.farms);
   const houses = useFarmStore((s) => s.houses);
   const updateHouse = useFarmStore((s) => s.updateHouse);
@@ -112,7 +114,7 @@ export default function ImageCount() {
       description: `${count} alive · ${deadCount} dead · ${excludedHumans} people excluded`,
       variant: 'success',
     });
-    router.back();
+    goBack();
   };
 
   return (

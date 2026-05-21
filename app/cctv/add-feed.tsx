@@ -18,6 +18,7 @@ import { useCctvStore } from '@/lib/stores/cctv-store';
 import { useToast } from '@/components/ui/toast';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
+import { useSmartBack } from '@/hooks/useSmartBack';
 
 const INTERVAL_OPTIONS = [
   { value: '30' as const, label: '30 sec' },
@@ -37,6 +38,7 @@ const INTERVAL_SECONDS: Record<IntervalKey, number> = {
 
 export default function AddCctvFeed() {
   const router = useRouter();
+  const goBack = useSmartBack();
   const toast = useToast();
   const { horizontal } = useScreenInsets(false);
   const { farmId: paramFarmId, houseId: paramHouseId } = useLocalSearchParams<{
@@ -83,7 +85,7 @@ export default function AddCctvFeed() {
       enabled: true,
     });
     toast.toast({ title: 'Feed added', description: name.trim(), variant: 'success' });
-    router.back();
+    goBack();
   };
 
   return (

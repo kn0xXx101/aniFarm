@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Play, Pause, RotateCcw, Check } from 'lucide-react-native';
 
@@ -17,6 +16,7 @@ import { HousePicker } from '@/components/count/house-picker';
 import { CountAdjustBar } from '@/components/count/count-adjust-bar';
 import { useCountLiveLayout } from '@/hooks/useCountLiveLayout';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
@@ -27,7 +27,7 @@ import { livestockUnit } from '@/lib/livestock';
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 export default function LiveCount() {
-  const router = useRouter();
+  const goBack = useSmartBack();
   const insets = useSafeAreaInsets();
   useHideTabBar();
 
@@ -185,7 +185,7 @@ export default function LiveCount() {
       description: `${trackCount.toLocaleString()} alive ${unit}`,
       variant: 'success',
     });
-    router.back();
+    goBack();
   };
 
   const dockBody = (
@@ -274,7 +274,7 @@ export default function LiveCount() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={goBack}
           accessibilityLabel="Go back"
           style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.85 }]}
         >

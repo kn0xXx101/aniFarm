@@ -13,6 +13,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useToast } from '@/components/ui/toast';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import type { SubscriptionTier } from '@/types/domain';
 
 const PLANS: {
@@ -74,6 +75,7 @@ const PLANS: {
 
 export default function SubscriptionTab() {
   const router = useRouter();
+  const goBack = useSmartBack();
   const { horizontal } = useScreenInsets(true);
   const user = useAuthStore((s) => s.user);
   const setTier = useAuthStore((s) => s.setTier);
@@ -90,7 +92,7 @@ export default function SubscriptionTab() {
     }
     setTier(tier);
     toast.toast({ title: `Upgraded to ${tier}`, variant: 'success' });
-    router.back();
+    goBack();
   };
 
   return (
