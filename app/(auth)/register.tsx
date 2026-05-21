@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import { useRouter, Link } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Mail, Lock, User, Phone } from 'lucide-react-native';
 
-import { BrandMarkIcon } from '@/components/brand/brand-icon';
-
+import { AuthHero } from '@/components/auth/auth-hero';
+import { AuthScreenLayout } from '@/components/auth/auth-screen-layout';
 import { Text } from '@/components/ui/text';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card3D } from '@/components/ui/card-3d';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useToast } from '@/components/ui/toast';
 import { parseForm, registerSchema } from '@/lib/validation';
-import { SUNRISE_GRADIENT } from '@/lib/constants';
+import { BRAND, COLORS, FONTS } from '@/lib/design-system';
 
 export default function Register() {
   const router = useRouter();
@@ -38,7 +37,12 @@ export default function Register() {
     setErrors({});
     setLoading(true);
     try {
-      await register({ name: result.data.name, email: result.data.email, phone: result.data.phone ?? undefined, password: result.data.password });
+      await register({
+        name: result.data.name,
+        email: result.data.email,
+        phone: result.data.phone ?? undefined,
+        password: result.data.password,
+      });
       router.replace('/(tabs)/dashboard');
     } catch {
       toast.toast({ title: 'Registration failed', description: 'Please try again.', variant: 'destructive' });
@@ -48,95 +52,78 @@ export default function Register() {
   };
 
   return (
-    <View className="flex-1 bg-background">
-      {/* Gradient hero header */}
-      <View className="overflow-hidden">
-        <LinearGradient
-          colors={[...SUNRISE_GRADIENT]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ paddingBottom: 60 }}
-        >
-          <SafeAreaView edges={['top']}>
-            <View className="px-6 pt-2">
-              <View className="size-14 rounded-2xl bg-white/25 items-center justify-center mb-4">
-                <BrandMarkIcon size={22} color="white" />
-              </View>
-              <Text className="text-3xl font-extrabold text-white">Create account</Text>
-              <Text className="text-white/85 mt-1">
-                Get started with 14 days of Pro on us.
-              </Text>
-            </View>
-          </SafeAreaView>
-        </LinearGradient>
-      </View>
+    <AuthScreenLayout
+      footer={
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 24 }}>
+          <Text style={{ color: COLORS.inkMuted }}>Already have an account? </Text>
+          <Link href="/(auth)/login">
+            <Text style={{ color: COLORS.primary, fontFamily: FONTS.bold }}>Sign in</Text>
+          </Link>
+        </View>
+      }
+    >
+      <AuthHero
+        eyebrow="Create account"
+        title="Join aniFarm"
+        subtitle={`Start counting livestock on ${BRAND.name} — 14-day Pro trial in demo mode.`}
+        showLogo
+      />
 
-      <KeyboardAvoidingView behavior={typeof window === 'undefined' ? 'padding' : undefined} className="flex-1 -mt-8">
-        <ScrollView
-          contentContainerStyle={{ padding: 24, paddingTop: 0, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View className="bg-card rounded-3xl border border-border p-5">
-            <View className="gap-4">
-              <Input
-                label="Full name"
-                value={name}
-                onChangeText={(v) => { setName(v); clearError('name'); }}
-                leftIcon={<User size={18} color="hsl(20 12% 45%)" />}
-                className="min-h-[48px]"
-                error={errors.name}
-              />
-              <Input
-                label="Email"
-                value={email}
-                onChangeText={(v) => { setEmail(v); clearError('email'); }}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                leftIcon={<Mail size={18} color="hsl(20 12% 45%)" />}
-                className="min-h-[48px]"
-                error={errors.email}
-              />
-              <Input
-                label="Phone (optional)"
-                value={phone}
-                onChangeText={(v) => { setPhone(v); clearError('phone'); }}
-                keyboardType="phone-pad"
-                leftIcon={<Phone size={18} color="hsl(20 12% 45%)" />}
-                className="min-h-[48px]"
-                error={errors.phone}
-              />
-              <Input
-                label="Password"
-                value={password}
-                onChangeText={(v) => { setPassword(v); clearError('password'); }}
-                secureTextEntry
-                leftIcon={<Lock size={18} color="hsl(20 12% 45%)" />}
-                className="min-h-[48px]"
-                error={errors.password}
-              />
-              <Pressable onPress={submit} disabled={loading} className="rounded-2xl overflow-hidden mt-1">
-                <LinearGradient
-                  colors={[...SUNRISE_GRADIENT]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={{ paddingVertical: 16, alignItems: 'center', opacity: loading ? 0.6 : 1 }}
-                >
-                  <Text className="text-white font-bold text-base">
-                    {loading ? 'Creating account…' : 'Create account'}
-                  </Text>
-                </LinearGradient>
-              </Pressable>
-            </View>
-          </View>
+      <Card3D variant="glass" size="md">
+        <View style={{ gap: 14 }}>
+          <Input
+            label="Full name"
+            value={name}
+            onChangeText={(v) => {
+              setName(v);
+              clearError('name');
+            }}
+            leftIcon={<User size={18} color={COLORS.inkMuted} />}
+            error={errors.name}
+          />
+          <Input
+            label="Email"
+            value={email}
+            onChangeText={(v) => {
+              setEmail(v);
+              clearError('email');
+            }}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            leftIcon={<Mail size={18} color={COLORS.inkMuted} />}
+            error={errors.email}
+          />
+          <Input
+            label="Phone (optional)"
+            value={phone}
+            onChangeText={(v) => {
+              setPhone(v);
+              clearError('phone');
+            }}
+            keyboardType="phone-pad"
+            leftIcon={<Phone size={18} color={COLORS.inkMuted} />}
+            error={errors.phone}
+          />
+          <Input
+            label="Password"
+            value={password}
+            onChangeText={(v) => {
+              setPassword(v);
+              clearError('password');
+            }}
+            secureTextEntry
+            leftIcon={<Lock size={18} color={COLORS.inkMuted} />}
+            error={errors.password}
+          />
+          <Button loading={loading} onPress={() => void submit()} style={{ width: '100%', marginTop: 4 }}>
+            Create account
+          </Button>
+        </View>
+      </Card3D>
 
-          <View className="flex-row justify-center mt-8">
-            <Text variant="muted">Already have an account? </Text>
-            <Link href="/(auth)/login">
-              <Text className="text-primary font-bold">Sign in</Text>
-            </Link>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+      <Text style={{ textAlign: 'center', fontSize: 12, marginTop: 14, color: COLORS.inkMuted }}>
+        By continuing you agree to farm-level data staying on your account.
+      </Text>
+    </AuthScreenLayout>
   );
 }

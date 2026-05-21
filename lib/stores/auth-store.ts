@@ -29,41 +29,60 @@ export const useAuthStore = create<AuthState>()(
 
       signIn: async (email, _password) => {
         // TODO: replace with real auth provider (Firebase / Supabase)
-        // Example: const { user } = await signInWithEmailAndPassword(auth, email, password);
+        await new Promise((r) => setTimeout(r, 400));
         const user: User = {
-          id: '',
-          name: '',
+          id: `user-${Date.now()}`,
+          name: email.split('@')[0]?.replace(/[._-]/g, ' ') || 'Operator',
           email,
           role: 'farmer',
           tier: 'free',
           createdAt: Date.now(),
         };
-        set({ user, isAuthenticated: true });
+        set({ user, isAuthenticated: true, isOnboarded: true });
       },
 
       signInWithGoogle: async () => {
         // TODO: replace with real Google OAuth (expo-auth-session + Firebase)
-        throw new Error('Google sign-in not yet configured. Set up Firebase Auth.');
-      },
-
-      signInWithPhone: async (_phone) => {
-        // TODO: replace with real SMS OTP (Firebase Phone Auth)
-        throw new Error('Phone sign-in not yet configured. Set up Firebase Phone Auth.');
-      },
-
-      register: async ({ name, email, phone, password: _password }) => {
-        // TODO: replace with real auth provider
-        // Example: const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        await new Promise((r) => setTimeout(r, 500));
         const user: User = {
-          id: '',
-          name,
-          email,
+          id: `google-${Date.now()}`,
+          name: 'Demo User',
+          email: 'demo@anifarm.app',
+          role: 'farmer',
+          tier: 'pro',
+          createdAt: Date.now(),
+        };
+        set({ user, isAuthenticated: true, isOnboarded: true });
+      },
+
+      signInWithPhone: async (phone) => {
+        // TODO: replace with real SMS OTP (Firebase Phone Auth)
+        await new Promise((r) => setTimeout(r, 400));
+        const user: User = {
+          id: `phone-${Date.now()}`,
+          name: 'Operator',
+          email: '',
           phone,
           role: 'farmer',
           tier: 'free',
           createdAt: Date.now(),
         };
-        set({ user, isAuthenticated: true });
+        set({ user, isAuthenticated: true, isOnboarded: true });
+      },
+
+      register: async ({ name, email, phone, password: _password }) => {
+        // TODO: replace with real auth provider
+        await new Promise((r) => setTimeout(r, 500));
+        const user: User = {
+          id: `user-${Date.now()}`,
+          name,
+          email,
+          phone,
+          role: 'farmer',
+          tier: 'pro',
+          createdAt: Date.now(),
+        };
+        set({ user, isAuthenticated: true, isOnboarded: true });
       },
 
       signOut: () => set({ user: null, isAuthenticated: false }),

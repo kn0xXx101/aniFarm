@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -28,12 +27,11 @@ import { AniFarmLogo } from '@/components/brand/ani-farm-logo';
 import { AmbientScene } from '@/components/neo3d/ambient-scene';
 import { FloatingLeaf } from '@/components/neo3d/floating-leaf';
 import { Card3D } from '@/components/ui/card-3d';
-import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
-import { SlidingButton } from '@/components/ui/sliding-button';
-import { IOS_GLASS } from '@/lib/ios-glass';
+import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
-import { BRAND, COLORS, FONTS, GRADIENTS, LAYOUT, SHADOW } from '@/lib/design-system';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { BRAND, COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 const FEATURES = [
   {
@@ -105,61 +103,9 @@ function HeroPulse() {
   );
 }
 
-function PrimaryButton({
-  label,
-  onPress,
-  variant = 'filled',
-}: {
-  label: string;
-  onPress: () => void;
-  variant?: 'filled' | 'ghost';
-}) {
-  if (variant === 'ghost') {
-    return (
-      <SlidingButton
-        onPress={onPress}
-        borderRadius={IOS_GLASS.radiusPill}
-        fillColor={COLORS.primary}
-      >
-        <IosGlassSurface variant="glass" radius={IOS_GLASS.radiusPill} padding={0} shadow="soft">
-          <View style={{ paddingVertical: 14, paddingHorizontal: 24, alignItems: 'center' }}>
-            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkSecondary, fontSize: 16 }}>{label}</Text>
-          </View>
-        </IosGlassSurface>
-      </SlidingButton>
-    );
-  }
-
-  return (
-    <SlidingButton
-      onPress={onPress}
-      borderRadius={IOS_GLASS.radiusPill}
-      fillColor={COLORS.primaryDark}
-      style={SHADOW.neon}
-    >
-      <LinearGradient
-        colors={[...GRADIENTS.hero]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          paddingVertical: 16,
-          paddingHorizontal: 28,
-          borderRadius: IOS_GLASS.radiusPill,
-        }}
-      >
-        <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 17 }}>{label}</Text>
-        <ChevronRight size={20} color={COLORS.canvas} />
-      </LinearGradient>
-    </SlidingButton>
-  );
-}
-
 export function WelcomeScreen() {
   const router = useRouter();
+  const completeOnboarding = useAuthStore((s) => s.completeOnboarding);
   const { width, isNarrow } = useBreakpoint();
   const horizontalPad = 24;
   const cardW = isNarrow ? width - horizontalPad * 2 : (width - horizontalPad * 2 - 12) / 2;
@@ -266,9 +212,28 @@ export function WelcomeScreen() {
             })}
           </Animated.View>
 
-          <Animated.View entering={FadeInUp.delay(700).duration(500)} style={{ marginTop: 28, gap: 12 }}>
-            <PrimaryButton label="Get started" onPress={() => router.push('/onboarding')} />
-            <PrimaryButton label="Sign in" variant="ghost" onPress={() => router.push('/(auth)/login')} />
+          <Animated.View entering={FadeInUp.delay(700).duration(500)} style={{ marginTop: 28, gap: 12, width: '100%' }}>
+            <Button
+              size="lg"
+              onPress={() => router.push('/onboarding')}
+              style={{ width: '100%' }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 17 }}>Get started</Text>
+                <ChevronRight size={20} color={COLORS.canvas} />
+              </View>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onPress={() => {
+                completeOnboarding();
+                router.replace('/(auth)/login');
+              }}
+              style={{ width: '100%' }}
+            >
+              Sign in
+            </Button>
           </Animated.View>
 
           <Text

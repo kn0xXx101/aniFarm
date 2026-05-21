@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Mail } from 'lucide-react-native';
+import { ChevronLeft, Mail } from 'lucide-react-native';
 
+import { AuthHero } from '@/components/auth/auth-hero';
+import { AuthScreenLayout } from '@/components/auth/auth-screen-layout';
 import { Text } from '@/components/ui/text';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card3D } from '@/components/ui/card-3d';
 import { useToast } from '@/components/ui/toast';
+import { COLORS, FONTS } from '@/lib/design-system';
 
 export default function ForgotPassword() {
   const router = useRouter();
@@ -16,35 +19,51 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
 
   const submit = async () => {
+    if (!email.includes('@')) {
+      toast.toast({ title: 'Enter a valid email', variant: 'destructive' });
+      return;
+    }
     setLoading(true);
     await new Promise((r) => setTimeout(r, 700));
     setLoading(false);
-    toast.toast({ title: 'Reset link sent', description: 'Check your email for instructions.', variant: 'success' });
+    toast.toast({
+      title: 'Reset link sent',
+      description: 'Check your email for instructions (demo).',
+      variant: 'success',
+    });
     router.back();
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="p-6 gap-6">
-        <View>
-          <Text className="text-3xl font-bold text-foreground">Reset password</Text>
-          <Text variant="muted" className="mt-1">
-            We&apos;ll email you a secure reset link.
-          </Text>
-        </View>
+    <AuthScreenLayout>
+      <Pressable
+        onPress={() => router.back()}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 16 }}
+        accessibilityLabel="Go back"
+      >
+        <ChevronLeft size={22} color={COLORS.ink} />
+        <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkMuted }}>Back</Text>
+      </Pressable>
+
+      <AuthHero
+        eyebrow="Account recovery"
+        title="Reset password"
+        subtitle="We'll email you a secure reset link."
+      />
+
+      <Card3D variant="glass" size="md">
         <Input
           label="Email"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
-          leftIcon={<Mail size={18} color="hsl(20 12% 45%)" />}
-          className="min-h-[48px]"
+          leftIcon={<Mail size={18} color={COLORS.inkMuted} />}
         />
-        <Button onPress={submit} loading={loading} size="lg">
-          <Text className="text-primary-foreground font-semibold">Send reset link</Text>
+        <Button loading={loading} onPress={() => void submit()} style={{ width: '100%', marginTop: 16 }}>
+          Send reset link
         </Button>
-      </View>
-    </SafeAreaView>
+      </Card3D>
+    </AuthScreenLayout>
   );
 }

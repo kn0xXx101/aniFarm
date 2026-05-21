@@ -1,27 +1,10 @@
 {
+  "extends": "expo/tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
-    "jsx": "react-native",
-    "target": "esnext",
-    "module": "esnext",
-    "lib": [
-      "esnext"
-    ],
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/assets/*": [
-        "./assets/*"
-      ]
+      "@/*": ["./*"],
+      "@/assets/*": ["./assets/*"]
     }
   },
   "include": [
@@ -32,9 +15,5 @@
     "nativewind-env.d.ts",
     "tailwind.config.js"
   ],
-  "exclude": [
-    "node_modules",
-    "context"
-  ],
-  "extends": "expo/tsconfig.base"
+  "exclude": ["node_modules", "context"]
 }

@@ -11,7 +11,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import type { LucideIcon } from 'lucide-react-native';
 import { Camera, BarChart3, Wifi, Zap, ChevronRight, Tractor } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -22,11 +21,12 @@ import Animated, {
 
 import { AniFarmLogo } from '@/components/brand/ani-farm-logo';
 import { Text } from '@/components/ui/text';
+import { Button } from '@/components/ui/button';
 import { AmbientScene } from '@/components/neo3d/ambient-scene';
 import { FloatingLeaf } from '@/components/neo3d/floating-leaf';
 import { FloatingIcon } from '@/components/neo3d/floating-icon';
 import { useAuthStore } from '@/lib/stores/auth-store';
-import { BRAND, COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { BRAND, COLORS, FONTS } from '@/lib/design-system';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -272,25 +272,16 @@ export default function Onboarding() {
           <Dots count={SLIDES.length} active={activeIndex} />
 
           {/* CTA button */}
-          <Animated.View style={[{ width: '100%', borderRadius: 18, overflow: 'hidden' }, btnStyle, SHADOW.neon]}>
-            <LinearGradient
-              colors={isLast ? [...GRADIENTS.hero] : [COLORS.primary, COLORS.primaryDark]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+          <Animated.View style={[{ width: '100%' }, btnStyle]}>
+            <Button
+              size="lg"
+              onPress={next}
+              onPressIn={() => { btnScale.value = withSpring(0.97); }}
+              onPressOut={() => { btnScale.value = withSpring(1); }}
+              accessibilityLabel={isLast ? `Launch ${BRAND.name}` : 'Next'}
+              style={{ width: '100%' }}
             >
-              <Pressable
-                onPress={next}
-                onPressIn={() => { btnScale.value = withSpring(0.97); }}
-                onPressOut={() => { btnScale.value = withSpring(1); }}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 10,
-                  paddingVertical: 18,
-                }}
-                accessibilityLabel={isLast ? `Launch ${BRAND.name}` : 'Next'}
-              >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 {isLast ? (
                   <Zap size={20} color={COLORS.canvas} />
                 ) : (
@@ -299,8 +290,8 @@ export default function Onboarding() {
                 <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas, fontSize: 16 }}>
                   {isLast ? `Launch ${BRAND.name}` : 'Next'}
                 </Text>
-              </Pressable>
-            </LinearGradient>
+              </View>
+            </Button>
           </Animated.View>
 
           <Text style={{ fontSize: 12, color: COLORS.inkMuted }}>
