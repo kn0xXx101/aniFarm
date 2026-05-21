@@ -10,10 +10,13 @@ export function useHideTabBar() {
   const insets = useSafeAreaInsets();
 
   useLayoutEffect(() => {
-    const parent = navigation.getParent();
-    parent?.setOptions({ tabBarStyle: { display: 'none' } });
+    const hidden = { tabBarStyle: { display: 'none' } as const };
+    const visible = { tabBarStyle: getDefaultTabBarStyle(insets.bottom) as object };
+    navigation.setOptions(hidden);
+    navigation.getParent()?.setOptions(hidden);
     return () => {
-      parent?.setOptions({ tabBarStyle: getDefaultTabBarStyle(insets.bottom) as object });
+      navigation.setOptions(visible);
+      navigation.getParent()?.setOptions(visible);
     };
   }, [navigation, insets.bottom]);
 }

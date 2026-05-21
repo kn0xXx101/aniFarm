@@ -1,26 +1,44 @@
 import { useState } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Tv2, Link, Clock } from 'lucide-react-native';
+import { Tv2, Link } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/text';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { NeoScreen } from '@/components/neo3d/neo-screen';
+import { TopBar } from '@/components/shell/top-bar';
+import { SectionHeading } from '@/components/neo3d/section-heading';
+import { StaggerIn } from '@/components/neo3d/stagger-in';
+import { NeoChip } from '@/components/neo3d/neo-chip';
+import { Card3D } from '@/components/ui/card-3d';
+import { CountPillButton } from '@/components/count/count-pill-button';
+import { SegmentSlider } from '@/components/ui/segment-slider';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useCctvStore } from '@/lib/stores/cctv-store';
 import { useToast } from '@/components/ui/toast';
-import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
+import { COLORS, FONTS, TYPE } from '@/lib/design-system';
+import { useScreenInsets } from '@/hooks/useScreenInsets';
 
-const INTERVALS = [
-  { label: '30 sec', value: 30 },
-  { label: '1 min', value: 60 },
-  { label: '2 min', value: 120 },
-  { label: '5 min', value: 300 },
+const INTERVAL_OPTIONS = [
+  { value: '30' as const, label: '30 sec' },
+  { value: '60' as const, label: '1 min' },
+  { value: '120' as const, label: '2 min' },
+  { value: '300' as const, label: '5 min' },
 ];
+
+type IntervalKey = (typeof INTERVAL_OPTIONS)[number]['value'];
+
+const INTERVAL_SECONDS: Record<IntervalKey, number> = {
+  '30': 30,
+  '60': 60,
+  '120': 120,
+  '300': 300,
+};
 
 export default function AddCctvFeed() {
   const router = useRouter();
   const toast = useToast();
+  const { horizontal } = useScreenInsets(false);
   const { farmId: paramFarmId, houseId: paramHouseId } = useLocalSearchParams<{
     farmId?: string;
     houseId?: string;
@@ -34,7 +52,7 @@ export default function AddCctvFeed() {
   const [streamUrl, setStreamUrl] = useState('');
   const [selectedFarmId, setSelectedFarmId] = useState(paramFarmId ?? farms[0]?.id ?? '');
   const [selectedHouseId, setSelectedHouseId] = useState(paramHouseId ?? '');
-  const [intervalSeconds, setIntervalSeconds] = useState(60);
+  const [intervalKey, setIntervalKey] = useState<IntervalKey>('60');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const farmHouses = houses.filter((h) => h.farmId === selectedFarmId);
@@ -61,7 +79,7 @@ export default function AddCctvFeed() {
       houseId: selectedHouseId || undefined,
       name: name.trim(),
       streamUrl: streamUrl.trim(),
-      intervalSeconds,
+      intervalSeconds: INTERVAL_SECONDS[intervalKey],
       enabled: true,
     });
     toast.toast({ title: 'Feed added', description: name.trim(), variant: 'success' });
@@ -69,203 +87,146 @@ export default function AddCctvFeed() {
   };
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: COLORS.canvas }}
-      contentContainerStyle={{ padding: LAYOUT.screenPadding, paddingBottom: 48 }}
-      keyboardShouldPersistTaps="handled"
-    >
-      {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <View
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 14,
-            backgroundColor: COLORS.secondaryLight,
-            borderWidth: 1,
-            borderColor: COLORS.secondary,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Tv2 size={22} color={COLORS.secondary} />
-        </View>
-        <View>
-          <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 20 }}>
-            Add CCTV feed
-          </Text>
-          <Text style={{ color: COLORS.inkMuted, fontSize: 13, marginTop: 2 }}>
-            Connect a camera stream to AI counting
-          </Text>
-        </View>
-      </View>
+    <NeoScreen withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+      <TopBar title="Add feed" showBack showAlerts={false} />
 
-      <View style={{ gap: 16 }}>
-        {/* Feed name */}
-        <Input
-          label="Feed name"
-          value={name}
-          onChangeText={(v) => { setName(v); setErrors((e) => ({ ...e, name: '' })); }}
-          placeholder="e.g. House A — North Camera"
-          error={errors.name}
+      <StaggerIn index={0}>
+        <SectionHeading
+          eyebrow="CCTV"
+          title="Connect a camera"
+          description="Stream URL is processed for alive counts, mortality flags, and staff exclusion."
         />
+      </StaggerIn>
 
-        {/* Stream URL */}
-        <Input
-          label="Stream URL"
-          value={streamUrl}
-          onChangeText={(v) => { setStreamUrl(v); setErrors((e) => ({ ...e, streamUrl: '' })); }}
-          placeholder="rtsp://192.168.1.100:554/stream"
-          autoCapitalize="none"
-          keyboardType="url"
-          leftIcon={<Link size={16} color={COLORS.inkMuted} />}
-          error={errors.streamUrl}
-        />
-
-        {/* Farm selector */}
-        <View>
-          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkSecondary, fontSize: 13, marginBottom: 8 }}>
-            Farm
-          </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {farms.map((f) => (
-              <Pressable
-                key={f.id}
-                onPress={() => {
-                  setSelectedFarmId(f.id);
-                  setSelectedHouseId('');
-                  setErrors((e) => ({ ...e, farmId: '' }));
-                }}
-                style={{
-                  paddingHorizontal: 14,
-                  paddingVertical: 8,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  borderColor: selectedFarmId === f.id ? COLORS.primary : COLORS.borderSoft,
-                  backgroundColor: selectedFarmId === f.id ? COLORS.primaryLight : COLORS.surface,
-                }}
-              >
-                <Text style={{
-                  fontFamily: FONTS.semibold,
-                  color: selectedFarmId === f.id ? COLORS.primary : COLORS.inkMuted,
-                  fontSize: 13,
-                }}>
-                  {f.name}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          {errors.farmId ? (
-            <Text style={{ color: COLORS.danger, fontSize: 12, marginTop: 4 }}>{errors.farmId}</Text>
-          ) : null}
-        </View>
-
-        {/* House selector (optional) */}
-        {farmHouses.length > 0 ? (
-          <View>
-            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkSecondary, fontSize: 13, marginBottom: 8 }}>
-              House <Text style={{ color: COLORS.inkMuted, fontFamily: FONTS.regular }}>(optional)</Text>
+      <StaggerIn index={1}>
+        <Card3D variant="glass" glowColor={COLORS.secondary} style={styles.heroCard}>
+          <View style={styles.heroRow}>
+            <View style={styles.heroIcon}>
+              <Tv2 size={22} color={COLORS.secondary} />
+            </View>
+            <Text style={TYPE.bodySecondary}>
+              Use RTSP or HTTP(S). Demo mode simulates counts locally when the server is unavailable.
             </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              <Pressable
-                onPress={() => setSelectedHouseId('')}
-                style={{
-                  paddingHorizontal: 14,
-                  paddingVertical: 8,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  borderColor: !selectedHouseId ? COLORS.primary : COLORS.borderSoft,
-                  backgroundColor: !selectedHouseId ? COLORS.primaryLight : COLORS.surface,
-                }}
-              >
-                <Text style={{
-                  fontFamily: FONTS.semibold,
-                  color: !selectedHouseId ? COLORS.primary : COLORS.inkMuted,
-                  fontSize: 13,
-                }}>
-                  All houses
-                </Text>
-              </Pressable>
-              {farmHouses.map((h) => (
+          </View>
+        </Card3D>
+      </StaggerIn>
+
+      <StaggerIn index={2}>
+        <View style={styles.form}>
+          <Input
+            label="Feed name"
+            value={name}
+            onChangeText={(v) => {
+              setName(v);
+              setErrors((e) => ({ ...e, name: '' }));
+            }}
+            placeholder="e.g. House A — North Camera"
+            error={errors.name}
+          />
+
+          <Input
+            label="Stream URL"
+            value={streamUrl}
+            onChangeText={(v) => {
+              setStreamUrl(v);
+              setErrors((e) => ({ ...e, streamUrl: '' }));
+            }}
+            placeholder="rtsp://192.168.1.100:554/stream"
+            autoCapitalize="none"
+            keyboardType="url"
+            leftIcon={<Link size={16} color={COLORS.inkMuted} />}
+            error={errors.streamUrl}
+          />
+
+          <View>
+            <Text style={[TYPE.caption, styles.fieldLabel]}>Farm</Text>
+            <View style={styles.chipRow}>
+              {farms.map((f) => (
                 <Pressable
-                  key={h.id}
-                  onPress={() => setSelectedHouseId(h.id)}
-                  style={{
-                    paddingHorizontal: 14,
-                    paddingVertical: 8,
-                    borderRadius: 999,
-                    borderWidth: 1,
-                    borderColor: selectedHouseId === h.id ? COLORS.primary : COLORS.borderSoft,
-                    backgroundColor: selectedHouseId === h.id ? COLORS.primaryLight : COLORS.surface,
+                  key={f.id}
+                  onPress={() => {
+                    setSelectedFarmId(f.id);
+                    setSelectedHouseId('');
+                    setErrors((e) => ({ ...e, farmId: '' }));
                   }}
                 >
-                  <Text style={{
-                    fontFamily: FONTS.semibold,
-                    color: selectedHouseId === h.id ? COLORS.primary : COLORS.inkMuted,
-                    fontSize: 13,
-                  }}>
-                    {h.name}
-                  </Text>
+                  <NeoChip label={f.name} active={selectedFarmId === f.id} color={COLORS.primary} />
                 </Pressable>
               ))}
             </View>
+            {errors.farmId ? <Text style={styles.errorText}>{errors.farmId}</Text> : null}
           </View>
-        ) : null}
 
-        {/* Count interval */}
-        <View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Clock size={14} color={COLORS.inkMuted} />
-            <Text style={{ fontFamily: FONTS.semibold, color: COLORS.inkSecondary, fontSize: 13 }}>
-              Count interval
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {INTERVALS.map((iv) => (
-              <Pressable
-                key={iv.value}
-                onPress={() => setIntervalSeconds(iv.value)}
-                style={{
-                  flex: 1,
-                  paddingVertical: 10,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  alignItems: 'center',
-                  borderColor: intervalSeconds === iv.value ? COLORS.secondary : COLORS.borderSoft,
-                  backgroundColor: intervalSeconds === iv.value ? COLORS.secondaryLight : COLORS.surface,
-                }}
-              >
-                <Text style={{
-                  fontFamily: FONTS.semibold,
-                  color: intervalSeconds === iv.value ? COLORS.secondary : COLORS.inkMuted,
-                  fontSize: 12,
-                }}>
-                  {iv.label}
-                </Text>
-              </Pressable>
-            ))}
+          {farmHouses.length > 0 ? (
+            <View>
+              <Text style={[TYPE.caption, styles.fieldLabel]}>House (optional)</Text>
+              <View style={styles.chipRow}>
+                <Pressable onPress={() => setSelectedHouseId('')}>
+                  <NeoChip label="All houses" active={!selectedHouseId} color={COLORS.primary} />
+                </Pressable>
+                {farmHouses.map((h) => (
+                  <Pressable key={h.id} onPress={() => setSelectedHouseId(h.id)}>
+                    <NeoChip label={h.name} active={selectedHouseId === h.id} color={COLORS.primary} />
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          <View>
+            <Text style={[TYPE.caption, styles.fieldLabel]}>Count interval</Text>
+            <SegmentSlider options={INTERVAL_OPTIONS} value={intervalKey} onChange={setIntervalKey} />
           </View>
         </View>
+      </StaggerIn>
 
-        {/* Info note */}
-        <View
-          style={{
-            backgroundColor: COLORS.secondaryLight,
-            borderRadius: 12,
-            padding: 14,
-            borderWidth: 1,
-            borderColor: `${COLORS.secondary}30`,
-          }}
-        >
-          <Text style={{ color: COLORS.secondary, fontSize: 12, fontFamily: FONTS.medium, lineHeight: 18 }}>
-            The stream URL is sent to the aniFarm server (or simulated locally in demo mode). AI counts alive animals, flags dead stock, and excludes people — on the interval you set. Keep the CCTV tab open for live updates in Expo Go.
-          </Text>
-        </View>
-
-        <Button size="lg" onPress={submit}>
-          <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas }}>Add feed</Text>
-        </Button>
-      </View>
-    </ScrollView>
+      <StaggerIn index={3}>
+        <CountPillButton label="Add feed" icon={Tv2} variant="secondary" size="lg" onPress={submit} style={styles.submit} />
+      </StaggerIn>
+    </NeoScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  heroCard: {
+    marginBottom: 16,
+  },
+  heroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  heroIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: COLORS.secondaryLight,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: COLORS.borderSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  form: {
+    gap: 16,
+    marginBottom: 8,
+  },
+  fieldLabel: {
+    marginBottom: 8,
+    textTransform: 'uppercase',
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  errorText: {
+    color: COLORS.danger,
+    fontSize: 12,
+    marginTop: 4,
+    fontFamily: FONTS.medium,
+  },
+  submit: {
+    width: '100%',
+    marginBottom: 16,
+  },
+});

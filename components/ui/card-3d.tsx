@@ -2,7 +2,7 @@
  * Card with optional tilt — iOS 26 liquid glass surfaces.
  */
 
-import React, { type ReactNode } from 'react';
+import React, { useCallback, type ReactNode } from 'react';
 import { type ViewProps, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -10,6 +10,7 @@ import Animated, {
   withSpring,
   interpolate,
   Extrapolate,
+  runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -61,6 +62,10 @@ export function Card3D({
 
   const accent = variant === 'gradient' && gradientColors?.[0] ? gradientColors[0] : glowColor;
 
+  const handlePress = useCallback(() => {
+    onPress?.();
+  }, [onPress]);
+
   const gesture = Gesture.Pan()
     .enabled(tiltEnabled)
     .activeOffsetX([-12, 12])
@@ -88,7 +93,9 @@ export function Card3D({
     })
     .onEnd(() => {
       scale.value = withSpring(1, SPRING_3D.bouncy);
-      onPress?.();
+      if (onPress) {
+        runOnJS(handlePress)();
+      }
     });
 
   const animatedStyle = useAnimatedStyle(() => ({

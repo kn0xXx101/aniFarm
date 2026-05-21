@@ -14,13 +14,20 @@ import {
   TAB_BAR_MARGIN_H,
 } from '@/lib/tab-bar-style';
 
-const HIDDEN_ROUTES = new Set([
+/** Screens reachable inside tabs but not shown as tab buttons. */
+const NO_TAB_BUTTON_ROUTES = new Set([
   'analytics',
+  'reports',
+  'subscription',
+  'profile',
   'alerts',
   'count-live',
   'count-image',
   'count-video',
 ]);
+
+/** Full-screen flows — hide the floating tab bar while active. */
+const HIDE_TAB_BAR_ROUTES = new Set(['count-live', 'count-image', 'count-video']);
 
 /**
  * iOS 26–style floating tab bar: liquid glass blur, capsule shape, active pill highlight.
@@ -32,11 +39,13 @@ export function IosGlassTabBar({ state, descriptors, navigation, style }: Bottom
   const bottomOffset = getTabBarBottomOffset();
   const safePad = Platform.OS === 'ios' ? insets.bottom : 10;
 
-  if ((style as ViewStyle)?.display === 'none') {
+  const currentRouteName = state.routes[state.index]?.name;
+
+  if ((style as ViewStyle)?.display === 'none' || HIDE_TAB_BAR_ROUTES.has(currentRouteName)) {
     return null;
   }
 
-  const visibleRoutes = state.routes.filter((r) => !HIDDEN_ROUTES.has(r.name));
+  const visibleRoutes = state.routes.filter((r) => !NO_TAB_BUTTON_ROUTES.has(r.name));
 
   return (
     <View

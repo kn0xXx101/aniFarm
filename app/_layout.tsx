@@ -101,11 +101,8 @@ export default function RootLayout() {
               <Stack.Screen name="farm/[id]" options={{ ...STACK_HEADER, title: 'Farm details' }} />
               <Stack.Screen name="farm/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New farm' }} />
               <Stack.Screen name="house/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New house' }} />
-              <Stack.Screen name="reports/index" options={{ ...STACK_HEADER, title: 'Reports' }} />
-              <Stack.Screen name="subscription" options={{ ...STACK_HEADER, title: 'Subscription' }} />
-              <Stack.Screen name="profile" options={{ ...STACK_HEADER, title: 'Profile' }} />
               <Stack.Screen name="admin" options={{ ...STACK_HEADER, title: 'Admin' }} />
-              <Stack.Screen name="cctv/add-feed" options={{ ...STACK_HEADER, presentation: 'modal', title: 'Add CCTV feed' }} />
+              <Stack.Screen name="cctv/add-feed" options={{ presentation: 'modal', headerShown: false }} />
             </Stack>
             </ErrorBoundary>
           </ToastProvider>

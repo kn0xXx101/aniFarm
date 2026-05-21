@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 interface NeoScreenProps {
   children: ReactNode;
   scroll?: boolean;
+  /** When true, content stretches to fill the viewport (empty states). Off by default so lists scroll. */
+  fill?: boolean;
   edges?: Edge[];
   padded?: boolean;
   withTabs?: boolean;
@@ -21,6 +23,7 @@ interface NeoScreenProps {
 export function NeoScreen({
   children,
   scroll = true,
+  fill = false,
   edges = ['top'],
   padded = true,
   withTabs = true,
@@ -35,7 +38,7 @@ export function NeoScreen({
     {
       paddingBottom: bottom,
       paddingHorizontal: px,
-      flexGrow: 1,
+      ...(fill ? { flexGrow: 1 } : undefined),
     },
     contentStyle,
   ];
@@ -46,6 +49,7 @@ export function NeoScreen({
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       nestedScrollEnabled
+      alwaysBounceVertical
       contentContainerStyle={contentContainerStyle}
       {...scrollProps}
     >

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import Svg, { Path, Defs, LinearGradient as SvgLG, Stop, Line } from 'react-native-svg';
 
 import { Text } from '@/components/ui/text';
-import { COLORS } from '@/lib/design-system';
+import { COLORS, TYPE } from '@/lib/design-system';
 import type { AnalyticsPoint } from '@/types/domain';
 
 interface Props {
@@ -62,9 +62,9 @@ export function LineAreaChart({
         <Path d={paths.area} fill={`url(#${fillId})`} />
         <Path d={paths.line} stroke={stroke} strokeWidth={0.7} fill="none" strokeLinejoin="round" strokeLinecap="round" />
       </Svg>
-      <View className="flex-row justify-between px-1 mt-1">
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 2, marginTop: 6 }}>
         {ticks.map((t) => (
-          <Text key={t.idx} style={{ color: COLORS.inkMuted, fontSize: 11 }}>
+          <Text key={t.idx} style={TYPE.caption}>
             {t.label}
           </Text>
         ))}

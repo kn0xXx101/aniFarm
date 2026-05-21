@@ -14,6 +14,7 @@ import { Card3D } from '@/components/ui/card-3d';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { COLORS, FONTS } from '@/lib/design-system';
+import { useScreenInsets } from '@/hooks/useScreenInsets';
 
 const MODES = [
   {
@@ -44,13 +45,14 @@ const MODES = [
 
 export default function CountTab() {
   const router = useRouter();
+  const { horizontal } = useScreenInsets(true);
   const sessions = useSessionStore((s) => s.sessions);
   const farms = useFarmStore((s) => s.farms);
   const selectedFarmId = useFarmStore((s) => s.selectedFarmId);
   const filtered = selectedFarmId ? sessions.filter((s) => s.farmId === selectedFarmId) : sessions;
 
   return (
-    <NeoScreen>
+    <NeoScreen scroll withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
       <TopBar title="Scan" subtitle="Herds, flocks & pens" />
       <FarmSelector />
 

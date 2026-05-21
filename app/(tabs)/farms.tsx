@@ -15,15 +15,17 @@ import { EmptyState } from '@/components/layout/empty-state';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { formatLivestockType } from '@/lib/livestock';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { useScreenInsets } from '@/hooks/useScreenInsets';
 
 export default function FarmsTab() {
   const router = useRouter();
+  const { horizontal } = useScreenInsets(true);
   const farms = useFarmStore((s) => s.farms);
   const houses = useFarmStore((s) => s.houses);
   const selectFarm = useFarmStore((s) => s.selectFarm);
 
   return (
-    <NeoScreen>
+    <NeoScreen scroll withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
       <TopBar title="Farms" subtitle="Livestock sites & pens" />
 
       <SectionHeading

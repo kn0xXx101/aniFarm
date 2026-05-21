@@ -12,11 +12,10 @@ import { useRouter, type Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Bell,
+  BarChart3,
   FileText,
-  CreditCard,
   Shield,
   User,
-  Settings as SettingsIcon,
   X,
   LogOut,
 } from 'lucide-react-native';
@@ -100,10 +99,11 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
   const items: NavItem[] = [
     { label: 'My farms', icon: FarmIcon, href: '/(tabs)/farms' as Href },
     { label: 'Alerts', icon: Bell, href: '/(tabs)/alerts' as Href, badge: unread },
-    { label: 'Reports', icon: FileText, href: '/reports' as Href },
-    { label: 'Subscription', icon: CreditCard, href: '/subscription' as Href },
-    { label: 'Admin console', icon: Shield, href: '/admin' as Href },
-    { label: 'Profile', icon: User, href: '/profile' as Href },
+    { label: 'Reports', icon: FileText, href: '/(tabs)/reports' as Href },
+    { label: 'Insights', icon: BarChart3, href: '/(tabs)/analytics' as Href },
+    ...(user?.role === 'admin' || user?.role === 'manager'
+      ? [{ label: 'Admin console', icon: Shield, href: '/admin' as Href }]
+      : []),
   ];
 
   const handleNav = (href: Href) => {
@@ -254,8 +254,10 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
                 <View className="h-px bg-border my-3 mx-3" />
 
                 <Pressable
-                  onPress={() => handleNav('/profile' as Href)}
+                  onPress={() => handleNav('/(tabs)/profile' as Href)}
                   className="flex-row items-center gap-3 px-3 py-3 rounded-2xl active:bg-secondary min-h-[52px]"
+                  accessibilityRole="button"
+                  accessibilityLabel="Profile and settings"
                 >
                   <View
                     className="size-10 rounded-xl items-center justify-center border"
@@ -264,9 +266,9 @@ export function DrawerProvider({ children }: { children: React.ReactNode }) {
                       borderColor: 'rgba(0,229,255,0.25)',
                     }}
                   >
-                    <SettingsIcon size={18} color={NEON.cyan} />
+                    <User size={18} color={NEON.cyan} />
                   </View>
-                  <Text className="flex-1 font-semibold">Settings</Text>
+                  <Text className="flex-1 font-semibold">Profile & settings</Text>
                 </Pressable>
 
                 <Pressable

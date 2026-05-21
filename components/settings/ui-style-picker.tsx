@@ -18,7 +18,6 @@ export function UiStylePicker() {
 
   return (
     <View style={{ gap: 12 }}>
-      <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink, fontSize: 16 }}>Appearance</Text>
       <Text style={{ fontFamily: FONTS.regular, color: COLORS.inkMuted, fontSize: 13 }}>
         Slide to switch how cards, buttons, and the tab bar look.
       </Text>

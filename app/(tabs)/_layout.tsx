@@ -30,6 +30,9 @@ export default function TabLayout() {
       <Tabs.Screen name="farms" options={{ title: 'Farms', tabBarIcon: ({ color, size }) => <Warehouse color={color} size={size} /> }} />
       <Tabs.Screen name="you" options={{ title: 'You', tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }} />
       <Tabs.Screen name="analytics" options={{ href: null }} />
+      <Tabs.Screen name="reports" options={{ href: null }} />
+      <Tabs.Screen name="subscription" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
       <Tabs.Screen name="alerts" options={{ href: null }} />
       <Tabs.Screen name="count-live" options={{ href: null, tabBarStyle: { display: 'none' } }} />
       <Tabs.Screen name="count-image" options={{ href: null, tabBarStyle: { display: 'none' } }} />
