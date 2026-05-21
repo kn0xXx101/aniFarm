@@ -16,8 +16,8 @@ export function DetectionSummary({
   excludedHumans,
   variant = 'light',
 }: DetectionSummaryProps) {
-  const dark = variant === 'dark';
   const compact = variant === 'compact';
+  const dark = variant === 'dark' || compact;
 
   const items = [
     { key: 'alive', value: aliveCount, color: COLORS.primary, label: DETECTION_CLASS_LABELS.livestock_alive },
@@ -41,7 +41,15 @@ export function DetectionSummary({
             dark && styles.chipDark,
           ]}
         >
-          <Text style={[styles.value, { color: item.color }]}>{item.value}</Text>
+          <Text
+            style={[
+              styles.value,
+              compact && styles.valueCompact,
+              { color: item.color },
+            ]}
+          >
+            {item.value}
+          </Text>
           <Text style={[styles.label, dark && styles.labelDark]} numberOfLines={1}>
             {compact ? item.label.split(' ')[0] : item.label}
           </Text>
@@ -70,7 +78,8 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderSoft,
   },
   chipCompact: {
-    paddingVertical: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 4,
   },
   chipDark: {
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -80,6 +89,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.bold,
     fontSize: 18,
     lineHeight: 22,
+  },
+  valueCompact: {
+    fontSize: 16,
+    lineHeight: 20,
   },
   label: {
     fontFamily: FONTS.medium,

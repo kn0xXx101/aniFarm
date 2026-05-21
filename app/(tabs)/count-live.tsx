@@ -4,19 +4,18 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  useWindowDimensions,
-  KeyboardAvoidingView,
-  Platform,
+  Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Play, Pause, RotateCcw, Check } from 'lucide-react-native';
 
 import { CountControlButton } from '@/components/count/count-control-button';
 import { DetectionOverlay } from '@/components/count/detection-overlay';
 import { DetectionSummary } from '@/components/count/detection-summary';
 import { HousePicker } from '@/components/count/house-picker';
 import { CountAdjustBar } from '@/components/count/count-adjust-bar';
-import { SlidingButton } from '@/components/ui/sliding-button';
+import { useCountLiveLayout } from '@/hooks/useCountLiveLayout';
 import { useHideTabBar } from '@/hooks/useHideTabBar';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
@@ -29,8 +28,7 @@ import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 export default function LiveCount() {
   const router = useRouter();
-  const { height: windowHeight } = useWindowDimensions();
-  const compact = windowHeight < 740;
+  const insets = useSafeAreaInsets();
   useHideTabBar();
 
   const farms = useFarmStore((s) => s.farms);
@@ -43,10 +41,23 @@ export default function LiveCount() {
 
   const farm = farms.find((f) => f.id === selectedFarmId) ?? farms[0];
   const farmHouses = useMemo(() => houses.filter((h) => h.farmId === farm?.id), [houses, farm?.id]);
-  const [houseId, setHouseId] = useState(farmHouses[0]?.id);
+  const [houseId, setHouseId] = useState<string | undefined>(farmHouses[0]?.id);
+
+  useEffect(() => {
+    if (!farmHouses.length) {
+      setHouseId(undefined);
+      return;
+    }
+    if (!houseId || !farmHouses.some((h) => h.id === houseId)) {
+      setHouseId(farmHouses[0].id);
+    }
+  }, [farmHouses, houseId]);
 
   const [status, setStatus] = useState<'idle' | 'running' | 'paused'>('idle');
   const running = status === 'running';
+  const hasSummary = status !== 'idle';
+  const layout = useCountLiveLayout(hasSummary);
+
   const [manualOffset, setManualOffset] = useState(0);
   const [boxes, setBoxes] = useState<import('@/types/domain').BoundingBox[]>([]);
   const [detectedCount, setDetectedCount] = useState(0);
@@ -65,9 +76,6 @@ export default function LiveCount() {
   const [previewSize, setPreviewSize] = useState({ w: 1, h: 1 });
 
   const trackCount = Math.max(0, detectedCount + manualOffset);
-  const mainBtnSize = compact ? 56 : 64;
-  const sideBtnSize = compact ? 44 : 50;
-  const dockMaxHeight = compact ? Math.min(windowHeight * 0.48, 320) : Math.min(windowHeight * 0.42, 280);
 
   useEffect(() => {
     if (!running) return undefined;
@@ -181,8 +189,8 @@ export default function LiveCount() {
   };
 
   const dockBody = (
-    <View style={styles.dockInner}>
-      {status !== 'idle' ? (
+    <View style={[styles.dockInner, layout.isCompact && styles.dockInnerCompact]}>
+      {hasSummary ? (
         <DetectionSummary
           variant="compact"
           aliveCount={trackCount}
@@ -193,136 +201,152 @@ export default function LiveCount() {
 
       <CountAdjustBar
         variant="dark"
+        compact={layout.isCompact}
         value={trackCount}
         onChange={(v) => setManualOffset(v - detectedCount)}
         label={`Alive ${unit} (adjust)`}
       />
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.housesScroll}
-        contentContainerStyle={styles.housesContent}
-        nestedScrollEnabled
-      >
-        <HousePicker houses={farmHouses} value={houseId} onChange={setHouseId} variant="dark" layout="row" />
-      </ScrollView>
+      {farmHouses.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.housesScroll}
+          contentContainerStyle={styles.housesContent}
+          nestedScrollEnabled
+        >
+          <HousePicker
+            houses={farmHouses}
+            value={houseId}
+            onChange={setHouseId}
+            variant="dark"
+            layout="row"
+            label=""
+          />
+        </ScrollView>
+      ) : (
+        <Text style={styles.noHouses}>Add a pen/house on the Farms tab first.</Text>
+      )}
 
       <View style={styles.controls}>
-        <CountControlButton size={sideBtnSize} onPress={reset} accessibilityLabel="Reset">
-          ↻
+        <CountControlButton
+          size={layout.sideBtnSize}
+          onPress={reset}
+          accessibilityLabel="Reset"
+        >
+          <RotateCcw size={layout.sideBtnSize * 0.38} color={COLORS.ink} strokeWidth={2.2} />
         </CountControlButton>
 
         {status === 'running' ? (
           <CountControlButton
-            size={mainBtnSize}
+            size={layout.mainBtnSize}
             variant="pause"
             onPress={pause}
             accessibilityLabel="Pause counting"
           >
-            ■
+            <Pause size={layout.mainBtnSize * 0.36} color={COLORS.canvas} strokeWidth={2.5} fill={COLORS.canvas} />
           </CountControlButton>
         ) : (
           <CountControlButton
-            size={mainBtnSize}
+            size={layout.mainBtnSize}
             variant="primary"
             onPress={status === 'paused' ? resume : start}
             accessibilityLabel={status === 'paused' ? 'Resume counting' : 'Start counting'}
           >
-            ▶
+            <Play size={layout.mainBtnSize * 0.36} color={COLORS.canvas} strokeWidth={2.5} fill={COLORS.canvas} style={{ marginLeft: layout.mainBtnSize * 0.04 }} />
           </CountControlButton>
         )}
 
         <CountControlButton
-          size={sideBtnSize}
+          size={layout.sideBtnSize}
           variant="save"
           onPress={() => void save()}
-          disabled={trackCount === 0}
+          disabled={trackCount === 0 || !houseId}
           accessibilityLabel="Save session"
         >
-          ✓
+          <Check size={layout.sideBtnSize * 0.42} color={COLORS.canvas} strokeWidth={2.8} />
         </CountControlButton>
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={0}
-      >
-        <View style={styles.header}>
-          <SlidingButton
-            onPress={() => router.back()}
-            accessibilityLabel="Go back"
-            borderRadius={14}
-            fillShape="circle"
-            fillColor={COLORS.primary}
-            backgroundColor="rgba(255,255,255,0.10)"
-            style={styles.backBtn}
-          >
-            <Text style={styles.backText}>←</Text>
-          </SlidingButton>
-          <Text style={styles.title} numberOfLines={1}>
-            Live count
-          </Text>
-          {status !== 'idle' ? (
-            <View style={styles.statusBadge}>
-              <View style={[styles.statusDot, status === 'paused' && styles.statusDotPaused]} />
-              <Text style={styles.statusText}>{status === 'running' ? 'REC' : 'PAUSED'}</Text>
-            </View>
-          ) : (
-            <View style={styles.statusPlaceholder} />
-          )}
-        </View>
-
-        <View style={[styles.previewWrap, { minHeight: compact ? 140 : 180 }]}>
-          <View
-            style={[styles.preview, { maxHeight: windowHeight * (compact ? 0.38 : 0.45) }]}
-            onLayout={(e) => {
-              const { width, height } = e.nativeEvent.layout;
-              setPreviewSize({ w: width, h: height });
-            }}
-          >
-            {status === 'idle' ? (
-              <Text style={styles.previewHint}>
-                Mock camera in Expo Go{'\n'}Counts alive livestock · flags dead · ignores people
-              </Text>
-            ) : null}
-
-            {running && previewSize.w > 1 ? (
-              <DetectionOverlay boxes={boxes} width={previewSize.w} height={previewSize.h} />
-            ) : null}
-
-            {status !== 'idle' ? (
-              <View style={styles.statsOverlay}>
-                <Text style={styles.statsValue}>{trackCount}</Text>
-                <Text style={styles.statsLabel}>alive {unit}</Text>
-                <Text style={styles.statsMeta}>
-                  {fps} fps · {(avgConfidence * 100).toFixed(0)}%
-                </Text>
-              </View>
-            ) : null}
+    <View style={[styles.root, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityLabel="Go back"
+          style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.85 }]}
+        >
+          <Text style={styles.backText}>←</Text>
+        </Pressable>
+        <Text style={styles.title} numberOfLines={1}>
+          Live count
+        </Text>
+        {hasSummary ? (
+          <View style={styles.statusBadge}>
+            <View style={[styles.statusDot, status === 'paused' && styles.statusDotPaused]} />
+            <Text style={styles.statusText}>{status === 'running' ? 'REC' : 'PAUSED'}</Text>
           </View>
-        </View>
-
-        {compact ? (
-          <ScrollView
-            style={[styles.dock, { maxHeight: dockMaxHeight }]}
-            contentContainerStyle={styles.dockScrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            bounces={false}
-          >
-            {dockBody}
-          </ScrollView>
         ) : (
-          <View style={styles.dock}>{dockBody}</View>
+          <View style={styles.statusPlaceholder} />
         )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </View>
+
+      <View style={[styles.previewWrap, { minHeight: layout.previewMinHeight }]}>
+        <View
+          style={styles.preview}
+          onLayout={(e) => {
+            const { width, height } = e.nativeEvent.layout;
+            setPreviewSize({ w: width, h: height });
+          }}
+        >
+          {status === 'idle' ? (
+            <Text style={styles.previewHint}>
+              Mock camera in Expo Go{'\n'}Counts alive livestock · flags dead · ignores people
+            </Text>
+          ) : null}
+
+          {hasSummary && previewSize.w > 1 ? (
+            <DetectionOverlay boxes={boxes} width={previewSize.w} height={previewSize.h} />
+          ) : null}
+
+          {hasSummary ? (
+            <View style={styles.statsOverlay}>
+              <Text style={[styles.statsValue, layout.isCompact && styles.statsValueCompact]}>
+                {trackCount}
+              </Text>
+              <Text style={styles.statsLabel}>alive {unit}</Text>
+              <Text style={styles.statsMeta}>
+                {fps} fps · {(avgConfidence * 100).toFixed(0)}%
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      </View>
+
+      <View
+        style={[
+          styles.dock,
+          {
+            height: layout.dockMaxHeight + layout.bottomPad,
+            paddingBottom: layout.bottomPad,
+          },
+        ]}
+      >
+        <ScrollView
+          style={{ maxHeight: layout.dockMaxHeight }}
+          contentContainerStyle={styles.dockScrollContent}
+          showsVerticalScrollIndicator={layout.dockNeedsScroll}
+          scrollEnabled={layout.dockNeedsScroll}
+          bounces={false}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled
+        >
+          {dockBody}
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
@@ -330,10 +354,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#000',
-  },
-  flex: {
-    flex: 1,
-    minHeight: 0,
   },
   header: {
     flexDirection: 'row',
@@ -347,9 +367,11 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(255,255,255,0.14)',
   },
   backText: {
@@ -395,9 +417,10 @@ const styles = StyleSheet.create({
   },
   previewWrap: {
     flex: 1,
-    minHeight: 0,
+    flexShrink: 1,
+    minHeight: 96,
     paddingHorizontal: LAYOUT.screenPadding,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   preview: {
     flex: 1,
@@ -420,12 +443,12 @@ const styles = StyleSheet.create({
   },
   statsOverlay: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: 10,
+    right: 10,
     backgroundColor: 'rgba(0,0,0,0.65)',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
@@ -435,6 +458,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: FONTS.extrabold,
     lineHeight: 28,
+  },
+  statsValueCompact: {
+    fontSize: 20,
+    lineHeight: 24,
   },
   statsLabel: {
     color: 'rgba(255,255,255,0.55)',
@@ -456,30 +483,41 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     paddingHorizontal: LAYOUT.screenPadding,
     paddingTop: 8,
-    paddingBottom: 4,
   },
   dockScrollContent: {
     gap: 8,
-    paddingBottom: 4,
+    paddingBottom: 2,
   },
   dockInner: {
+    gap: 10,
+  },
+  dockInnerCompact: {
     gap: 8,
   },
   housesScroll: {
-    maxHeight: 52,
     flexGrow: 0,
+    maxHeight: 44,
   },
   housesContent: {
     alignItems: 'center',
     paddingRight: 8,
     gap: 8,
   },
+  noHouses: {
+    fontFamily: FONTS.medium,
+    fontSize: 13,
+    color: COLORS.inkMuted,
+    textAlign: 'center',
+    paddingVertical: 4,
+  },
   controls: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 16,
-    paddingTop: 4,
+    gap: 18,
+    paddingTop: 6,
     paddingBottom: 4,
+    flexShrink: 0,
+    minHeight: 56,
   },
 });

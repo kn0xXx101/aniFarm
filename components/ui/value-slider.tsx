@@ -16,6 +16,8 @@ interface ValueSliderProps {
   step?: number;
   variant?: 'dark' | 'light';
   showValue?: boolean;
+  /** Tighter padding for live-count dock on small phones */
+  compact?: boolean;
 }
 
 /**
@@ -30,33 +32,40 @@ export function ValueSlider({
   step = 1,
   variant = 'light',
   showValue = true,
+  compact = false,
 }: ValueSliderProps) {
   const isDark = variant === 'dark';
   const ink = isDark ? COLORS.inkSecondary : COLORS.inkMuted;
   const display = value.toLocaleString();
+  const pad = compact ? 8 : 12;
+  const valueSize = compact ? 17 : 20;
+  const labelSize = compact ? 12 : 13;
 
   return (
     <IosGlassSurface
       variant={isDark ? 'glass' : 'glass'}
-      radius={IOS_GLASS.radiusMd}
-      padding={12}
+      radius={compact ? IOS_GLASS.radiusSm : IOS_GLASS.radiusMd}
+      padding={pad}
       shadow="none"
       style={isDark ? { backgroundColor: 'rgba(0,0,0,0.35)' } : undefined}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, compact && styles.headerCompact]}>
         {label ? (
-          <Text style={{ fontFamily: FONTS.medium, color: ink, fontSize: 13 }} numberOfLines={1}>
+          <Text
+            style={{ fontFamily: FONTS.medium, color: ink, fontSize: labelSize, flex: 1 }}
+            numberOfLines={1}
+          >
             {label}
           </Text>
         ) : (
           <View />
         )}
         {showValue ? (
-          <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: 20 }}>{display}</Text>
+          <Text style={{ fontFamily: FONTS.bold, color: COLORS.primary, fontSize: valueSize }}>{display}</Text>
         ) : null}
       </View>
       <RNSlider
-        style={styles.slider}
+        style={[styles.slider, compact && styles.sliderCompact]}
         minimumValue={min}
         maximumValue={max}
         step={step}
@@ -83,9 +92,16 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     gap: 8,
   },
+  headerCompact: {
+    marginBottom: 0,
+  },
   slider: {
     width: '100%',
     height: 36,
+  },
+  sliderCompact: {
+    height: 28,
+    marginVertical: -2,
   },
   labels: {
     flexDirection: 'row',

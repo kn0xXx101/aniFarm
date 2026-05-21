@@ -1,18 +1,37 @@
-import type { ReactNode } from 'react';
-import { StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
+/**
+ * CountControlButton — iOS 26 glass circle button for the live count dock.
+ */
 
-import { SlidingButton } from '@/components/ui/sliding-button';
-import { COLORS, FONTS } from '@/lib/design-system';
+import type { ReactNode } from 'react';
+import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { AnimatedPressable } from '@/components/ui/primitives/animated-pressable';
+import { useSlideFill } from '@/components/ui/slide-fill-overlay';
+import { COLORS, GRADIENTS } from '@/lib/design-system';
+import { IOS_GLASS } from '@/lib/ios-glass';
+import { SPRING_CONFIGS } from '@/lib/animations';
+
+export type ControlVariant = 'primary' | 'pause' | 'side' | 'save';
 
 interface CountControlButtonProps {
   onPress: () => void;
   size: number;
   children: ReactNode;
-  variant?: 'primary' | 'pause' | 'side' | 'save';
+  variant?: ControlVariant;
   disabled?: boolean;
   accessibilityLabel: string;
   style?: StyleProp<ViewStyle>;
 }
+
+const ACCENT: Record<ControlVariant, string> = {
+  primary: COLORS.primary,
+  pause:   COLORS.danger,
+  save:    COLORS.secondary,
+  side:    COLORS.ink,
+};
 
 export function CountControlButton({
   onPress,
@@ -23,72 +42,163 @@ export function CountControlButton({
   accessibilityLabel,
   style,
 }: CountControlButtonProps) {
+  const accent = ACCENT[variant];
   const radius = size / 2;
-  const bg =
-    variant === 'primary'
-      ? COLORS.primary
-      : variant === 'pause'
-        ? COLORS.danger
-        : variant === 'save'
-          ? 'rgba(123,168,196,0.22)'
-          : 'rgba(255,255,255,0.10)';
+  const isFilled = variant === 'primary' || variant === 'pause';
 
-  const borderColor =
-    variant === 'save' ? COLORS.secondary : variant === 'side' ? 'rgba(255,255,255,0.14)' : 'transparent';
+  const press = useSharedValue(0);
+  const shellAnim = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 - press.value * 0.06 }],
+  }));
+
+  const { onPressIn: fillIn, onPressOut: fillOut, Fill, onLayout } = useSlideFill({
+    disabled,
+    fillColor: accent,
+    shape: 'circle',
+    borderRadius: radius,
+  });
 
   return (
-    <SlidingButton
+    <AnimatedPressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled === true}
+      hapticFeedback={isFilled ? 'medium' : 'light'}
+      accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      borderRadius={radius}
-      fillShape="circle"
-      fillColor={
-        variant === 'primary' ? COLORS.primary : variant === 'pause' ? COLORS.danger : COLORS.secondary
-      }
-      backgroundColor={bg}
+      onPressIn={() => {
+        if (!disabled) {
+          press.value = withSpring(1, SPRING_CONFIGS.snappy);
+          fillIn();
+        }
+      }}
+      onPressOut={() => {
+        press.value = withSpring(0, SPRING_CONFIGS.snappy);
+        fillOut();
+      }}
       style={[
-        {
-          width: size,
-          height: size,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderWidth: variant === 'side' || variant === 'save' ? 1 : 0,
-          borderColor,
-          opacity: disabled ? 0.35 : 1,
-        },
-        variant === 'primary' && styles.primaryGlow,
-        variant === 'pause' && styles.pauseGlow,
+        { opacity: disabled ? 0.38 : 1, alignItems: 'center', justifyContent: 'center' },
         style,
       ]}
     >
-      {typeof children === 'string' ? (
-        <Text style={[styles.glyph, size < 52 && { fontSize: 20 }]}>{children}</Text>
-      ) : (
-        children
-      )}
-    </SlidingButton>
+      <Animated.View
+        onLayout={onLayout}
+        style={[
+          {
+            width: size,
+            height: size,
+            borderRadius: radius,
+            overflow: 'hidden',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+          shellAnim,
+          isFilled && {
+            shadowColor: accent,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.5,
+            shadowRadius: 14,
+            elevation: 8,
+          },
+        ]}
+      >
+        {/* ── Background layer ── */}
+        {variant === 'primary' ? (
+          <LinearGradient
+            colors={[...GRADIENTS.hero]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        ) : variant === 'pause' ? (
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: COLORS.danger },
+            ]}
+          />
+        ) : variant === 'save' ? (
+          // Cyan-tinted glass
+          <>
+            {Platform.OS !== 'web' ? (
+              <BlurView
+                intensity={IOS_GLASS.blurIntensity}
+                tint={IOS_GLASS.tint}
+                style={StyleSheet.absoluteFill}
+              />
+            ) : (
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(26,37,32,0.82)' }]} />
+            )}
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: `${COLORS.secondary}28` },
+              ]}
+            />
+          </>
+        ) : (
+          // Neutral elevated glass (reset)
+          <>
+            {Platform.OS !== 'web' ? (
+              <BlurView
+                intensity={IOS_GLASS.blurIntensityStrong}
+                tint={IOS_GLASS.tint}
+                style={StyleSheet.absoluteFill}
+              />
+            ) : (
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(26,37,32,0.88)' }]} />
+            )}
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: IOS_GLASS.tintFillStrong },
+              ]}
+            />
+          </>
+        )}
+
+        {/* ── Border ── */}
+        <View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              borderRadius: radius,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor:
+                variant === 'primary' ? 'rgba(255,255,255,0.28)' :
+                variant === 'pause'   ? 'rgba(255,255,255,0.22)' :
+                variant === 'save'    ? `${COLORS.secondary}60` :
+                IOS_GLASS.border,
+            },
+          ]}
+        />
+
+        {/* ── Top shimmer ── */}
+        <LinearGradient
+          colors={['rgba(255,255,255,0.14)', 'transparent']}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={[StyleSheet.absoluteFill, { borderRadius: radius }]}
+          pointerEvents="none"
+        />
+
+        {/* ── Slide fill on press ── */}
+        <Fill />
+
+        {/* ── Icon ── */}
+        <View
+          style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+          }}
+          pointerEvents="none"
+        >
+          {children}
+        </View>
+      </Animated.View>
+    </AnimatedPressable>
   );
 }
-
-const styles = StyleSheet.create({
-  glyph: {
-    fontSize: 24,
-    color: '#fff',
-    fontFamily: FONTS.bold,
-  },
-  primaryGlow: {
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    elevation: 8,
-  },
-  pauseGlow: {
-    shadowColor: COLORS.danger,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-});

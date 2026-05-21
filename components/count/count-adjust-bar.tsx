@@ -10,6 +10,7 @@ interface CountAdjustBarProps {
   max?: number;
   step?: number;
   variant?: 'dark' | 'light';
+  compact?: boolean;
 }
 
 export function CountAdjustBar({
@@ -20,6 +21,7 @@ export function CountAdjustBar({
   max,
   step = 1,
   variant = 'light',
+  compact = false,
 }: CountAdjustBarProps) {
   const ceiling = max ?? Math.max(200, Math.ceil((value + 50) / 50) * 50);
 
@@ -33,6 +35,7 @@ export function CountAdjustBar({
         max={ceiling}
         step={step}
         variant={variant}
+        compact={compact}
       />
     </View>
   );
