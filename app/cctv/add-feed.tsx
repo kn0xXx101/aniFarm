@@ -13,9 +13,11 @@ import { NeoChip } from '@/components/neo3d/neo-chip';
 import { Card3D } from '@/components/ui/card-3d';
 import { CountPillButton } from '@/components/count/count-pill-button';
 import { SegmentSlider } from '@/components/ui/segment-slider';
+import { UpgradeBanner } from '@/components/subscription/upgrade-banner';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useCctvStore } from '@/lib/stores/cctv-store';
 import { useToast } from '@/components/ui/toast';
+import { canUseFeature, enforceSubscriptionGate } from '@/lib/subscription/service';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 import { useSmartBack } from '@/hooks/useSmartBack';
@@ -39,7 +41,8 @@ const INTERVAL_SECONDS: Record<IntervalKey, number> = {
 export default function AddCctvFeed() {
   const router = useRouter();
   const goBack = useSmartBack();
-  const toast = useToast();
+  const { toast } = useToast();
+  const cctvGate = canUseFeature('cctv');
   const { horizontal } = useScreenInsets(false);
   const { farmId: paramFarmId, houseId: paramHouseId } = useLocalSearchParams<{
     farmId?: string;
@@ -71,6 +74,8 @@ export default function AddCctvFeed() {
   };
 
   const submit = () => {
+    if (!enforceSubscriptionGate(cctvGate, (p) => router.push(p), toast, 'CCTV requires Pro')) return;
+
     const e = validate();
     if (Object.keys(e).length > 0) {
       setErrors(e);
@@ -84,107 +89,113 @@ export default function AddCctvFeed() {
       intervalSeconds: INTERVAL_SECONDS[intervalKey],
       enabled: true,
     });
-    toast.toast({ title: 'Feed added', description: name.trim(), variant: 'success' });
+    toast({ title: 'Feed added', description: name.trim(), variant: 'success' });
     goBack();
   };
 
   return (
-    <NeoScreen withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
-      <TopBar title="Add feed" showBack showAlerts={false} />
+    <NeoScreen scroll withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+      <TopBar title="Add feed" showBack backTo="/(tabs)/cctv" showAlerts={false} />
 
-      <StaggerIn index={0}>
-        <SectionHeading
-          eyebrow="CCTV"
-          title="Connect a camera"
-          description="Stream URL is processed for alive counts, mortality flags, and staff exclusion."
-        />
-      </StaggerIn>
+      <UpgradeBanner gate={cctvGate} title="CCTV requires Pro" />
 
-      <StaggerIn index={1}>
-        <Card3D variant="glass" glowColor={COLORS.secondary} style={styles.heroCard}>
-          <View style={styles.heroRow}>
-            <View style={styles.heroIcon}>
-              <Tv2 size={22} color={COLORS.secondary} />
-            </View>
-            <Text style={TYPE.bodySecondary}>
-              Use RTSP or HTTP(S). Demo mode simulates counts locally when the server is unavailable.
-            </Text>
-          </View>
-        </Card3D>
-      </StaggerIn>
+      {cctvGate.ok ? (
+        <>
+          <StaggerIn index={0}>
+            <SectionHeading
+              eyebrow="CCTV"
+              title="Connect a camera"
+              description="Stream URL is processed for alive counts, mortality flags, and staff exclusion."
+            />
+          </StaggerIn>
 
-      <StaggerIn index={2}>
-        <View style={styles.form}>
-          <Input
-            label="Feed name"
-            value={name}
-            onChangeText={(v) => {
-              setName(v);
-              setErrors((e) => ({ ...e, name: '' }));
-            }}
-            placeholder="e.g. House A — North Camera"
-            error={errors.name}
-          />
+          <StaggerIn index={1}>
+            <Card3D variant="glass" glowColor={COLORS.secondary} style={styles.heroCard}>
+              <View style={styles.heroRow}>
+                <View style={styles.heroIcon}>
+                  <Tv2 size={22} color={COLORS.secondary} />
+                </View>
+                <Text style={TYPE.bodySecondary}>
+                  Use RTSP or HTTP(S). Demo mode simulates counts locally when the server is unavailable.
+                </Text>
+              </View>
+            </Card3D>
+          </StaggerIn>
 
-          <Input
-            label="Stream URL"
-            value={streamUrl}
-            onChangeText={(v) => {
-              setStreamUrl(v);
-              setErrors((e) => ({ ...e, streamUrl: '' }));
-            }}
-            placeholder="rtsp://192.168.1.100:554/stream"
-            autoCapitalize="none"
-            keyboardType="url"
-            leftIcon={<Link size={16} color={COLORS.inkMuted} />}
-            error={errors.streamUrl}
-          />
+          <StaggerIn index={2}>
+            <View style={styles.form}>
+              <Input
+                label="Feed name"
+                value={name}
+                onChangeText={(v) => {
+                  setName(v);
+                  setErrors((e) => ({ ...e, name: '' }));
+                }}
+                placeholder="e.g. House A — North Camera"
+                error={errors.name}
+              />
 
-          <View>
-            <Text style={[TYPE.caption, styles.fieldLabel]}>Farm</Text>
-            <View style={styles.chipRow}>
-              {farms.map((f) => (
-                <Pressable
-                  key={f.id}
-                  onPress={() => {
-                    setSelectedFarmId(f.id);
-                    setSelectedHouseId('');
-                    setErrors((e) => ({ ...e, farmId: '' }));
-                  }}
-                >
-                  <NeoChip label={f.name} active={selectedFarmId === f.id} color={COLORS.primary} />
-                </Pressable>
-              ))}
-            </View>
-            {errors.farmId ? <Text style={styles.errorText}>{errors.farmId}</Text> : null}
-          </View>
+              <Input
+                label="Stream URL"
+                value={streamUrl}
+                onChangeText={(v) => {
+                  setStreamUrl(v);
+                  setErrors((e) => ({ ...e, streamUrl: '' }));
+                }}
+                placeholder="rtsp://192.168.1.100:554/stream"
+                autoCapitalize="none"
+                keyboardType="url"
+                leftIcon={<Link size={16} color={COLORS.inkMuted} />}
+                error={errors.streamUrl}
+              />
 
-          {farmHouses.length > 0 ? (
-            <View>
-              <Text style={[TYPE.caption, styles.fieldLabel]}>House (optional)</Text>
-              <View style={styles.chipRow}>
-                <Pressable onPress={() => setSelectedHouseId('')}>
-                  <NeoChip label="All houses" active={!selectedHouseId} color={COLORS.primary} />
-                </Pressable>
-                {farmHouses.map((h) => (
-                  <Pressable key={h.id} onPress={() => setSelectedHouseId(h.id)}>
-                    <NeoChip label={h.name} active={selectedHouseId === h.id} color={COLORS.primary} />
-                  </Pressable>
-                ))}
+              <View>
+                <Text style={[TYPE.caption, styles.fieldLabel]}>Farm</Text>
+                <View style={styles.chipRow}>
+                  {farms.map((f) => (
+                    <Pressable
+                      key={f.id}
+                      onPress={() => {
+                        setSelectedFarmId(f.id);
+                        setSelectedHouseId('');
+                        setErrors((e) => ({ ...e, farmId: '' }));
+                      }}
+                    >
+                      <NeoChip label={f.name} active={selectedFarmId === f.id} color={COLORS.primary} />
+                    </Pressable>
+                  ))}
+                </View>
+                {errors.farmId ? <Text style={styles.errorText}>{errors.farmId}</Text> : null}
+              </View>
+
+              {farmHouses.length > 0 ? (
+                <View>
+                  <Text style={[TYPE.caption, styles.fieldLabel]}>House (optional)</Text>
+                  <View style={styles.chipRow}>
+                    <Pressable onPress={() => setSelectedHouseId('')}>
+                      <NeoChip label="All houses" active={!selectedHouseId} color={COLORS.primary} />
+                    </Pressable>
+                    {farmHouses.map((h) => (
+                      <Pressable key={h.id} onPress={() => setSelectedHouseId(h.id)}>
+                        <NeoChip label={h.name} active={selectedHouseId === h.id} color={COLORS.primary} />
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              ) : null}
+
+              <View>
+                <Text style={[TYPE.caption, styles.fieldLabel]}>Count interval</Text>
+                <SegmentSlider options={INTERVAL_OPTIONS} value={intervalKey} onChange={setIntervalKey} />
               </View>
             </View>
-          ) : null}
+          </StaggerIn>
 
-          <View>
-            <Text style={[TYPE.caption, styles.fieldLabel]}>Count interval</Text>
-            <SegmentSlider options={INTERVAL_OPTIONS} value={intervalKey} onChange={setIntervalKey} />
-          </View>
-        </View>
-      </StaggerIn>
-
-      <StaggerIn index={3}>
-        <CountPillButton label="Add feed" icon={Tv2} variant="secondary" size="lg" onPress={submit} style={styles.submit} />
-      </StaggerIn>
+          <StaggerIn index={3}>
+            <CountPillButton label="Add feed" icon={Tv2} variant="secondary" size="lg" onPress={submit} style={styles.submit} />
+          </StaggerIn>
+        </>
+      ) : null}
     </NeoScreen>
   );
 }

@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { CountingSession, CountingMode } from '@/types/domain';
 import { registerSessionSyncBridge } from '@/lib/sync/session-bridge';
+import { recordCountSessionCompleted } from '@/lib/subscription/service';
 
 interface SessionState {
   sessions: CountingSession[];
@@ -65,6 +66,7 @@ export const useSessionStore = create<SessionState>()(
           syncStatus: 'pending',
         };
         set((s) => ({ sessions: [session, ...s.sessions] }));
+        recordCountSessionCompleted();
         return session;
       },
 

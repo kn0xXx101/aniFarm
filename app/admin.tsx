@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Building2, Activity, Users, AlertTriangle } from 'lucide-react-native';
 
 import { NeoScreen } from '@/components/neo3d/neo-screen';
+import { TopBar } from '@/components/shell/top-bar';
 import { SectionHeading } from '@/components/neo3d/section-heading';
 import { MetricCube } from '@/components/neo3d/metric-cube';
 import { StaggerIn } from '@/components/neo3d/stagger-in';
@@ -52,6 +53,7 @@ export default function AdminDashboard() {
 
   return (
     <NeoScreen scroll withTabs={false} padded contentStyle={{ paddingTop: 8 }}>
+      <TopBar title="Admin" showBack backTo="/(tabs)/profile" showAlerts={false} />
       <StaggerIn index={0}>
         <SectionHeading
           eyebrow="Operator"

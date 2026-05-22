@@ -13,40 +13,60 @@ import { EmptyState } from '@/components/layout/empty-state';
 import { Card3D } from '@/components/ui/card-3d';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
+import { canStartCount, enforceSubscriptionGate } from '@/lib/subscription/service';
+import type { CountingModeFeature } from '@/lib/subscription/plans';
+import { useToast } from '@/components/ui/toast';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
-const MODES = [
+const MODES: {
+  icon: typeof Camera;
+  title: string;
+  subtitle: string;
+  meta: string;
+  path: '/(tabs)/count-live' | '/(tabs)/count-image' | '/(tabs)/count-video';
+  color: string;
+  mode: CountingModeFeature;
+}[] = [
   {
     icon: Camera,
     title: 'Live counting',
     subtitle: 'Real-time livestock from camera',
     meta: 'Alive · Dead · No humans',
-    path: '/(tabs)/count-live' as const,
+    path: '/(tabs)/count-live',
     color: COLORS.primary,
+    mode: 'live',
   },
   {
     icon: ImageIcon,
     title: 'Image counting',
     subtitle: 'Pen, barn, or paddock photos',
     meta: 'Batch · Species-agnostic',
-    path: '/(tabs)/count-image' as const,
+    path: '/(tabs)/count-image',
     color: COLORS.secondary,
+    mode: 'image',
   },
   {
     icon: Video,
     title: 'Video counting',
     subtitle: 'Analyze herd or flock recordings',
     meta: 'Track · Welfare flags',
-    path: '/(tabs)/count-video' as const,
+    path: '/(tabs)/count-video',
     color: COLORS.accent,
+    mode: 'video',
   },
 ];
 
 export default function CountTab() {
   const router = useRouter();
+  const { toast } = useToast();
   const { horizontal } = useScreenInsets(true);
   const sessions = useSessionStore((s) => s.sessions);
+
+  const openMode = (mode: CountingModeFeature, path: (typeof MODES)[number]['path']) => {
+    if (!enforceSubscriptionGate(canStartCount(mode), (p) => router.push(p), toast)) return;
+    router.push(path);
+  };
   const farms = useFarmStore((s) => s.farms);
   const selectedFarmId = useFarmStore((s) => s.selectedFarmId);
   const filtered = selectedFarmId ? sessions.filter((s) => s.farmId === selectedFarmId) : sessions;
@@ -73,7 +93,7 @@ export default function CountTab() {
               subtitle={m.subtitle}
               meta={m.meta}
               glowColor={m.color}
-              onPress={() => router.push(m.path)}
+              onPress={() => openMode(m.mode, m.path)}
             />
           </StaggerIn>
         );
@@ -113,7 +133,7 @@ export default function CountTab() {
           title="No sessions yet"
           description="Start a live count from the camera, or pick image or video above."
           actionLabel="Open live camera"
-          onAction={() => router.push('/(tabs)/count-live')}
+          onAction={() => openMode('live', '/(tabs)/count-live')}
         />
       ) : null}
     </NeoScreen>

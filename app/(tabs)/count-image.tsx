@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Image, Text, Platform, type LayoutChangeEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Upload, Image as ImageIcon, Check, RotateCcw } from 'lucide-react-native';
@@ -17,6 +17,7 @@ import { detectFromImage, type DetectionResult } from '@/lib/ai/counting-service
 import { evaluateHouseAlerts } from '@/lib/alerts';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { useSmartBack } from '@/hooks/useSmartBack';
+import { canStartCount } from '@/lib/subscription/service';
 
 export default function ImageCount() {
   const router = useRouter();
@@ -30,6 +31,15 @@ export default function ImageCount() {
   const selectedFarmId = useFarmStore((s) => s.selectedFarmId);
   const farm = farms.find((f) => f.id === selectedFarmId) ?? farms[0];
   const farmHouses = houses.filter((h) => h.farmId === farm?.id);
+
+  useEffect(() => {
+    const gate = canStartCount('image');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.replace('/(tabs)/subscription');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gate once on mount
+  }, []);
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [houseId, setHouseId] = useState(farmHouses[0]?.id);
@@ -81,6 +91,12 @@ export default function ImageCount() {
 
   const save = async () => {
     if (!result || !farm || !houseId) return;
+    const gate = canStartCount('image');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.push('/(tabs)/subscription');
+      return;
+    }
     addSession({
       farmId: farm.id,
       houseId,

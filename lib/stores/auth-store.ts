@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { User, SubscriptionTier } from '@/types/domain';
+import { startRegistrationTrial } from '@/lib/subscription/service';
 
 interface AuthState {
   user: User | null;
@@ -85,18 +86,18 @@ export const useAuthStore = create<AuthState>()(
           email,
           phone,
           role,
-          tier: 'pro',
+          tier: 'free',
           createdAt: Date.now(),
         };
         set({ user, isAuthenticated: true, isOnboarded: true });
+        startRegistrationTrial(14);
       },
 
       signOut: () => set({ user: null, isAuthenticated: false }),
       completeOnboarding: () => set({ isOnboarded: true }),
       updateProfile: (patch) =>
         set((s) => ({ user: s.user ? { ...s.user, ...patch } : s.user })),
-      setTier: (tier) =>
-        set((s) => ({ user: s.user ? { ...s.user, tier } : s.user })),
+      setTier: (tier) => set((s) => ({ user: s.user ? { ...s.user, tier } : s.user })),
       setHydrated: () => set({ hydrated: true }),
     }),
     {

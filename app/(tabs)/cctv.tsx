@@ -12,9 +12,12 @@ import { StaggerIn } from '@/components/neo3d/stagger-in';
 import { Card3D } from '@/components/ui/card-3d';
 import { CountPillButton } from '@/components/count/count-pill-button';
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
+import { UpgradeBanner } from '@/components/subscription/upgrade-banner';
 import { useCctvStore } from '@/lib/stores/cctv-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { useCctvFeeds } from '@/lib/cctv/use-cctv-feeds';
+import { canUseFeature, enforceSubscriptionGate } from '@/lib/subscription/service';
+import { useToast } from '@/components/ui/toast';
 import { DetectionSummary } from '@/components/count/detection-summary';
 import { isMockApiMode } from '@/lib/api/config';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
@@ -43,7 +46,7 @@ function StatusDot({ status }: { status?: CctvFeedStatus }) {
   );
 }
 
-function FeedCard({ feed }: { feed: CctvFeed }) {
+function FeedCard({ feed, canManage }: { feed: CctvFeed; canManage: boolean }) {
   const runtime = useCctvStore((s) => s.runtime[feed.id]);
   const toggleFeed = useCctvStore((s) => s.toggleFeed);
   const deleteFeed = useCctvStore((s) => s.deleteFeed);
@@ -121,40 +124,42 @@ function FeedCard({ feed }: { feed: CctvFeed }) {
         {feed.streamUrl}
       </Text>
 
-      <View style={styles.actions}>
-        <IosGlassSurface
-          variant="glass"
-          radius={IOS_GLASS.radiusMd}
-          padding={0}
-          onPress={() => toggleFeed(feed.id)}
-          style={{ flex: 1 }}
-          contentStyle={styles.toggleInner}
-        >
-          {feed.enabled ? (
-            <ToggleRight size={16} color={COLORS.primary} />
-          ) : (
-            <ToggleLeft size={16} color={COLORS.inkMuted} />
-          )}
-          <Text style={[TYPE.label, { color: feed.enabled ? COLORS.primary : COLORS.inkMuted, fontSize: 13 }]}>
-            {feed.enabled ? 'Enabled' : 'Disabled'}
-          </Text>
-        </IosGlassSurface>
+      {canManage ? (
+        <View style={styles.actions}>
+          <IosGlassSurface
+            variant="glass"
+            radius={IOS_GLASS.radiusMd}
+            padding={0}
+            onPress={() => toggleFeed(feed.id)}
+            style={{ flex: 1 }}
+            contentStyle={styles.toggleInner}
+          >
+            {feed.enabled ? (
+              <ToggleRight size={16} color={COLORS.primary} />
+            ) : (
+              <ToggleLeft size={16} color={COLORS.inkMuted} />
+            )}
+            <Text style={[TYPE.label, { color: feed.enabled ? COLORS.primary : COLORS.inkMuted, fontSize: 13 }]}>
+              {feed.enabled ? 'Enabled' : 'Disabled'}
+            </Text>
+          </IosGlassSurface>
 
-        <IosGlassSurface
-          variant="glass"
-          radius={IOS_GLASS.radiusMd}
-          padding={0}
-          onPress={() => deleteFeed(feed.id)}
-          contentStyle={styles.deleteInner}
-        >
-          <Trash2 size={16} color={COLORS.danger} />
-        </IosGlassSurface>
-      </View>
+          <IosGlassSurface
+            variant="glass"
+            radius={IOS_GLASS.radiusMd}
+            padding={0}
+            onPress={() => deleteFeed(feed.id)}
+            contentStyle={styles.deleteInner}
+          >
+            <Trash2 size={16} color={COLORS.danger} />
+          </IosGlassSurface>
+        </View>
+      ) : null}
     </Card3D>
   );
 }
 
-function EmptyFeeds() {
+function EmptyFeeds({ onAdd, canAdd }: { onAdd: () => void; canAdd: boolean }) {
   return (
     <Card3D variant="glass" glowColor={COLORS.secondary} style={styles.emptyCard}>
       <View style={styles.emptyIcon}>
@@ -165,14 +170,26 @@ function EmptyFeeds() {
         Connect barn, pen, or paddock cameras. Live AI counts herds and flocks, flags mortality, and ignores people in
         frame.
       </Text>
+      {canAdd ? (
+        <CountPillButton
+          label="Add first feed"
+          icon={Plus}
+          variant="secondary"
+          onPress={onAdd}
+          style={{ width: '100%', marginTop: 16 }}
+        />
+      ) : null}
     </Card3D>
   );
 }
 
 export default function CctvTab() {
   const router = useRouter();
+  const { toast } = useToast();
   const { horizontal } = useScreenInsets(true);
   const feeds = useCctvStore((s) => s.feeds);
+  const cctvGate = canUseFeature('cctv');
+  const canManage = cctvGate.ok;
 
   useCctvFeeds();
 
@@ -180,8 +197,10 @@ export default function CctvTab() {
   const enabledCount = feeds.filter((f) => f.enabled).length;
 
   const handleAdd = useCallback(() => {
+    const gate = canUseFeature('cctv');
+    if (!enforceSubscriptionGate(gate, (p) => router.push(p), toast, 'CCTV requires Pro')) return;
     router.push('/cctv/add-feed');
-  }, [router]);
+  }, [router, toast]);
 
   return (
     <NeoScreen scroll withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
@@ -190,9 +209,11 @@ export default function CctvTab() {
         showBack={false}
         showAlerts
         right={
-          <IosGlassSurface variant="glass" radius={12} padding={0} onPress={handleAdd} contentStyle={styles.addBtn}>
-            <Plus size={18} color={COLORS.secondary} />
-          </IosGlassSurface>
+          canManage ? (
+            <IosGlassSurface variant="glass" radius={12} padding={0} onPress={handleAdd} contentStyle={styles.addBtn}>
+              <Plus size={18} color={COLORS.secondary} />
+            </IosGlassSurface>
+          ) : null
         }
       />
 
@@ -208,8 +229,10 @@ export default function CctvTab() {
         />
       </StaggerIn>
 
-      {feeds.length > 0 ? (
-        <StaggerIn index={1}>
+      <UpgradeBanner gate={cctvGate} title="CCTV requires Pro" />
+
+      {canManage && feeds.length > 0 ? (
+        <StaggerIn index={2}>
           <View style={styles.metricRow}>
             <View style={styles.metricCell}>
               <MetricCube
@@ -240,27 +263,29 @@ export default function CctvTab() {
       ) : null}
 
       {feeds.length === 0 ? (
-        <StaggerIn index={2}>
-          <EmptyFeeds />
+        <StaggerIn index={3}>
+          <EmptyFeeds onAdd={handleAdd} canAdd={canManage} />
         </StaggerIn>
       ) : (
         feeds.map((feed, i) => (
-          <StaggerIn key={feed.id} index={i + 2}>
-            <FeedCard feed={feed} />
+          <StaggerIn key={feed.id} index={i + 3}>
+            <FeedCard feed={feed} canManage={canManage} />
           </StaggerIn>
         ))
       )}
 
-      <StaggerIn index={feeds.length + 3}>
-        <CountPillButton
-          label={feeds.length === 0 ? 'Add first feed' : 'Add CCTV feed'}
-          icon={Plus}
-          variant="secondary"
-          size="lg"
-          onPress={handleAdd}
-          style={styles.addCta}
-        />
-      </StaggerIn>
+      {canManage && feeds.length > 0 ? (
+        <StaggerIn index={feeds.length + 4}>
+          <CountPillButton
+            label="Add CCTV feed"
+            icon={Plus}
+            variant="secondary"
+            size="lg"
+            onPress={handleAdd}
+            style={styles.addCta}
+          />
+        </StaggerIn>
+      ) : null}
     </NeoScreen>
   );
 }

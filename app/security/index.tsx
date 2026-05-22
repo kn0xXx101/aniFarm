@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { Shield } from 'lucide-react-native';
 
@@ -8,8 +9,11 @@ import { EmptyState } from '@/components/layout/empty-state';
 import { CountPillButton } from '@/components/count/count-pill-button';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { COLORS, FONTS } from '@/lib/design-system';
+import { UpgradeBanner } from '@/components/subscription/upgrade-banner';
+import { usePlanGate } from '@/hooks/usePlanGate';
 
 export default function SecurityScreen() {
+  const { gate, allowed } = usePlanGate('security_log');
   const router = useRouter();
   const allAlerts = useAlertStore((s) => s.alerts);
   const alerts = useMemo(
@@ -22,7 +26,8 @@ export default function SecurityScreen() {
 
   return (
     <OperationsScreen title="Security" subtitle="Human detection · intrusion log" requireFarm={false}>
-      {alerts.length === 0 ? (
+      <UpgradeBanner gate={gate} title="Security log requires Pro" />
+      {!allowed ? null : alerts.length === 0 ? (
         <EmptyState
           icon={<Shield size={28} color={COLORS.secondary} strokeWidth={2} />}
           title="All clear"
@@ -42,12 +47,14 @@ export default function SecurityScreen() {
         ))
       )}
 
-      <CountPillButton
-        label="View all alerts"
-        variant="outline"
-        onPress={() => router.push('/(tabs)/alerts')}
-        style={{ width: '100%', marginTop: 16 }}
-      />
+      {allowed ? (
+        <CountPillButton
+          label="View all alerts"
+          variant="outline"
+          onPress={() => router.push('/(tabs)/alerts')}
+          style={{ width: '100%', marginTop: 16 }}
+        />
+      ) : null}
     </OperationsScreen>
   );
 }

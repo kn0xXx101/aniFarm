@@ -25,6 +25,8 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { QueryProvider } from '@/providers/query-provider';
 import { isExpoGo } from '@/lib/expo-go';
 import { useSettingsStore } from '@/lib/stores/settings-store';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { syncSubscriptionOnLaunch } from '@/lib/subscription/service';
 
 import { SplashScreen, Stack } from 'expo-router';
 
@@ -66,6 +68,14 @@ export default function RootLayout() {
     initPostHog();
   }, []);
 
+  const authHydrated = useAuthStore((s) => s.hydrated);
+  const user = useAuthStore((s) => s.user);
+
+  useEffect(() => {
+    if (!authHydrated || !user) return;
+    void syncSubscriptionOnLaunch(user.id, user.tier);
+  }, [authHydrated, user?.id]);
+
   useEffect(() => {
     if (!pushEnabled || isExpoGo()) return;
     void import('@/lib/notifications')
@@ -101,9 +111,9 @@ export default function RootLayout() {
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="farm/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="farm/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New farm' }} />
-              <Stack.Screen name="house/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New house' }} />
-              <Stack.Screen name="admin" options={{ ...STACK_HEADER, title: 'Admin' }} />
+              <Stack.Screen name="farm/new" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="house/new" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="admin" options={{ headerShown: false }} />
               <Stack.Screen name="cctv/add-feed" options={{ presentation: 'modal', headerShown: false }} />
               {/* Farm ops: custom TopBar only — no native header (avoids double back) */}
               <Stack.Screen name="operations/index" options={{ headerShown: false }} />

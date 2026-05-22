@@ -19,6 +19,8 @@ import { buildAnalyticsFromSessions } from '@/lib/analytics';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
+import { UpgradeBanner } from '@/components/subscription/upgrade-banner';
+import { usePlanGate } from '@/hooks/usePlanGate';
 
 type Range = '7d' | '30d' | '90d';
 type Metric = 'count' | 'mortality';
@@ -52,6 +54,7 @@ function ChartStatRow({
 }
 
 export default function AnalyticsTab() {
+  const { gate, allowed } = usePlanGate('analytics');
   const router = useRouter();
   const { horizontal } = useScreenInsets(false);
   const farms = useFarmStore((s) => s.farms);
@@ -86,6 +89,10 @@ export default function AnalyticsTab() {
         />
       </StaggerIn>
 
+      <UpgradeBanner gate={gate} title="Analytics requires Basic" />
+
+      {allowed ? (
+      <>
       <StaggerIn index={1}>
         <View style={styles.block}>
           <Text style={[TYPE.caption, styles.blockLabel]}>Time range</Text>
@@ -158,6 +165,8 @@ export default function AnalyticsTab() {
           style={styles.exportBtn}
         />
       </StaggerIn>
+      </>
+      ) : null}
     </NeoScreen>
   );
 }

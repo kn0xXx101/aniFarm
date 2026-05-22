@@ -5,6 +5,24 @@
 
 import type { DetectionClass, Farm, LivestockType } from '@/types/domain';
 
+export { isPoultryType, POULTRY_LIVESTOCK_TYPES } from '@/lib/livestock-icons';
+
+/** Grouped picker sections for farm registration. */
+export const LIVESTOCK_TYPE_GROUPS: { title: string; types: LivestockType[] }[] = [
+  {
+    title: 'Poultry',
+    types: ['broiler', 'layer', 'breeder', 'poultry_mixed'],
+  },
+  {
+    title: 'Cattle & dairy',
+    types: ['cattle_beef', 'cattle_dairy'],
+  },
+  {
+    title: 'Other livestock',
+    types: ['sheep', 'goat', 'pig', 'horse', 'fish', 'mixed', 'other'],
+  },
+];
+
 export const LIVESTOCK_TYPE_LABELS: Record<LivestockType, string> = {
   broiler: 'Poultry · Broiler',
   layer: 'Poultry · Layer',

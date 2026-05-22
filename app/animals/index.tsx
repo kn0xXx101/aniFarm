@@ -8,10 +8,11 @@ import { Card3D } from '@/components/ui/card-3d';
 import { CountPillButton } from '@/components/count/count-pill-button';
 import { Text } from '@/components/ui/text';
 import { EmptyState } from '@/components/layout/empty-state';
-import { FarmIcon } from '@/components/brand/brand-icon';
+import { LivestockTypeIcon } from '@/components/brand/brand-icon';
 import { useAnimalStore } from '@/lib/stores/animal-store';
 import { useMemo } from 'react';
 import { useActiveFarm } from '@/hooks/useActiveFarm';
+import { useFarmStore } from '@/lib/stores/farm-store';
 import { COLORS, FONTS } from '@/lib/design-system';
 import type { AnimalHealthStatus, AnimalSpecies } from '@/types/domain';
 
@@ -38,6 +39,7 @@ const HEALTH_COLOR: Record<AnimalHealthStatus, string> = {
 export default function AnimalsScreen() {
   const router = useRouter();
   const { farmId } = useActiveFarm();
+  const activeFarm = useFarmStore((s) => s.farms.find((f) => f.id === farmId));
   const allAnimals = useAnimalStore((s) => s.animals);
   const animals = useMemo(
     () => (farmId ? allAnimals.filter((a) => a.farmId === farmId) : allAnimals),
@@ -56,7 +58,14 @@ export default function AnimalsScreen() {
 
       {animals.length === 0 ? (
         <EmptyState
-          icon={<FarmIcon size={28} color={COLORS.primary} strokeWidth={2} />}
+          icon={
+            <LivestockTypeIcon
+              type={activeFarm?.livestockType ?? activeFarm?.flockType ?? 'broiler'}
+              size={28}
+              color={COLORS.primary}
+              strokeWidth={2}
+            />
+          }
           title="No animals registered"
           description="Add individual animals or import a batch for the active farm."
           actionLabel="Register first animal"

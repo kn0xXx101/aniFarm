@@ -34,6 +34,7 @@ interface OperationsState {
   addTask: (t: Omit<FarmTask, 'id' | 'createdAt' | 'status'> & { status?: FarmTask['status'] }) => void;
   toggleTask: (id: string) => void;
   addFeedStock: (s: Omit<FeedStock, 'id' | 'updatedAt'>) => void;
+  restockFeed: (feedId: string, amountKg: number) => void;
   logFeed: (l: Omit<FeedLog, 'id'>) => void;
   addVaccination: (v: Omit<VaccinationRecord, 'id'>) => void;
   addWeight: (w: Omit<WeightLog, 'id'>) => void;
@@ -90,6 +91,16 @@ export const useOperationsStore = create<OperationsState>()(
             { ...stock, id: uid('feed'), updatedAt: Date.now() },
             ...s.feedStock,
           ],
+        }));
+      },
+
+      restockFeed: (feedId, amountKg) => {
+        set((s) => ({
+          feedStock: s.feedStock.map((f) =>
+            f.id === feedId
+              ? { ...f, quantityKg: f.quantityKg + amountKg, updatedAt: Date.now() }
+              : f,
+          ),
         }));
       },
 

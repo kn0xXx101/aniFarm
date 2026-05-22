@@ -22,6 +22,8 @@ import { Card3D } from '@/components/ui/card-3d';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { UiStylePicker } from '@/components/settings/ui-style-picker';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useSubscription } from '@/hooks/useSubscription';
+import { canUseFeature, enforceSubscriptionGate } from '@/lib/subscription/service';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
@@ -140,6 +142,7 @@ export default function ProfileTab() {
   const { horizontal } = useScreenInsets(false);
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
+  const { plan, usage, onTrial, trialDaysLeft } = useSubscription();
   const settings = useSettingsStore();
   const syncPending = useSessionStore((s) => s.syncPending);
   const pendingCount = useSessionStore((s) => s.sessions.filter((x) => x.syncStatus === 'pending').length);
@@ -179,7 +182,8 @@ export default function ProfileTab() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
               <Sparkles size={12} color={COLORS.secondary} />
               <Text style={{ color: COLORS.secondary, fontSize: 12, fontFamily: FONTS.semibold, textTransform: 'capitalize' }}>
-                {user?.tier} plan
+                {plan.name}
+                {onTrial ? ` · trial ${trialDaysLeft}d` : ''}
               </Text>
             </View>
           </View>
@@ -221,9 +225,19 @@ export default function ProfileTab() {
         <SettingToggle
           icon={<Database size={20} color={COLORS.accent} />}
           title="Auto-sync"
-          subtitle={`${pendingCount} pending`}
-          checked={settings.autoSync}
-          onToggle={() => settings.toggle('autoSync')}
+          subtitle={
+            canUseFeature('offline_sync').ok
+              ? `${pendingCount} pending`
+              : 'Basic plan · upgrade to sync offline'
+          }
+          checked={settings.autoSync && canUseFeature('offline_sync').ok}
+          onToggle={() => {
+            const enabling = !settings.autoSync;
+            if (enabling && !enforceSubscriptionGate(canUseFeature('offline_sync'), (p) => router.push(p), toast.toast, 'Offline sync requires Basic')) {
+              return;
+            }
+            settings.toggle('autoSync');
+          }}
         />
         <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
         <SettingLink
@@ -231,6 +245,9 @@ export default function ProfileTab() {
           title="Sync now"
           subtitle="Upload pending sessions"
           onPress={async () => {
+            if (!enforceSubscriptionGate(canUseFeature('offline_sync'), (p) => router.push(p), toast.toast, 'Offline sync requires Basic')) {
+              return;
+            }
             const n = await syncPending({ force: true });
             toast.toast({
               title: n > 0 ? 'Synced' : 'Nothing to sync',
@@ -247,7 +264,7 @@ export default function ProfileTab() {
         <SettingLink
           icon={<CreditCard size={20} color={COLORS.secondary} />}
           title="Plans & billing"
-          subtitle={`${user?.tier ?? 'free'} plan · change or upgrade`}
+          subtitle={`${plan.name} · ${usage.farmCount}/${Number.isFinite(usage.farmsLimit) ? usage.farmsLimit : '∞'} farms · ${usage.monthlyCountsUsed}/${Number.isFinite(usage.countsLimit) ? usage.countsLimit : '∞'} counts`}
           onPress={() => router.push('/(tabs)/subscription')}
         />
         {isAdmin ? (

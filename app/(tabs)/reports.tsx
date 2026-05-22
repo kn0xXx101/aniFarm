@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { FileText, FileDown, FileSpreadsheet, TrendingUp } from 'lucide-react-native';
 
 import { NeoScreen } from '@/components/neo3d/neo-screen';
@@ -19,6 +20,9 @@ import { buildReportHTML, sessionsToCSV } from '@/lib/reports';
 import { exportPdf, exportTextFile } from '@/lib/file-export';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
+import { canExport } from '@/lib/subscription/service';
+import { UpgradeBanner } from '@/components/subscription/upgrade-banner';
+import { usePlanGate } from '@/hooks/usePlanGate';
 
 type Range = '7d' | '30d' | '90d';
 
@@ -29,6 +33,8 @@ const RANGE_OPTIONS = [
 ];
 
 export default function ReportsTab() {
+  const { gate: analyticsGate, allowed } = usePlanGate('analytics');
+  const router = useRouter();
   const { horizontal } = useScreenInsets(false);
   const farms = useFarmStore((s) => s.farms);
   const houses = useFarmStore((s) => s.houses);
@@ -49,6 +55,12 @@ export default function ReportsTab() {
 
   const handlePdf = async () => {
     if (!farm) return;
+    const gate = canExport('pdf');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.push('/(tabs)/subscription');
+      return;
+    }
     setBusy('pdf');
     try {
       const html = buildReportHTML({
@@ -70,6 +82,12 @@ export default function ReportsTab() {
 
   const handleCsv = async () => {
     if (!farm) return;
+    const gate = canExport('csv');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.push('/(tabs)/subscription');
+      return;
+    }
     setBusy('csv');
     try {
       await exportTextFile(`anifarm-${farm.id}-${range}.csv`, sessionsToCSV(farmSessions), 'text/csv');
@@ -81,6 +99,12 @@ export default function ReportsTab() {
 
   const handleXlsx = async () => {
     if (!farm) return;
+    const gate = canExport('xlsx');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.push('/(tabs)/subscription');
+      return;
+    }
     setBusy('xlsx');
     try {
       const tsv = sessionsToCSV(farmSessions).replace(/,/g, '\t');
@@ -103,6 +127,10 @@ export default function ReportsTab() {
         />
       </StaggerIn>
 
+      <UpgradeBanner gate={analyticsGate} title="Reports require Basic" />
+
+      {allowed ? (
+      <>
       <StaggerIn index={1}>
         <Text style={[TYPE.caption, styles.blockLabel]}>Farm</Text>
         <View style={styles.chipRow}>
@@ -187,6 +215,8 @@ export default function ReportsTab() {
           />
         </View>
       </StaggerIn>
+      </>
+      ) : null}
     </NeoScreen>
   );
 }

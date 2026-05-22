@@ -10,6 +10,8 @@ import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { headerIconWellStyle, IOS_GLASS } from '@/lib/ios-glass';
 import { useSmartBack } from '@/hooks/useSmartBack';
+import { useToast } from '@/components/ui/toast';
+import { canUseFeature, enforceSubscriptionGate } from '@/lib/subscription/service';
 import { cn } from '@/lib/utils';
 
 interface TopBarProps {
@@ -36,10 +38,18 @@ export function TopBar({
 }: TopBarProps) {
   const router = useRouter();
   const goBack = useSmartBack(backTo);
+  const toast = useToast();
   const unread = useAlertStore((s) => s.alerts.filter((a) => !a.read).length);
 
+  const openAlerts = () => {
+    if (!enforceSubscriptionGate(canUseFeature('ai_alerts'), (p) => router.push(p), toast.toast, 'AI alerts require Pro')) {
+      return;
+    }
+    router.push('/(tabs)/alerts');
+  };
+
   const alertBtn = showAlerts ? (
-    <Pressable onPress={() => router.push('/(tabs)/alerts')} accessibilityLabel="Alerts">
+    <Pressable onPress={openAlerts} accessibilityLabel="Alerts">
       <IosGlassSurface variant="glass" radius={IOS_GLASS.headerChromeRadius} padding={0} shadow="none">
         <View style={headerIconWellStyle}>
           <Bell size={IOS_GLASS.headerIconGlyph} color={COLORS.ink} />

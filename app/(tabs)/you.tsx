@@ -11,16 +11,18 @@ import { Card3D } from '@/components/ui/card-3d';
 import { ModuleGrid } from '@/components/operations/module-grid';
 import { FARM_MODULES } from '@/lib/operations/modules';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useSubscription } from '@/hooks/useSubscription';
 import { COLORS, FONTS } from '@/lib/design-system';
 
 const YOU_MODULES = FARM_MODULES.filter((m) =>
-  ['animals', 'health', 'feed', 'tasks', 'sales', 'vet', 'reports', 'analytics', 'profile'].includes(m.id),
+  ['animals', 'health', 'feed', 'tasks', 'sales', 'vet', 'reports', 'analytics'].includes(m.id),
 );
 
 export default function YouTab() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
+  const { onTrial, trialDaysLeft, plan } = useSubscription();
 
   return (
     <NeoScreen scroll>
@@ -66,14 +68,15 @@ export default function YouTab() {
               {user?.email}
             </Text>
             <Text style={{ color: COLORS.secondary, fontSize: 11, fontFamily: FONTS.semibold, marginTop: 4 }}>
-              {user?.role?.replace('_', ' ')} · {user?.tier?.toUpperCase()} plan
+              {user?.role?.replace('_', ' ')} · {plan.name}
+              {onTrial ? ` · Pro trial (${trialDaysLeft}d left)` : ''}
             </Text>
           </View>
         </View>
       </Card3D>
 
       <SectionHeading eyebrow="Farm ops" title="Modules" description="Tasks, health, sales, vet, and more." />
-      <ModuleGrid modules={YOU_MODULES} columns={1} />
+      <ModuleGrid modules={YOU_MODULES} columns={1} returnTo="/(tabs)/you" />
 
       <Card3D variant="glass" glowColor={COLORS.danger} onPress={() => { signOut(); router.replace('/(auth)/login'); }} style={{ marginTop: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>

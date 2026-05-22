@@ -9,7 +9,7 @@ import { Card3D } from '@/components/ui/card-3d';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/layout/empty-state';
-import { FarmIcon } from '@/components/brand/brand-icon';
+import { LivestockTypeIcon } from '@/components/brand/brand-icon';
 import { useAnimalStore } from '@/lib/stores/animal-store';
 import { COLORS, FONTS } from '@/lib/design-system';
 import type { AnimalHealthStatus, AnimalSpecies } from '@/types/domain';
@@ -44,7 +44,7 @@ export default function AnimalDetailScreen() {
     return (
       <OperationsScreen title="Animal" showBack requireFarm={false}>
         <EmptyState
-          icon={<FarmIcon size={28} color={COLORS.primary} strokeWidth={2} />}
+          icon={<LivestockTypeIcon type="broiler" size={28} color={COLORS.primary} strokeWidth={2} />}
           title="Animal not found"
           description="This record may have been removed or the link is invalid."
           actionLabel="Back to registry"
@@ -106,7 +106,7 @@ export default function AnimalDetailScreen() {
         </View>
       </Card3D>
 
-      <Button variant="outline" onPress={() => router.back()} style={{ marginTop: 16, width: '100%' }}>
+      <Button variant="outline" onPress={() => router.replace('/animals')} style={{ marginTop: 16, width: '100%' }}>
         Back to list
       </Button>
     </OperationsScreen>

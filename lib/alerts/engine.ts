@@ -6,6 +6,7 @@ import type { LivestockPen } from '@/types/domain';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { scheduleLocalAlert } from '@/lib/notifications';
+import { canUseFeature } from '@/lib/subscription/service';
 
 export interface EvaluateHouseAlertsInput {
   farmId: string;
@@ -21,6 +22,8 @@ export function evaluateHouseAlerts({
   farmName,
   deadDetected = 0,
 }: EvaluateHouseAlertsInput): void {
+  if (!canUseFeature('ai_alerts').ok) return;
+
   const settings = useSettingsStore.getState();
   const addAlert = useAlertStore.getState().addAlert;
 

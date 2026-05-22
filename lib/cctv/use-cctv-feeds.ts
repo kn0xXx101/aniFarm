@@ -8,10 +8,12 @@ import { useSessionStore } from '@/lib/stores/session-store';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { evaluateCountResult } from '@/lib/alerts/evaluate-count';
 import { openCctvSocket, startPolling, type CctvSocket } from '@/lib/api/cctv';
+import { canUseFeature } from '@/lib/subscription/service';
 import type { CctvCountUpdate, CctvFeed } from '@/types/domain';
 
 export function useCctvFeeds() {
   const feeds = useCctvStore((s) => s.feeds);
+  const cctvAllowed = canUseFeature('cctv').ok;
   const setFeedStatus = useCctvStore((s) => s.setFeedStatus);
   const applyCountUpdate = useCctvStore((s) => s.applyCountUpdate);
   const addSession = useSessionStore((s) => s.addSession);
@@ -25,6 +27,8 @@ export function useCctvFeeds() {
   const sessionTickRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
+    if (!cctvAllowed) return undefined;
+
     const enabledFeeds = feeds.filter((f) => f.enabled);
     const enabledIds = new Set(enabledFeeds.map((f) => f.id));
 
@@ -73,7 +77,7 @@ export function useCctvFeeds() {
       pollersRef.current.forEach((stop) => stop());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [feeds]);
+  }, [feeds, cctvAllowed]);
 
   function persistCountSession(feed: CctvFeed, update: CctvCountUpdate) {
     const alive = update.aliveCount ?? update.count;

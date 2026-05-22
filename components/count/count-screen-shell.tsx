@@ -16,7 +16,7 @@ interface CountScreenShellProps {
 }
 
 export function CountScreenShell({ title, children, scroll = true, dark = false }: CountScreenShellProps) {
-  const goBack = useSmartBack();
+  const goBack = useSmartBack('/(tabs)/scan');
   useHideTabBar();
 
   const bg = dark ? '#000' : COLORS.canvas;

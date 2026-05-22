@@ -38,12 +38,24 @@ import { useAlertStore } from '@/lib/stores/alert-store';
 import { useOnlineStatus, useAutoSync } from '@/lib/sync';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 import { buildAnalyticsFromSessions } from '@/lib/analytics';
+import { canStartCount, canUseFeature, enforceSubscriptionGate } from '@/lib/subscription/service';
+import type { CountingModeFeature } from '@/lib/subscription/plans';
+import { useToast } from '@/components/ui/toast';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
 export default function Dashboard() {
   const router = useRouter();
+  const { toast } = useToast();
+
+  const openCount = (
+    mode: CountingModeFeature,
+    path: '/(tabs)/count-live' | '/(tabs)/count-image' | '/(tabs)/count-video',
+  ) => {
+    if (!enforceSubscriptionGate(canStartCount(mode), (p) => router.push(p), toast)) return;
+    router.push(path);
+  };
   const { width, isNarrow } = useBreakpoint();
   const { horizontal } = useScreenInsets(true);
   const user = useAuthStore((s) => s.user);
@@ -53,7 +65,8 @@ export default function Dashboard() {
   const alerts = useAlertStore((s) => s.alerts);
   const online = useOnlineStatus();
   const autoSync = useSettingsStore((s) => s.autoSync);
-  useAutoSync(autoSync);
+  const offlineAllowed = canUseFeature('offline_sync').ok;
+  useAutoSync(autoSync && offlineAllowed);
 
   const series = useMemo(() => buildAnalyticsFromSessions(sessions, 14), [sessions]);
   const totalAlive = houses.reduce((sum, h) => sum + h.currentCount, 0);
@@ -86,7 +99,7 @@ export default function Dashboard() {
           actions={
             <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
               <SlidingButton
-                onPress={() => router.push('/(tabs)/count-live')}
+                onPress={() => openCount('live', '/(tabs)/count-live')}
                 style={[{ flex: 1, minWidth: 0, minHeight: 48 }, SHADOW.neon]}
                 borderRadius={999}
                 fillColor={COLORS.primaryDark}
@@ -207,7 +220,7 @@ export default function Dashboard() {
           subtitle="Real-time camera AI"
           meta="YOLO · Tracking"
           glowColor={COLORS.primary}
-          onPress={() => router.push('/(tabs)/count-live')}
+          onPress={() => openCount('live', '/(tabs)/count-live')}
         />
         <ScanModeCard
           icon={<ImageIcon size={22} color={COLORS.secondary} />}
@@ -215,7 +228,7 @@ export default function Dashboard() {
           subtitle="Upload overhead shots"
           meta="Batch · High accuracy"
           glowColor={COLORS.secondary}
-          onPress={() => router.push('/(tabs)/count-image')}
+          onPress={() => openCount('image', '/(tabs)/count-image')}
         />
         <ScanModeCard
           icon={<Video size={22} color={COLORS.accent} />}
@@ -223,7 +236,7 @@ export default function Dashboard() {
           subtitle="Process recordings"
           meta="Frame track · Deduped"
           glowColor={COLORS.accent}
-          onPress={() => router.push('/(tabs)/count-video')}
+          onPress={() => openCount('video', '/(tabs)/count-video')}
         />
       </ScrollView>
 

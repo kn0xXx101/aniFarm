@@ -17,6 +17,7 @@ import { detectStreamFrame, trackUpdate, type TrackedAnimal } from '@/lib/ai/cou
 import { evaluateHouseAlerts } from '@/lib/alerts';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { useSmartBack } from '@/hooks/useSmartBack';
+import { canStartCount } from '@/lib/subscription/service';
 
 export default function VideoCount() {
   const router = useRouter();
@@ -30,6 +31,15 @@ export default function VideoCount() {
   const selectedFarmId = useFarmStore((s) => s.selectedFarmId);
   const farm = farms.find((f) => f.id === selectedFarmId) ?? farms[0];
   const farmHouses = houses.filter((h) => h.farmId === farm?.id);
+
+  useEffect(() => {
+    const gate = canStartCount('video');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.replace('/(tabs)/subscription');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gate once on mount
+  }, []);
 
   const [filename, setFilename] = useState<string | null>('demo-flock.mp4');
   const [running, setRunning] = useState(false);
@@ -95,6 +105,12 @@ export default function VideoCount() {
 
   const save = async () => {
     if (!farm || !houseId) return;
+    const gate = canStartCount('video');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.push('/(tabs)/subscription');
+      return;
+    }
     addSession({
       farmId: farm.id,
       houseId,

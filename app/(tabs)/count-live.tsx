@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
@@ -25,9 +26,11 @@ import { useToast } from '@/components/ui/toast';
 import { evaluateHouseAlerts } from '@/lib/alerts';
 import { generateStreamFrame as detectStreamFrame, trackUpdate, type TrackedAnimal } from '@/lib/ai/counting-service';
 import { livestockUnit } from '@/lib/livestock';
+import { canStartCount } from '@/lib/subscription/service';
 import { COLORS, FONTS, LAYOUT } from '@/lib/design-system';
 
 export default function LiveCount() {
+  const router = useRouter();
   const goBack = useSmartBack();
   const insets = useSafeAreaInsets();
   useHideTabBar();
@@ -72,6 +75,15 @@ export default function LiveCount() {
   const pausedAtRef = useRef<number | null>(null);
   const tracksRef = useRef<TrackedAnimal[]>([]);
   const unit = livestockUnit(farm?.livestockType ?? farm?.flockType);
+
+  useEffect(() => {
+    const gate = canStartCount('live');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.replace('/(tabs)/subscription');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gate once on mount
+  }, []);
   const allTrackIds = useRef<Set<number>>(new Set());
   const lastTimeRef = useRef<number>(Date.now());
   const [previewSize, setPreviewSize] = useState({ w: 1, h: 1 });
@@ -144,6 +156,12 @@ export default function LiveCount() {
 
   const save = async () => {
     if (!farm || !houseId || trackCount === 0) return;
+    const gate = canStartCount('live');
+    if (!gate.ok) {
+      toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
+      router.push('/(tabs)/subscription');
+      return;
+    }
     const totalPaused =
       pausedDurationRef.current + (pausedAtRef.current ? Date.now() - pausedAtRef.current : 0);
     const durationMs = startRef.current ? Date.now() - startRef.current - totalPaused : 0;

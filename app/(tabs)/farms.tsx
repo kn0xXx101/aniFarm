@@ -2,7 +2,7 @@ import { Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 
-import { FarmIcon } from '@/components/brand/brand-icon';
+import { LivestockTypeIcon } from '@/components/brand/brand-icon';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Text } from '@/components/ui/text';
@@ -14,12 +14,25 @@ import { StaggerIn } from '@/components/neo3d/stagger-in';
 import { EmptyState } from '@/components/layout/empty-state';
 import { useFarmStore } from '@/lib/stores/farm-store';
 import { formatLivestockType } from '@/lib/livestock';
+import { canAddFarm } from '@/lib/subscription/service';
+import { useToast } from '@/components/ui/toast';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
 export default function FarmsTab() {
   const router = useRouter();
+  const toast = useToast();
   const { horizontal } = useScreenInsets(true);
+
+  const tryAddFarm = () => {
+    const gate = canAddFarm();
+    if (!gate.ok) {
+      toast.toast({ title: 'Farm limit reached', description: gate.message, variant: 'destructive' });
+      router.push('/(tabs)/subscription');
+      return;
+    }
+    router.push('/farm/new');
+  };
   const farms = useFarmStore((s) => s.farms);
   const houses = useFarmStore((s) => s.houses);
   const selectFarm = useFarmStore((s) => s.selectFarm);
@@ -33,10 +46,10 @@ export default function FarmsTab() {
         title="Your farm network"
         description="Tap a farm to view houses, sessions, and capacity."
         actionLabel="Add"
-        onAction={() => router.push('/farm/new')}
+        onAction={tryAddFarm}
       />
 
-      <Pressable onPress={() => router.push('/farm/new')} style={[{ marginBottom: 18, borderRadius: 16, overflow: 'hidden' }, SHADOW.neon]}>
+      <Pressable onPress={tryAddFarm} style={[{ marginBottom: 18, borderRadius: 16, overflow: 'hidden' }, SHADOW.neon]}>
         <LinearGradient
           colors={[...GRADIENTS.hero]}
           start={{ x: 0, y: 0 }}
@@ -57,11 +70,11 @@ export default function FarmsTab() {
 
       {farms.length === 0 ? (
         <EmptyState
-          icon={<FarmIcon size={28} color={COLORS.primary} strokeWidth={2.2} />}
+          icon={<LivestockTypeIcon type="broiler" size={28} color={COLORS.primary} strokeWidth={2.2} />}
           title="No farms yet"
           description="Add your first farm to organize counting and analytics."
           actionLabel="Create farm"
-          onAction={() => router.push('/farm/new')}
+          onAction={tryAddFarm}
         />
       ) : (
         farms.map((f, i) => {
@@ -73,7 +86,13 @@ export default function FarmsTab() {
             <StaggerIn key={f.id} index={i}>
               <ScanModeCard
                 wide
-                icon={<FarmIcon size={22} color={COLORS.primary} />}
+                icon={
+                  <LivestockTypeIcon
+                    type={f.livestockType ?? f.flockType}
+                    size={22}
+                    color={COLORS.primary}
+                  />
+                }
                 title={f.name}
                 subtitle={`${formatLivestockType(f.livestockType ?? f.flockType ?? 'mixed')} · ${f.location}`}
                 meta={`${fh.length} houses · ${pct}% capacity`}

@@ -9,8 +9,11 @@ import { EmptyState } from '@/components/layout/empty-state';
 import { Card3D } from '@/components/ui/card-3d';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { COLORS, FONTS } from '@/lib/design-system';
+import { UpgradeBanner } from '@/components/subscription/upgrade-banner';
+import { usePlanGate } from '@/hooks/usePlanGate';
 
 export default function AlertsTab() {
+  const { gate, allowed } = usePlanGate('ai_alerts');
   const alerts = useAlertStore((s) => s.alerts);
   const markRead = useAlertStore((s) => s.markRead);
   const unread = alerts.filter((a) => !a.read).length;
@@ -21,7 +24,9 @@ export default function AlertsTab() {
 
       <SectionHeading eyebrow="Notifications" title="Stay informed" description={`${unread} unread`} />
 
-      {alerts.length === 0 ? (
+      <UpgradeBanner gate={gate} title="AI alerts require Pro" />
+
+      {!allowed ? null : alerts.length === 0 ? (
         <EmptyState
           icon={<Check size={28} color={COLORS.primary} strokeWidth={2.5} />}
           title="All clear"

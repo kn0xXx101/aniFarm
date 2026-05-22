@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Plus, MapPin, Trash2, Camera, AlertTriangle, TrendingUp, Warehouse, Activity } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { FarmIcon } from '@/components/brand/brand-icon';
+import { LivestockTypeIcon } from '@/components/brand/brand-icon';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { NeoScreen } from '@/components/neo3d/neo-screen';
@@ -23,9 +23,18 @@ import { useToast } from '@/components/ui/toast';
 import { formatLivestockType } from '@/lib/livestock';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { canStartCount, enforceSubscriptionGate } from '@/lib/subscription/service';
 
 export default function FarmDetail() {
   const router = useRouter();
+  const { toast } = useToast();
+
+  const openLiveCount = () => {
+    if (!enforceSubscriptionGate(canStartCount('live'), (p) => router.push(p), toast, 'Live counting requires Pro')) {
+      return;
+    }
+    router.push('/(tabs)/count-live');
+  };
   const { horizontal } = useScreenInsets(false);
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
   const farmId = Array.isArray(rawId) ? rawId[0] : rawId;
@@ -36,7 +45,6 @@ export default function FarmDetail() {
   const allSessions = useSessionStore((s) => s.sessions);
   const deleteFarm = useFarmStore((s) => s.deleteFarm);
   const deleteHouse = useFarmStore((s) => s.deleteHouse);
-  const toast = useToast();
 
   const sessions = useMemo(
     () => allSessions.filter((x) => x.farmId === farmId).slice(0, 5),
@@ -60,7 +68,7 @@ export default function FarmDetail() {
       <NeoScreen scroll withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
         <TopBar title="Farm" subtitle="Not found" showBack backTo="/(tabs)/farms" showAlerts={false} />
         <EmptyState
-          icon={<FarmIcon size={28} color={COLORS.primary} strokeWidth={2} />}
+          icon={<LivestockTypeIcon type="mixed" size={28} color={COLORS.primary} strokeWidth={2} />}
           title="Farm not found"
           description="This farm may have been removed or the link is invalid."
           actionLabel="Back to farms"
@@ -97,7 +105,11 @@ export default function FarmDetail() {
                 borderColor: COLORS.border,
               }}
             >
-              <FarmIcon size={28} color={COLORS.primary} />
+              <LivestockTypeIcon
+                type={farm.livestockType ?? farm.flockType}
+                size={28}
+                color={COLORS.primary}
+              />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={{ fontFamily: FONTS.bold, color: COLORS.ink, fontSize: 22 }} numberOfLines={2}>
@@ -162,7 +174,7 @@ export default function FarmDetail() {
       <StaggerIn index={2}>
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20, width: '100%' }}>
           <SlidingButton
-            onPress={() => router.push('/(tabs)/count-live')}
+            onPress={openLiveCount}
             style={[{ flex: 1, minWidth: 0, minHeight: 48 }, SHADOW.neon]}
             borderRadius={999}
             fillColor={COLORS.primaryDark}
@@ -236,7 +248,7 @@ export default function FarmDetail() {
                   <Pressable
                     onPress={() => {
                       deleteHouse(h.id);
-                      toast.toast({ title: 'Pen removed', variant: 'success' });
+                      toast({ title: 'Pen removed', variant: 'success' });
                     }}
                     hitSlop={12}
                     accessibilityLabel={`Remove ${h.name}`}
@@ -305,7 +317,7 @@ export default function FarmDetail() {
           className="mt-4 mb-8 rounded-xl"
           onPress={() => {
             deleteFarm(farm.id);
-            toast.toast({ title: 'Farm removed', variant: 'destructive' });
+            toast({ title: 'Farm removed', variant: 'destructive' });
             router.replace('/(tabs)/farms');
           }}
         >
