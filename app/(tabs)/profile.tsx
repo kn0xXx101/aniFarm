@@ -137,7 +137,7 @@ function SettingLink({
 
 export default function ProfileTab() {
   const router = useRouter();
-  const { horizontal } = useScreenInsets(true);
+  const { horizontal } = useScreenInsets(false);
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
   const settings = useSettingsStore();
@@ -147,7 +147,7 @@ export default function ProfileTab() {
   const isAdmin = user?.role === 'admin' || user?.role === 'manager';
 
   return (
-    <NeoScreen withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+    <NeoScreen withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
       <TopBar title="Profile" showBack showAlerts={false} />
       <SectionHeading eyebrow="Account" title="Profile & settings" description="Notifications, sync, and appearance." />
 

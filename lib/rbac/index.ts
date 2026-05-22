@@ -1,7 +1,7 @@
 /**
  * Role-Based Access Control (RBAC)
  *
- * Roles: farmer | manager | admin
+ * Roles: farmer | manager | vet | staff | admin
  * Permissions are additive — higher roles inherit lower role permissions.
  */
 import type { UserRole } from '@/types/domain';
@@ -61,6 +61,15 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'team:invite',
     'analytics:read',
     'analytics:export',
+  ],
+  vet: ['farm:read', 'house:read', 'count:read', 'alert:read', 'analytics:read'],
+  staff: [
+    'farm:read',
+    'house:read',
+    'house:update',
+    'count:read',
+    'count:create',
+    'alert:read',
   ],
   admin: [
     'farm:read',

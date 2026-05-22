@@ -5,7 +5,7 @@
 
 export const BRAND = {
   name: 'aniFarm',
-  tagline: 'Smart livestock counting',
+  tagline: 'Smart Animal Farming Powered by AI',
   domain: 'anifarm.app',
 } as const;
 

@@ -16,7 +16,7 @@ export default function AlertsTab() {
   const unread = alerts.filter((a) => !a.read).length;
 
   return (
-    <NeoScreen>
+    <NeoScreen withTabs={false} padded={false}>
       <TopBar title="Alerts" showBack showAlerts={false} />
 
       <SectionHeading eyebrow="Notifications" title="Stay informed" description={`${unread} unread`} />

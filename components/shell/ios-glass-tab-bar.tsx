@@ -26,8 +26,20 @@ const NO_TAB_BUTTON_ROUTES = new Set([
   'count-video',
 ]);
 
-/** Full-screen flows — hide the floating tab bar while active. */
-const HIDE_TAB_BAR_ROUTES = new Set(['count-live', 'count-image', 'count-video']);
+/**
+ * Full-screen flows — hide the floating tab bar while active.
+ * Includes hidden tab routes (analytics, profile, …) opened from You / drawer.
+ */
+const HIDE_TAB_BAR_ROUTES = new Set([
+  'analytics',
+  'reports',
+  'subscription',
+  'profile',
+  'alerts',
+  'count-live',
+  'count-image',
+  'count-video',
+]);
 
 /**
  * iOS 26–style floating tab bar: liquid glass blur, capsule shape, active pill highlight.

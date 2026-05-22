@@ -11,7 +11,13 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithPhone: (phone: string) => Promise<void>;
-  register: (input: { name: string; email: string; phone?: string; password: string }) => Promise<void>;
+  register: (input: {
+    name: string;
+    email: string;
+    phone?: string;
+    password: string;
+    role?: User['role'];
+  }) => Promise<void>;
   signOut: () => void;
   completeOnboarding: () => void;
   updateProfile: (patch: Partial<User>) => void;
@@ -70,7 +76,7 @@ export const useAuthStore = create<AuthState>()(
         set({ user, isAuthenticated: true, isOnboarded: true });
       },
 
-      register: async ({ name, email, phone, password: _password }) => {
+      register: async ({ name, email, phone, password: _password, role = 'farmer' }) => {
         // TODO: replace with real auth provider
         await new Promise((r) => setTimeout(r, 500));
         const user: User = {
@@ -78,7 +84,7 @@ export const useAuthStore = create<AuthState>()(
           name,
           email,
           phone,
-          role: 'farmer',
+          role,
           tier: 'pro',
           createdAt: Date.now(),
         };

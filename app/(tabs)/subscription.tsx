@@ -76,7 +76,7 @@ const PLANS: {
 export default function SubscriptionTab() {
   const router = useRouter();
   const goBack = useSmartBack();
-  const { horizontal } = useScreenInsets(true);
+  const { horizontal } = useScreenInsets(false);
   const user = useAuthStore((s) => s.user);
   const setTier = useAuthStore((s) => s.setTier);
   const toast = useToast();
@@ -96,7 +96,7 @@ export default function SubscriptionTab() {
   };
 
   return (
-    <NeoScreen withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+    <NeoScreen withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
       <TopBar title="Plans" showBack showAlerts={false} />
 
       <StaggerIn index={0}>

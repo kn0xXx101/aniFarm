@@ -8,8 +8,14 @@ import { TopBar } from '@/components/shell/top-bar';
 import { SectionHeading } from '@/components/neo3d/section-heading';
 import { LandingHero } from '@/components/neo3d/landing-hero';
 import { Card3D } from '@/components/ui/card-3d';
+import { ModuleGrid } from '@/components/operations/module-grid';
+import { FARM_MODULES } from '@/lib/operations/modules';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { COLORS, FONTS } from '@/lib/design-system';
+
+const YOU_MODULES = FARM_MODULES.filter((m) =>
+  ['animals', 'health', 'feed', 'tasks', 'sales', 'vet', 'reports', 'analytics', 'profile'].includes(m.id),
+);
 
 export default function YouTab() {
   const router = useRouter();
@@ -17,14 +23,14 @@ export default function YouTab() {
   const signOut = useAuthStore((s) => s.signOut);
 
   return (
-    <NeoScreen>
+    <NeoScreen scroll>
       <TopBar title="Account" showAlerts={false} />
 
       <LandingHero
         badge="Workspace"
         title="Manage your"
         highlight="operations."
-        subtitle="Open profile for notifications, sync, and appearance."
+        subtitle="Profile, farm modules, analytics, and settings."
         compact
       />
 
@@ -60,13 +66,16 @@ export default function YouTab() {
               {user?.email}
             </Text>
             <Text style={{ color: COLORS.secondary, fontSize: 11, fontFamily: FONTS.semibold, marginTop: 4 }}>
-              {user?.tier?.toUpperCase()} plan · Profile & settings
+              {user?.role?.replace('_', ' ')} · {user?.tier?.toUpperCase()} plan
             </Text>
           </View>
         </View>
       </Card3D>
 
-      <Card3D variant="glass" glowColor={COLORS.danger} onPress={() => { signOut(); router.replace('/(auth)/login'); }}>
+      <SectionHeading eyebrow="Farm ops" title="Modules" description="Tasks, health, sales, vet, and more." />
+      <ModuleGrid modules={YOU_MODULES} columns={1} />
+
+      <Card3D variant="glass" glowColor={COLORS.danger} onPress={() => { signOut(); router.replace('/(auth)/login'); }} style={{ marginTop: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <LogOut size={20} color={COLORS.danger} />
           <Text style={{ fontFamily: FONTS.semibold, color: COLORS.danger }}>Sign out</Text>

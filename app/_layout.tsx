@@ -22,6 +22,7 @@ import { initPostHog } from '@/lib/posthog';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ToastProvider } from '@/components/ui/toast';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { QueryProvider } from '@/providers/query-provider';
 import { isExpoGo } from '@/lib/expo-go';
 import { useSettingsStore } from '@/lib/stores/settings-store';
 
@@ -85,6 +86,7 @@ export default function RootLayout() {
         <ThemeProvider value={LIGHT_THEME}>
           <StatusBar style="light" />
           <ToastProvider>
+            <QueryProvider>
             <ErrorBoundary>
             <Stack
               screenOptions={{
@@ -98,13 +100,26 @@ export default function RootLayout() {
               <Stack.Screen name="onboarding" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="farm/[id]" options={{ ...STACK_HEADER, title: 'Farm details' }} />
+              <Stack.Screen name="farm/[id]" options={{ headerShown: false }} />
               <Stack.Screen name="farm/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New farm' }} />
               <Stack.Screen name="house/new" options={{ ...STACK_HEADER, presentation: 'modal', title: 'New house' }} />
               <Stack.Screen name="admin" options={{ ...STACK_HEADER, title: 'Admin' }} />
               <Stack.Screen name="cctv/add-feed" options={{ presentation: 'modal', headerShown: false }} />
+              {/* Farm ops: custom TopBar only — no native header (avoids double back) */}
+              <Stack.Screen name="operations/index" options={{ headerShown: false }} />
+              <Stack.Screen name="animals/index" options={{ headerShown: false }} />
+              <Stack.Screen name="animals/new" options={{ headerShown: false, presentation: 'modal' }} />
+              <Stack.Screen name="animals/[id]" options={{ headerShown: false }} />
+              <Stack.Screen name="tasks/index" options={{ headerShown: false }} />
+              <Stack.Screen name="feed/index" options={{ headerShown: false }} />
+              <Stack.Screen name="health/index" options={{ headerShown: false }} />
+              <Stack.Screen name="sales/index" options={{ headerShown: false }} />
+              <Stack.Screen name="disease-scan" options={{ headerShown: false }} />
+              <Stack.Screen name="vet/index" options={{ headerShown: false }} />
+              <Stack.Screen name="security/index" options={{ headerShown: false }} />
             </Stack>
             </ErrorBoundary>
+            </QueryProvider>
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>

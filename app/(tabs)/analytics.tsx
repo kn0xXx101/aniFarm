@@ -53,7 +53,7 @@ function ChartStatRow({
 
 export default function AnalyticsTab() {
   const router = useRouter();
-  const { horizontal } = useScreenInsets(true);
+  const { horizontal } = useScreenInsets(false);
   const farms = useFarmStore((s) => s.farms);
   const sessions = useSessionStore((s) => s.sessions);
   const [range, setRange] = useState<Range>('30d');
@@ -75,7 +75,7 @@ export default function AnalyticsTab() {
     range === '7d' ? 'last 7 days' : range === '30d' ? 'last 30 days' : 'last 90 days';
 
   return (
-    <NeoScreen withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+    <NeoScreen withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
       <TopBar title="Insights" showBack showAlerts={false} />
 
       <StaggerIn index={0}>

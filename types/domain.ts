@@ -2,7 +2,7 @@
  * Domain types for aniFarm — multi-species livestock & animal farming.
  */
 
-export type UserRole = 'farmer' | 'admin' | 'manager';
+export type UserRole = 'farmer' | 'manager' | 'vet' | 'staff' | 'admin';
 export type SubscriptionTier = 'free' | 'basic' | 'pro' | 'enterprise';
 
 export interface User {
@@ -100,7 +100,178 @@ export interface CountingSession {
 }
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
-export type AlertKind = 'mortality' | 'overcrowding' | 'count-complete' | 'mortality_detected' | 'system';
+export type AlertKind =
+  | 'mortality'
+  | 'overcrowding'
+  | 'count-complete'
+  | 'mortality_detected'
+  | 'dead_suspected'
+  | 'sick_animal'
+  | 'intrusion'
+  | 'feed_low'
+  | 'vaccination_due'
+  | 'camera_offline'
+  | 'count_drop'
+  | 'system';
+
+export type AnimalSpecies =
+  | 'chicken'
+  | 'duck'
+  | 'turkey'
+  | 'pig'
+  | 'goat'
+  | 'sheep'
+  | 'cow'
+  | 'rabbit'
+  | 'fish'
+  | 'mixed';
+
+export type AnimalHealthStatus = 'healthy' | 'sick' | 'dead' | 'quarantine';
+export type VaccinationStatus = 'current' | 'due' | 'overdue';
+export type AnimalGender = 'male' | 'female' | 'unknown';
+
+export interface Animal {
+  id: string;
+  farmId: string;
+  penId?: string;
+  tagId: string;
+  name: string;
+  species: AnimalSpecies;
+  breed?: string;
+  gender: AnimalGender;
+  birthDate?: number;
+  weightKg?: number;
+  batchId?: string;
+  rfid?: string;
+  healthStatus: AnimalHealthStatus;
+  vaccinationStatus: VaccinationStatus;
+  photoUri?: string;
+  notes?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface AnimalBatch {
+  id: string;
+  farmId: string;
+  penId?: string;
+  label: string;
+  species: AnimalSpecies;
+  quantity: number;
+  arrivalDate: number;
+  notes?: string;
+}
+
+export type TaskStatus = 'pending' | 'in_progress' | 'done' | 'cancelled';
+export type TaskCategory = 'feeding' | 'cleaning' | 'vaccination' | 'vet' | 'ai_incident' | 'security' | 'other';
+
+export interface FarmTask {
+  id: string;
+  farmId: string;
+  title: string;
+  description?: string;
+  category: TaskCategory;
+  status: TaskStatus;
+  dueAt: number;
+  assignedTo?: string;
+  createdAt: number;
+}
+
+export interface FeedStock {
+  id: string;
+  farmId: string;
+  name: string;
+  quantityKg: number;
+  unitCost: number;
+  lowThresholdKg: number;
+  updatedAt: number;
+}
+
+export interface FeedLog {
+  id: string;
+  farmId: string;
+  feedId: string;
+  amountKg: number;
+  penId?: string;
+  loggedAt: number;
+  notes?: string;
+}
+
+export interface VaccinationRecord {
+  id: string;
+  farmId: string;
+  animalId?: string;
+  vaccine: string;
+  dueAt: number;
+  administeredAt?: number;
+  boosterDueAt?: number;
+  notes?: string;
+}
+
+export interface WeightLog {
+  id: string;
+  farmId: string;
+  animalId?: string;
+  batchId?: string;
+  weightKg: number;
+  loggedAt: number;
+}
+
+export interface MortalityLog {
+  id: string;
+  farmId: string;
+  animalId?: string;
+  penId?: string;
+  cause: string;
+  count: number;
+  lossValue: number;
+  loggedAt: number;
+  notes?: string;
+}
+
+export interface BreedingRecord {
+  id: string;
+  farmId: string;
+  sireId?: string;
+  damId?: string;
+  matingDate: number;
+  expectedBirthDate?: number;
+  offspringCount?: number;
+  notes?: string;
+}
+
+export interface SaleRecord {
+  id: string;
+  farmId: string;
+  product: 'live_animals' | 'meat' | 'eggs' | 'milk' | 'fish_harvest' | 'other';
+  quantity: number;
+  unit: string;
+  revenue: number;
+  soldAt: number;
+  buyer?: string;
+  notes?: string;
+}
+
+export interface DiseaseScan {
+  id: string;
+  farmId: string;
+  imageUri: string;
+  suspicion: string;
+  severity: string;
+  riskScore: number;
+  recommendation: string;
+  createdAt: number;
+}
+
+export interface VetConsultation {
+  id: string;
+  farmId: string;
+  subject: string;
+  message: string;
+  status: 'open' | 'scheduled' | 'closed';
+  createdAt: number;
+  scheduledAt?: number;
+}
 
 export interface Alert {
   id: string;

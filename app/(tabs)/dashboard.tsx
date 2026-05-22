@@ -56,7 +56,7 @@ export default function Dashboard() {
   useAutoSync(autoSync);
 
   const series = useMemo(() => buildAnalyticsFromSessions(sessions, 14), [sessions]);
-  const totalBirds = houses.reduce((sum, h) => sum + h.currentCount, 0);
+  const totalAlive = houses.reduce((sum, h) => sum + h.currentCount, 0);
   const pendingSync = sessions.filter((s) => s.syncStatus === 'pending').length;
   const failedSync = sessions.filter((s) => s.syncStatus === 'failed').length;
   const unreadAlerts = alerts.filter((a) => !a.read).length;
@@ -141,7 +141,7 @@ export default function Dashboard() {
         <View style={{ flexDirection: 'row', gap: isNarrow ? 6 : 10, marginBottom: 20 }}>
           <MetricCube value={`${farms.length}`} label="Farms" icon={<FarmIcon size={18} color={COLORS.primary} />} />
           <MetricCube
-            value={formatCompact(totalBirds)}
+            value={formatCompact(totalAlive)}
             label="Alive"
             glowColor={COLORS.secondary}
             icon={<TrendingUp size={18} color={COLORS.secondary} />}

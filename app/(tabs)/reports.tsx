@@ -29,7 +29,7 @@ const RANGE_OPTIONS = [
 ];
 
 export default function ReportsTab() {
-  const { horizontal } = useScreenInsets(true);
+  const { horizontal } = useScreenInsets(false);
   const farms = useFarmStore((s) => s.farms);
   const houses = useFarmStore((s) => s.houses);
   const sessions = useSessionStore((s) => s.sessions);
@@ -92,7 +92,7 @@ export default function ReportsTab() {
   };
 
   return (
-    <NeoScreen withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
+    <NeoScreen withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
       <TopBar title="Reports" showBack showAlerts={false} />
 
       <StaggerIn index={0}>

@@ -17,6 +17,14 @@ const TAB_AUX_BACK: BackRule[] = [
 
 /** Stack / modal screens: fallback when history is empty. */
 const STACK_FALLBACK: BackRule[] = [
+  { test: (p) => /\/operations/.test(p), href: '/(tabs)/dashboard' },
+  { test: (p) => /\/animals\/new/.test(p), href: '/animals' },
+  { test: (p) => /\/animals\/[^/]+/.test(p), href: '/animals' },
+  { test: (p) => /\/animals/.test(p), href: '/(tabs)/dashboard' },
+  {
+    test: (p) => /\/(feed|health|tasks|sales|vet|security|disease-scan)/.test(p),
+    href: '/(tabs)/dashboard',
+  },
   { test: (p) => /\/cctv\/add-feed/.test(p), href: '/(tabs)/cctv' },
   { test: (p) => /\/farm\/new/.test(p), href: '/(tabs)/farms' },
   { test: (p) => /\/house\/new/.test(p), href: '/(tabs)/farms' },

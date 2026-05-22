@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { Mail, Lock, User, Phone } from 'lucide-react-native';
 
@@ -13,6 +13,13 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useToast } from '@/components/ui/toast';
 import { parseForm, registerSchema } from '@/lib/validation';
 import { BRAND, COLORS, FONTS } from '@/lib/design-system';
+import type { UserRole } from '@/types/domain';
+const ROLES: { id: UserRole; label: string }[] = [
+  { id: 'farmer', label: 'Farmer' },
+  { id: 'manager', label: 'Farm Manager' },
+  { id: 'vet', label: 'Vet' },
+  { id: 'staff', label: 'Staff' },
+];
 
 export default function Register() {
   const router = useRouter();
@@ -24,12 +31,13 @@ export default function Register() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState<UserRole>('farmer');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const clearError = (field: string) => setErrors((e) => ({ ...e, [field]: '' }));
 
   const submit = async () => {
-    const result = parseForm(registerSchema, { name, email, phone, password });
+    const result = parseForm(registerSchema, { name, email, phone, password, role });
     if (result.errors) {
       setErrors(result.errors);
       return;
@@ -42,6 +50,7 @@ export default function Register() {
         email: result.data.email,
         phone: result.data.phone ?? undefined,
         password: result.data.password,
+        role: result.data.role,
       });
       router.replace('/(tabs)/dashboard');
     } catch {
@@ -104,6 +113,27 @@ export default function Register() {
             leftIcon={<Phone size={18} color={COLORS.inkMuted} />}
             error={errors.phone}
           />
+          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.ink, marginBottom: 8 }}>Your role</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+            {ROLES.map((r) => (
+              <Pressable
+                key={r.id}
+                onPress={() => setRole(r.id)}
+                style={{
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: role === r.id ? COLORS.primary : COLORS.borderSoft,
+                  backgroundColor: role === r.id ? COLORS.primaryLight : COLORS.surfaceMuted,
+                }}
+              >
+                <Text style={{ fontFamily: FONTS.semibold, color: role === r.id ? COLORS.primary : COLORS.inkMuted, fontSize: 13 }}>
+                  {r.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
           <Input
             label="Password"
             value={password}
