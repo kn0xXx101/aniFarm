@@ -24,20 +24,21 @@ export default function YouTab() {
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
   const { onTrial, trialDaysLeft, plan } = useSubscription();
+  const t = useTranslations();
 
   return (
     <NeoScreen scroll>
-      <TopBar title="Account" showAlerts={false} />
+      <TopBar title={t.nav.you} showAlerts={false} />
 
       <LandingHero
         badge="Workspace"
-        title="Manage your"
+        title={t.profile.account}
         highlight="operations."
-        subtitle="Profile, farm modules, analytics, and settings."
+        subtitle={t.profile.title}
         compact
       />
 
-      <SectionHeading eyebrow="Account" title="Your profile" />
+      <SectionHeading eyebrow={t.profile.account} title={t.profile.account} />
       <Card3D
         variant="neon"
         glowColor={COLORS.primary}
@@ -82,7 +83,7 @@ export default function YouTab() {
       <Card3D variant="glass" glowColor={COLORS.danger} onPress={() => { signOut(); router.replace('/(auth)/login'); }} style={{ marginTop: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <LogOut size={20} color={COLORS.danger} />
-          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.danger }}>Sign out</Text>
+          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.danger }}>{t.auth.signOut}</Text>
         </View>
       </Card3D>
     </NeoScreen>

@@ -31,6 +31,7 @@ import { useToast } from '@/components/ui/toast';
 import { registerForPushNotifications } from '@/lib/notifications';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
+import { useTranslations } from '@/lib/i18n';
 
 function SettingToggle({
   icon,
@@ -149,11 +150,12 @@ export default function ProfileTab() {
   const pendingCount = useSessionStore((s) => s.sessions.filter((x) => x.syncStatus === 'pending').length);
   const toast = useToast();
   const isAdmin = user?.role === 'admin' || user?.role === 'manager';
+  const t = useTranslations();
 
   return (
     <NeoScreen withTabs={false} padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
-      <TopBar title="Profile" showBack showAlerts={false} />
-      <SectionHeading eyebrow="Account" title="Profile & settings" description="Notifications, sync, and appearance." />
+      <TopBar title={t.profile.title} showBack showAlerts={false} />
+      <SectionHeading eyebrow={t.profile.account} title={t.profile.title} description={t.profile.notifications} />
 
       <Card3D variant="neon" glowColor={COLORS.primary} style={{ marginBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
@@ -194,7 +196,7 @@ export default function ProfileTab() {
       <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
         <Card3D variant="glass" style={{ flex: 1 }}>
           <Text style={{ fontFamily: FONTS.extrabold, color: COLORS.ink, fontSize: 22 }}>{pendingCount}</Text>
-          <Text style={{ color: COLORS.inkMuted, fontSize: 12, marginTop: 4 }}>Pending sync</Text>
+          <Text style={{ color: COLORS.inkMuted, fontSize: 12, marginTop: 4 }}>{t.profile.pendingSync}</Text>
         </Card3D>
       </View>
 
@@ -212,7 +214,7 @@ export default function ProfileTab() {
       <SurfaceCard padded={false} style={{ marginBottom: 20, overflow: 'hidden' }}>
         <SettingToggle
           icon={<Bell size={20} color={COLORS.primary} />}
-          title="Push notifications"
+          title={t.profile.pushNotifications}
           checked={settings.pushEnabled}
           onToggle={() => {
             const enabling = !settings.pushEnabled;
@@ -223,14 +225,14 @@ export default function ProfileTab() {
         <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
         <SettingToggle
           icon={<Mail size={20} color={COLORS.secondary} />}
-          title="Email summary"
+          title={t.profile.emailSummary}
           checked={settings.emailEnabled}
           onToggle={() => settings.toggle('emailEnabled')}
         />
         <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
         <SettingToggle
           icon={<Database size={20} color={COLORS.accent} />}
-          title="Auto-sync"
+          title={t.profile.autoSync}
           subtitle={
             canUseFeature('offline_sync').ok
               ? `${pendingCount} pending`
@@ -248,8 +250,8 @@ export default function ProfileTab() {
         <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
         <SettingLink
           icon={<Globe size={20} color={COLORS.primary} />}
-          title="Sync now"
-          subtitle="Upload pending sessions"
+          title={t.profile.syncNow}
+          subtitle={t.profile.pendingSync}
           onPress={async () => {
             if (!enforceSubscriptionGate(canUseFeature('offline_sync'), (p) => router.push(p), toast.toast, 'Offline sync requires Basic')) {
               return;
@@ -269,7 +271,7 @@ export default function ProfileTab() {
       <SurfaceCard padded={false} style={{ marginBottom: 20, overflow: 'hidden' }}>
         <SettingLink
           icon={<CreditCard size={20} color={COLORS.secondary} />}
-          title="Plans & billing"
+          title={t.profile.subscription}
           subtitle={`${plan.name} · ${usage.farmCount}/${Number.isFinite(usage.farmsLimit) ? usage.farmsLimit : '∞'} farms · ${usage.monthlyCountsUsed}/${Number.isFinite(usage.countsLimit) ? usage.countsLimit : '∞'} counts`}
           onPress={() => router.push('/(tabs)/subscription')}
         />
@@ -278,7 +280,7 @@ export default function ProfileTab() {
             <View style={{ height: 1, backgroundColor: COLORS.borderSoft, marginHorizontal: 16 }} />
             <SettingLink
               icon={<ShieldCheck size={20} color={COLORS.accent} />}
-              title="Admin dashboard"
+              title={t.profile.adminDashboard}
               onPress={() => router.push('/admin')}
             />
           </>
@@ -296,7 +298,7 @@ export default function ProfileTab() {
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <LogOut size={20} color={COLORS.danger} />
-          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.danger }}>Sign out</Text>
+          <Text style={{ fontFamily: FONTS.semibold, color: COLORS.danger }}>{t.auth.signOut}</Text>
         </View>
       </Card3D>
     </NeoScreen>

@@ -19,6 +19,7 @@ import { buildAnalyticsFromSessions } from '@/lib/analytics';
 import { COLORS, FONTS, TYPE } from '@/lib/design-system';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
+import { useTranslations } from '@/lib/i18n';
 import { UpgradeBanner } from '@/components/subscription/upgrade-banner';
 import { usePlanGate } from '@/hooks/usePlanGate';
 
@@ -62,6 +63,17 @@ export default function AnalyticsTab() {
   const [range, setRange] = useState<Range>('30d');
   const [metric, setMetric] = useState<Metric>('count');
   const { width, isNarrow } = useBreakpoint();
+  const t = useTranslations();
+
+  const RANGE_OPTIONS_T = [
+    { value: '7d' as const, label: '7d' },
+    { value: '30d' as const, label: '30d' },
+    { value: '90d' as const, label: '90d' },
+  ];
+  const METRIC_OPTIONS_T = [
+    { value: 'count' as const, label: t.analytics.totalBirds },
+    { value: 'mortality' as const, label: t.analytics.mortality },
+  ];
 
   const series = useMemo(() => {
     const days = range === '7d' ? 7 : range === '30d' ? 30 : 90;
