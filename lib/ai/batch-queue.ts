@@ -27,26 +27,26 @@ export interface BatchJob {
 }
 
 const STORAGE_KEY = 'poultra-batch-queue';
-let _jobs: BatchJob[] = [];
-let _loaded = false;
+let jobs: BatchJob[] = [];
+let isLoaded = false;
 
 async function load() {
-  if (_loaded) return;
+  if (isLoaded) return;
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
-    _jobs = raw ? (JSON.parse(raw) as BatchJob[]) : [];
+    jobs = raw ? (JSON.parse(raw) as BatchJob[]) : [];
   } catch {
-    _jobs = [];
+    jobs = [];
   }
-  _loaded = true;
+  isLoaded = true;
 }
 
 async function persist() {
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(_jobs));
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
 }
 
-let _counter = Date.now();
-const nextId = () => `bj${++_counter}`;
+let counter = Date.now();
+const nextId = () => `bj${++counter}`;
 
 /** Add an image URI to the batch queue. Returns the job id. */
 export async function enqueueBatchJob(
@@ -65,7 +65,7 @@ export async function enqueueBatchJob(
     status: 'queued',
     createdAt: Date.now(),
   };
-  _jobs.push(job);
+  jobs.push(job);
   await persist();
   return job.id;
 }
@@ -73,7 +73,7 @@ export async function enqueueBatchJob(
 /** Get all jobs (optionally filtered by status). */
 export async function getBatchJobs(status?: BatchJobStatus): Promise<BatchJob[]> {
   await load();
-  return status ? _jobs.filter((j) => j.status === status) : [..._jobs];
+  return status ? jobs.filter((j) => j.status === status) : [...jobs];
 }
 
 /** Process all queued jobs sequentially. Returns number of completed jobs. */
@@ -81,27 +81,27 @@ export async function processBatchQueue(
   onProgress?: (done: number, total: number) => void,
 ): Promise<{ completed: number; failed: number }> {
   await load();
-  const queued = _jobs.filter((j) => j.status === 'queued');
+  const queued = jobs.filter((j) => j.status === 'queued');
   let completed = 0;
   let failed = 0;
 
   for (let i = 0; i < queued.length; i++) {
     const job = queued[i];
     // Mark as processing
-    _jobs = _jobs.map((j) => (j.id === job.id ? { ...j, status: 'processing' as const } : j));
+    jobs = jobs.map((j) => (j.id === job.id ? { ...j, status: 'processing' as const } : j));
     await persist();
     onProgress?.(i, queued.length);
 
     try {
       const result = detectFromImage(job.imageUri, { target: job.targetCount });
-      _jobs = _jobs.map((j) =>
+      jobs = jobs.map((j) =>
         j.id === job.id
           ? { ...j, status: 'done' as const, result, processedAt: Date.now() }
           : j,
       );
       completed++;
     } catch (err) {
-      _jobs = _jobs.map((j) =>
+      jobs = jobs.map((j) =>
         j.id === job.id
           ? { ...j, status: 'failed' as const, error: String(err), processedAt: Date.now() }
           : j,
@@ -119,7 +119,7 @@ export async function processBatchQueue(
 export async function pruneBatchQueue(maxAgeMs = 7 * 24 * 60 * 60 * 1000): Promise<void> {
   await load();
   const cutoff = Date.now() - maxAgeMs;
-  _jobs = _jobs.filter(
+  jobs = jobs.filter(
     (j) => j.status === 'queued' || j.status === 'processing' || (j.processedAt ?? 0) > cutoff,
   );
   await persist();
@@ -127,6 +127,6 @@ export async function pruneBatchQueue(maxAgeMs = 7 * 24 * 60 * 60 * 1000): Promi
 
 /** Clear all jobs. */
 export async function clearBatchQueue(): Promise<void> {
-  _jobs = [];
+  jobs = [];
   await persist();
 }

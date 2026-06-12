@@ -16,6 +16,7 @@ import { useFarmStore } from '@/lib/stores/farm-store';
 import { canStartCount, enforceSubscriptionGate } from '@/lib/subscription/service';
 import type { CountingModeFeature } from '@/lib/subscription/plans';
 import { useToast } from '@/components/ui/toast';
+import { useTranslations } from '@/lib/i18n';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
@@ -61,6 +62,7 @@ export default function CountTab() {
   const router = useRouter();
   const { toast } = useToast();
   const { horizontal } = useScreenInsets(true);
+  const t = useTranslations();
   const sessions = useSessionStore((s) => s.sessions);
 
   const openMode = (mode: CountingModeFeature, path: (typeof MODES)[number]['path']) => {
@@ -73,7 +75,7 @@ export default function CountTab() {
 
   return (
     <NeoScreen scroll withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
-      <TopBar title="Scan" subtitle="Herds, flocks & pens" />
+      <TopBar title={t.nav.scan} subtitle="Herds, flocks & pens" />
       <FarmSelector />
 
       <SectionHeading

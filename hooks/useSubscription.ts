@@ -9,8 +9,6 @@ import {
   canStartCount,
   canUseFeature,
   enforceSubscriptionGate,
-  getEffectiveTier,
-  getUsageSnapshot,
   isOnProTrial,
   getTrialDaysLeft,
   getPlan,
@@ -24,15 +22,27 @@ export function useSubscription() {
   const userTier = useAuthStore((s) => s.user?.tier);
   const trialEndsAt = useSubscriptionStore((s) => s.trialEndsAt);
   const monthlyCountsUsed = useSubscriptionStore((s) => s.monthlyCountsUsed);
-  const countsPeriodKey = useSubscriptionStore((s) => s.countsPeriodKey);
   const farmCount = useFarmStore((s) => s.farms.length);
 
-  const effectiveTier = useMemo(() => getEffectiveTier(), [userTier, trialEndsAt]);
+  const effectiveTier = useMemo(() => {
+    if (trialEndsAt && Date.now() < trialEndsAt) return 'pro';
+    return userTier ?? 'free';
+  }, [userTier, trialEndsAt]);
+
   const plan = useMemo(() => getPlan(effectiveTier), [effectiveTier]);
-  const usage = useMemo(
-    () => getUsageSnapshot(),
-    [effectiveTier, monthlyCountsUsed, countsPeriodKey, farmCount],
-  );
+
+  const usage = useMemo(() => {
+    return {
+      tier: effectiveTier,
+      plan,
+      farmCount,
+      monthlyCountsUsed,
+      farmsLimit: plan.maxFarms,
+      countsLimit: plan.maxCountsPerMonth,
+      trialDaysLeft: trialEndsAt ? Math.max(0, Math.ceil((trialEndsAt - Date.now()) / 86400000)) : 0,
+      onTrial: !!trialEndsAt && Date.now() < trialEndsAt,
+    };
+  }, [effectiveTier, plan, monthlyCountsUsed, farmCount, trialEndsAt]);
 
   return {
     userTier: userTier ?? 'free',

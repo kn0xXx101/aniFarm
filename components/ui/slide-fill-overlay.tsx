@@ -21,7 +21,7 @@ import Animated, {
 import { COLORS } from '@/lib/design-system';
 
 const SPRING_IN  = { damping: 18, stiffness: 280, mass: 0.7 } as const;
-const SPRING_OUT = { damping: 22, stiffness: 200, mass: 0.8 } as const;
+// const SPRING_OUT = { damping: 22, stiffness: 200, mass: 0.8 } as const;
 
 const THUMB_W  = 8;
 const THUMB_H  = 8;

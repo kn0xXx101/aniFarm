@@ -11,12 +11,12 @@ interface SettingsState {
   densityThreshold: number; // capacity % threshold
   /** Minimum dead animals in one detection to raise an alert */
   deadAlertMin: number;
-  language: 'en' | 'fr' | 'sw';
+  language: 'en' | 'fr' | 'sw' | 'es';
   autoSync: boolean;
   uiStyle: UiStyle;
   toggle: (k: 'pushEnabled' | 'emailEnabled' | 'autoSync') => void;
   setThreshold: (k: 'mortalityThreshold' | 'densityThreshold' | 'deadAlertMin', v: number) => void;
-  setLanguage: (v: 'en' | 'fr' | 'sw') => void;
+  setLanguage: (v: 'en' | 'fr' | 'sw' | 'es') => void;
   setUiStyle: (v: UiStyle) => void;
 }
 

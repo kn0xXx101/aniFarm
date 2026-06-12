@@ -1,3 +1,8 @@
+/** Helper to ensure all values are strings in a nested object. */
+type DeepString<T> = {
+  [K in keyof T]: T[K] extends object ? DeepString<T[K]> : string;
+};
+
 export const en = {
   common: {
     save: 'Save',
@@ -115,6 +120,7 @@ export const en = {
     adminDashboard: 'Admin dashboard',
     pendingSync: 'pending',
     currentPlan: 'Current plan',
+    footer: 'aniFarm v1.0.0',
     signOut: 'Sign out',
   },
   subscription: {
@@ -135,6 +141,7 @@ export const en = {
     networkError: 'Network error — check your connection',
     syncFailed: 'Sync failed',
   },
-} as const;
+};
 
-export type Translations = typeof en;
+export type Translations = DeepString<typeof en>;
+

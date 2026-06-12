@@ -1,4 +1,4 @@
-import { Platform, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,6 +13,10 @@ import {
   IOS_TAB_BAR_HEIGHT,
   TAB_BAR_MARGIN_H,
 } from '@/lib/tab-bar-style';
+
+type IosGlassTabBarProps = BottomTabBarProps & {
+  style?: StyleProp<ViewStyle>;
+};
 
 /** Screens reachable inside tabs but not shown as tab buttons. */
 const NO_TAB_BUTTON_ROUTES = new Set([
@@ -44,7 +48,7 @@ const HIDE_TAB_BAR_ROUTES = new Set([
 /**
  * iOS 26–style floating tab bar: liquid glass blur, capsule shape, active pill highlight.
  */
-export function IosGlassTabBar({ state, descriptors, navigation, style }: BottomTabBarProps) {
+export function IosGlassTabBar({ state, descriptors, navigation, style }: IosGlassTabBarProps) {
   const insets = useSafeAreaInsets();
   const uiStyle = useSettingsStore((s) => s.uiStyle);
   const isTinted = uiStyle === 'tinted';

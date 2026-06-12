@@ -21,6 +21,7 @@ import { SectionHeading } from '@/components/neo3d/section-heading';
 import { Card3D } from '@/components/ui/card-3d';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { UiStylePicker } from '@/components/settings/ui-style-picker';
+import { LanguagePicker } from '@/components/settings/language-picker';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useSubscription } from '@/hooks/useSubscription';
 import { canUseFeature, enforceSubscriptionGate } from '@/lib/subscription/service';
@@ -200,6 +201,11 @@ export default function ProfileTab() {
       <SectionHeading eyebrow="Appearance" title="Look & feel" />
       <SurfaceCard style={{ marginBottom: 20 }}>
         <UiStylePicker />
+      </SurfaceCard>
+
+      <SectionHeading eyebrow="Language" title="Display language" />
+      <SurfaceCard style={{ marginBottom: 20 }}>
+        <LanguagePicker />
       </SurfaceCard>
 
       <SectionHeading eyebrow="Preferences" title="Notifications & data" />

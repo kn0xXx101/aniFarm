@@ -15,7 +15,7 @@ import { useSessionStore } from '@/lib/stores/session-store';
 import { useToast } from '@/components/ui/toast';
 import { detectFromImage, type DetectionResult } from '@/lib/ai/counting-service';
 import { evaluateHouseAlerts } from '@/lib/alerts';
-import { COLORS, FONTS } from '@/lib/design-system';
+import { COLORS } from '@/lib/design-system';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { canStartCount } from '@/lib/subscription/service';
 
@@ -38,8 +38,7 @@ export default function ImageCount() {
       toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
       router.replace('/(tabs)/subscription');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- gate once on mount
-  }, []);
+  }, [router, toast]);
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [houseId, setHouseId] = useState(farmHouses[0]?.id);

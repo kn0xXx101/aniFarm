@@ -30,8 +30,6 @@ import { AnimatedPressable } from '@/components/ui/primitives/animated-pressable
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
 import { useSlideFill } from '@/components/ui/slide-fill-overlay';
 import { COLORS, FONTS, GRADIENTS, LAYOUT } from '@/lib/design-system';
-import { IOS_GLASS } from '@/lib/ios-glass';
-import { cn } from '@/lib/utils';
 import { Text } from './text';
 
 // ── Size tokens ───────────────────────────────────────────────────────────────

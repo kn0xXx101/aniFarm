@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 import { SurfaceCard } from '@/components/ui/surface-card';
-import { COLORS, FONTS, TYPE } from '@/lib/design-system';
+import { COLORS, TYPE } from '@/lib/design-system';
 
 interface StatItem {
   value: string;

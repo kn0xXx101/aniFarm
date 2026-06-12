@@ -1,6 +1,6 @@
 import { Platform, type ViewStyle } from 'react-native';
 
-import { COLORS, LAYOUT } from '@/lib/design-system';
+import { LAYOUT } from '@/lib/design-system';
 
 export const TAB_BAR_MARGIN_H = 20;
 const TAB_FLOAT_GAP = 6;

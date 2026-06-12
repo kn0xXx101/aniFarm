@@ -6,8 +6,8 @@ import { Mail, Lock, Phone } from 'lucide-react-native';
 import { AuthHero } from '@/components/auth/auth-hero';
 import { AuthScreenLayout } from '@/components/auth/auth-screen-layout';
 import { Text } from '@/components/ui/text';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Button3D } from '@/components/neo3d/button-3d';
+import { Input3D } from '@/components/neo3d/input-3d';
 import { Card3D } from '@/components/ui/card-3d';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useToast } from '@/components/ui/toast';
@@ -115,7 +115,7 @@ export default function Login() {
 
         {tab === 'email' ? (
           <View style={{ gap: 14 }}>
-            <Input
+            <Input3D
               label="Email"
               value={email}
               onChangeText={setEmail}
@@ -123,7 +123,7 @@ export default function Login() {
               keyboardType="email-address"
               leftIcon={<Mail size={18} color={COLORS.inkMuted} />}
             />
-            <Input
+            <Input3D
               label="Password"
               value={password}
               onChangeText={setPassword}
@@ -133,22 +133,22 @@ export default function Login() {
             <Link href="/(auth)/forgot">
               <Text style={{ color: COLORS.primary, fontFamily: FONTS.semibold, textAlign: 'right' }}>Forgot password?</Text>
             </Link>
-            <Button loading={loading} onPress={() => void handleEmailLogin()} style={{ width: '100%' }}>
+            <Button3D loading={loading} onPress={() => void handleEmailLogin()}>
               Sign in
-            </Button>
+            </Button3D>
           </View>
         ) : (
           <View style={{ gap: 14 }}>
-            <Input
+            <Input3D
               label="Phone"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
               leftIcon={<Phone size={18} color={COLORS.inkMuted} />}
             />
-            <Button onPress={handlePhoneLogin} style={{ width: '100%' }}>
+            <Button3D onPress={handlePhoneLogin}>
               Send code
-            </Button>
+            </Button3D>
           </View>
         )}
       </Card3D>
@@ -157,9 +157,9 @@ export default function Login() {
         Demo mode · Any email + 4+ char password works
       </Text>
 
-      <Button variant="outline" loading={loading} onPress={() => void handleGoogle()} style={{ marginTop: 12, width: '100%' }}>
+      <Button3D variant="secondary" loading={loading} onPress={() => void handleGoogle()} style={{ marginTop: 12 }}>
         Continue with Google
-      </Button>
+      </Button3D>
     </AuthScreenLayout>
   );
 }

@@ -79,6 +79,8 @@ export const fr: Translations = {
     videoCount: 'Comptage par vidéo',
     tracked: 'Suivi',
     birds: 'volailles',
+    dead: 'morts',
+    humansExcluded: 'personnes exclues',
     confidence: 'confiance',
     sessionSaved: 'Session enregistrée',
     manualAdjust: 'Ajustement manuel',
@@ -115,6 +117,7 @@ export const fr: Translations = {
     adminDashboard: 'Tableau de bord admin',
     pendingSync: 'en attente',
     currentPlan: 'Plan actuel',
+    footer: 'aniFarm v1.0.0',
     signOut: 'Se déconnecter',
   },
   subscription: {

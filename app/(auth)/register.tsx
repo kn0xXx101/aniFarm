@@ -146,7 +146,7 @@ export default function Register() {
             error={errors.password}
           />
           <Button loading={loading} onPress={() => void submit()} style={{ width: '100%', marginTop: 4 }}>
-            Create account
+            <Text>Create account</Text>
           </Button>
         </View>
       </Card3D>

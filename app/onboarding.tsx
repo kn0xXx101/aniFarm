@@ -79,7 +79,7 @@ function Dots({ count, active }: { count: number; active: number }) {
     <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
       {Array.from({ length: count }).map((_, i) => (
         <View
-          key={i}
+          key={`dot-${i}`}
           style={{
             width: i === active ? 24 : 8,
             height: 8,
@@ -170,6 +170,8 @@ function SlideView({ slide }: { slide: Slide }) {
 
 // ── Main screen ──────────────────────────────────────────────────────────────
 
+const renderItem = ({ item }: ListRenderItemInfo<Slide>) => <SlideView slide={item} />;
+
 export default function Onboarding() {
   const router = useRouter();
   const completeOnboarding = useAuthStore((s) => s.completeOnboarding);
@@ -205,8 +207,6 @@ export default function Onboarding() {
   const btnStyle = useAnimatedStyle(() => ({
     transform: [{ scale: btnScale.value }],
   }));
-
-  const renderItem = ({ item }: ListRenderItemInfo<Slide>) => <SlideView slide={item} />;
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.canvas }}>

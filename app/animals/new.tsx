@@ -7,6 +7,7 @@ import { OptionChips } from '@/components/operations/option-chips';
 import { Card3D } from '@/components/ui/card-3d';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
 import { useAnimalStore } from '@/lib/stores/animal-store';
 import { useActiveFarm } from '@/hooks/useActiveFarm';
 import { useToast } from '@/components/ui/toast';
@@ -90,7 +91,7 @@ export default function NewAnimalScreen() {
           <Input label="RFID tag (optional)" value={rfid} onChangeText={setRfid} />
           <Input label="Notes" value={notes} onChangeText={setNotes} multiline />
           <Button onPress={submit} style={{ width: '100%' }}>
-            Save animal
+            <Text>Save animal</Text>
           </Button>
         </View>
       </Card3D>

@@ -41,6 +41,7 @@ import { buildAnalyticsFromSessions } from '@/lib/analytics';
 import { canStartCount, canUseFeature, enforceSubscriptionGate } from '@/lib/subscription/service';
 import type { CountingModeFeature } from '@/lib/subscription/plans';
 import { useToast } from '@/components/ui/toast';
+import { useTranslations } from '@/lib/i18n';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
@@ -48,6 +49,7 @@ import { useScreenInsets } from '@/hooks/useScreenInsets';
 export default function Dashboard() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations();
 
   const openCount = (
     mode: CountingModeFeature,
@@ -92,9 +94,9 @@ export default function Dashboard() {
 
       <StaggerIn index={1}>
         <LandingHero
-          badge={`Good day, ${firstName}`}
-          title="Your livestock"
-          highlight="command center."
+          badge={`${t.dashboard.greeting}, ${firstName}`}
+          title={t.dashboard.title}
+          highlight={t.dashboard.recentActivity}
           subtitle="Launch AI counts, monitor capacity, and track trends."
           actions={
             <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
@@ -152,16 +154,16 @@ export default function Dashboard() {
 
       <StaggerIn index={2}>
         <View style={{ flexDirection: 'row', gap: isNarrow ? 6 : 10, marginBottom: 20 }}>
-          <MetricCube value={`${farms.length}`} label="Farms" icon={<FarmIcon size={18} color={COLORS.primary} />} />
+          <MetricCube value={`${farms.length}`} label={t.dashboard.farms} icon={<FarmIcon size={18} color={COLORS.primary} />} />
           <MetricCube
             value={formatCompact(totalAlive)}
-            label="Alive"
+            label={t.dashboard.totalBirds}
             glowColor={COLORS.secondary}
             icon={<TrendingUp size={18} color={COLORS.secondary} />}
           />
           <MetricCube
             value={`${sessions.length}`}
-            label="Sessions"
+            label={t.dashboard.sessions}
             glowColor={COLORS.accent}
             icon={<BarChart3 size={18} color={COLORS.accent} />}
           />

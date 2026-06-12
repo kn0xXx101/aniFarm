@@ -61,7 +61,7 @@ export default function ForgotPassword() {
           leftIcon={<Mail size={18} color={COLORS.inkMuted} />}
         />
         <Button loading={loading} onPress={() => void submit()} style={{ width: '100%', marginTop: 16 }}>
-          Send reset link
+          <Text>Send reset link</Text>
         </Button>
       </Card3D>
     </AuthScreenLayout>

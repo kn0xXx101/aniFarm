@@ -16,6 +16,7 @@ import { useFarmStore } from '@/lib/stores/farm-store';
 import { formatLivestockType } from '@/lib/livestock';
 import { canAddFarm } from '@/lib/subscription/service';
 import { useToast } from '@/components/ui/toast';
+import { useTranslations } from '@/lib/i18n';
 import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 import { useScreenInsets } from '@/hooks/useScreenInsets';
 
@@ -23,6 +24,7 @@ export default function FarmsTab() {
   const router = useRouter();
   const toast = useToast();
   const { horizontal } = useScreenInsets(true);
+  const t = useTranslations();
 
   const tryAddFarm = () => {
     const gate = canAddFarm();
@@ -39,7 +41,7 @@ export default function FarmsTab() {
 
   return (
     <NeoScreen scroll withTabs padded={false} contentStyle={{ paddingHorizontal: horizontal }}>
-      <TopBar title="Farms" subtitle="Livestock sites & pens" />
+      <TopBar title={t.nav.farms} subtitle="Livestock sites & pens" />
 
       <SectionHeading
         eyebrow="Portfolio"
@@ -64,16 +66,16 @@ export default function FarmsTab() {
           }}
         >
           <Plus size={20} color={COLORS.canvas} />
-          <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas }}>New farm</Text>
+          <Text style={{ fontFamily: FONTS.bold, color: COLORS.canvas }}>{t.farm.newFarm}</Text>
         </LinearGradient>
       </Pressable>
 
       {farms.length === 0 ? (
         <EmptyState
           icon={<LivestockTypeIcon type="broiler" size={28} color={COLORS.primary} strokeWidth={2.2} />}
-          title="No farms yet"
-          description="Add your first farm to organize counting and analytics."
-          actionLabel="Create farm"
+          title={t.farm.noFarms}
+          description={t.farm.addFirstFarm}
+          actionLabel={t.farm.createFarm}
           onAction={tryAddFarm}
         />
       ) : (

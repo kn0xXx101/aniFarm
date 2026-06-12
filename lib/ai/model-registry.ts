@@ -27,7 +27,6 @@ export interface FarmModelConfig {
   downloadedAt?: number;
 }
 
-const REGISTRY_KEY = 'poultra-model-registry';
 const FARM_CONFIG_KEY = 'poultra-farm-model-configs';
 
 /** Global default model — shipped with the app bundle. */

@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Text } from '@/components/ui/text';
-import { COLORS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { GRADIENTS, SHADOW } from '@/lib/design-system';
 
 interface ContinueCardProps {
   title: string;

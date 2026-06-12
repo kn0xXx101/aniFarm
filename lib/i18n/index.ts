@@ -10,10 +10,11 @@ import { useSettingsStore } from '@/lib/stores/settings-store';
 import { en } from './locales/en';
 import { fr } from './locales/fr';
 import { sw } from './locales/sw';
+import { es } from './locales/es';
 
 export type { Translations } from './locales/en';
 
-const locales = { en, fr, sw } as const;
+const locales = { en, fr, sw, es } as const;
 
 export function useTranslations() {
   const language = useSettingsStore((s) => s.language);
@@ -26,4 +27,4 @@ export function getTranslations() {
   return locales[language] ?? en;
 }
 
-export { en, fr, sw };
+export { en, fr, sw, es };

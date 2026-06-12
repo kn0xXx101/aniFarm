@@ -38,8 +38,7 @@ export default function VideoCount() {
       toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
       router.replace('/(tabs)/subscription');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- gate once on mount
-  }, []);
+  }, [router, toast]);
 
   const [filename, setFilename] = useState<string | null>('demo-flock.mp4');
   const [running, setRunning] = useState(false);

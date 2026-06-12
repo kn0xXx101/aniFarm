@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import Svg, { Path, Defs, LinearGradient as SvgLG, Stop, Line } from 'react-native-svg';
 
 import { Text } from '@/components/ui/text';
-import { COLORS, TYPE } from '@/lib/design-system';
+import { TYPE } from '@/lib/design-system';
 import type { AnalyticsPoint } from '@/types/domain';
 
 interface Props {

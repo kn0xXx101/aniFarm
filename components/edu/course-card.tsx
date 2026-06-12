@@ -4,7 +4,7 @@ import { Star } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/text';
 import { SurfaceCard } from '@/components/ui/surface-card';
-import { COLORS, FONTS } from '@/lib/design-system';
+import { COLORS } from '@/lib/design-system';
 
 interface CourseCardProps {
   icon: ReactNode;
@@ -24,7 +24,6 @@ export function CourseCard({
   meta,
   rating,
   onPress,
-  accentColor = COLORS.primary,
   accentBg = COLORS.primaryLight,
 }: CourseCardProps) {
   return (

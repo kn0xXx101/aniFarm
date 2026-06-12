@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { COLORS, TYPE } from '@/lib/design-system';
+import { TYPE } from '@/lib/design-system';
 
 interface CountSectionHeadingProps {
   eyebrow?: string;

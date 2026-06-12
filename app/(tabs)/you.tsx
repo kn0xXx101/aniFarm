@@ -12,6 +12,7 @@ import { ModuleGrid } from '@/components/operations/module-grid';
 import { FARM_MODULES } from '@/lib/operations/modules';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTranslations } from '@/lib/i18n';
 import { COLORS, FONTS } from '@/lib/design-system';
 
 const YOU_MODULES = FARM_MODULES.filter((m) =>

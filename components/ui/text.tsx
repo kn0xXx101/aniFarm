@@ -2,7 +2,6 @@ import React from 'react';
 import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { COLORS } from '@/lib/design-system';
 import { colorForVariant, fontForWeight } from '@/lib/typography';
 import { cn } from '@/lib/utils';
 

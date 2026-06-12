@@ -79,7 +79,7 @@ export default function VetScreen() {
               placeholder="Describe symptoms, counts, and urgency…"
             />
             <Button onPress={submit} style={{ width: '100%' }}>
-              Send to vet
+              <Text>Send to vet</Text>
             </Button>
           </View>
         </Card3D>

@@ -80,7 +80,7 @@ export default function OtpVerification() {
           ))}
         </View>
         <Button onPress={() => void verify()} loading={loading} disabled={!filled} style={{ width: '100%', marginTop: 8 }}>
-          Verify
+          <Text>Verify</Text>
         </Button>
         <View style={styles.resendRow}>
           {resendIn > 0 ? (

@@ -10,14 +10,14 @@ import {
 import { Fraunces_700Bold } from '@expo-google-fonts/fraunces';
 import { useFonts } from 'expo-font';
 import { ThemeProvider } from '@react-navigation/native';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { LIGHT_THEME } from '@/lib/constants';
-import { COLORS, FONTS } from '@/lib/design-system';
+import { COLORS } from '@/lib/design-system';
 import { initPostHog } from '@/lib/posthog';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ToastProvider } from '@/components/ui/toast';
@@ -32,14 +32,7 @@ import { SplashScreen, Stack } from 'expo-router';
 
 void SplashScreen.preventAutoHideAsync();
 
-const STACK_HEADER = {
-  headerShown: true,
-  headerStyle: { backgroundColor: COLORS.canvas },
-  headerTintColor: COLORS.ink,
-  headerTitleStyle: { color: COLORS.ink, fontFamily: FONTS.semibold, fontSize: 17 },
-  headerShadowVisible: false,
-  contentStyle: { backgroundColor: COLORS.canvas },
-} as const;
+
 
 export default function RootLayout() {
   const { setColorScheme } = useColorScheme();
@@ -71,10 +64,16 @@ export default function RootLayout() {
   const authHydrated = useAuthStore((s) => s.hydrated);
   const user = useAuthStore((s) => s.user);
 
+  // Use a ref to ensure syncSubscriptionOnLaunch only runs once per session.
+  // The effect deps include user but applyPlan() mutates user.tier, which would
+  // re-trigger the effect — the ref prevents that infinite loop.
+  const syncedRef = useRef(false);
+
   useEffect(() => {
-    if (!authHydrated || !user) return;
+    if (!authHydrated || !user || syncedRef.current) return;
+    syncedRef.current = true;
     void syncSubscriptionOnLaunch(user.id, user.tier);
-  }, [authHydrated, user?.id]);
+  }, [authHydrated, user?.id]); // depend on id only — tier changes must not retrigger
 
   useEffect(() => {
     if (!pushEnabled || isExpoGo()) return;

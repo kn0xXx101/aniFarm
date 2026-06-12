@@ -137,11 +137,11 @@ export function canStartCount(mode: CountingModeFeature): SubscriptionCheck {
   return { ok: true };
 }
 
-export function canUseFeature(feature: SubscriptionFeature): SubscriptionCheck {
+export function canUseFeature(feature: SubscriptionFeature, overrideTier?: SubscriptionTier): SubscriptionCheck {
   const user = useAuthStore.getState().user;
   if (!user) return { ok: false, reason: 'not_authenticated', message: 'Sign in to use this feature.' };
 
-  const tier = getEffectiveTier();
+  const tier = overrideTier ?? getEffectiveTier();
   const plan = getPlan(tier);
   if (planIncludesFeature(plan, feature)) return { ok: true };
 
@@ -180,8 +180,10 @@ export function recordCountSessionCompleted() {
   useSubscriptionStore.getState().incrementCountUsage();
 }
 
-/** Apply tier to auth + billing metadata (mock or store purchase). */
+/** Apply tier to auth store only if it has changed. */
 function setAuthTierOnly(tier: SubscriptionTier) {
+  const current = useAuthStore.getState().user?.tier;
+  if (current === tier) return; // no-op — prevents infinite re-render loops
   useAuthStore.setState((s) => ({
     user: s.user ? { ...s.user, tier } : s.user,
   }));

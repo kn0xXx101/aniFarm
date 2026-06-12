@@ -79,6 +79,8 @@ export const sw: Translations = {
     videoCount: 'Hesabu kwa video',
     tracked: 'Imefuatiliwa',
     birds: 'ndege',
+    dead: 'vifo',
+    humansExcluded: 'watu waliotengwa',
     confidence: 'uhakika',
     sessionSaved: 'Kikao kimehifadhiwa',
     manualAdjust: 'Marekebisho ya mkono',
@@ -115,6 +117,7 @@ export const sw: Translations = {
     adminDashboard: 'Dashibodi ya msimamizi',
     pendingSync: 'zinasubiri',
     currentPlan: 'Mpango wa sasa',
+    footer: 'aniFarm v1.0.0',
     signOut: 'Toka',
   },
   subscription: {

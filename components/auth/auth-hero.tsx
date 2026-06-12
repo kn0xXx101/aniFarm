@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { AniFarmLogo } from '@/components/brand/ani-farm-logo';
 import { Text } from '@/components/ui/text';
-import { BRAND, COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
+import { COLORS, FONTS, GRADIENTS, SHADOW } from '@/lib/design-system';
 
 interface AuthHeroProps {
   eyebrow: string;

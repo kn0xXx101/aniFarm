@@ -2,11 +2,11 @@ import { useColorScheme as useNativewindColorScheme } from 'nativewind';
 
 /** Light-first Fieldstone theme. */
 export function useColorScheme() {
-  const { setColorScheme, toggleColorScheme } = useNativewindColorScheme();
+  const scheme = useNativewindColorScheme();
   return {
     colorScheme: 'light' as const,
     isDarkColorScheme: false,
-    setColorScheme,
-    toggleColorScheme,
+    setColorScheme: scheme.setColorScheme,
+    toggleColorScheme: scheme.toggleColorScheme,
   };
 }

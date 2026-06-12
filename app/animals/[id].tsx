@@ -107,7 +107,7 @@ export default function AnimalDetailScreen() {
       </Card3D>
 
       <Button variant="outline" onPress={() => router.replace('/animals')} style={{ marginTop: 16, width: '100%' }}>
-        Back to list
+        <Text>Back to list</Text>
       </Button>
     </OperationsScreen>
   );

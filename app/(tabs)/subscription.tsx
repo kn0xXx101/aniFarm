@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Check, Sparkles, Crown, Building2, Leaf, Zap, RotateCcw } from 'lucide-react-native';
 
 import { NeoScreen } from '@/components/neo3d/neo-screen';
@@ -31,7 +30,6 @@ function formatLimit(n: number) {
 }
 
 export default function SubscriptionTab() {
-  const router = useRouter();
   const goBack = useSmartBack();
   const { horizontal } = useScreenInsets(false);
   const toast = useToast();

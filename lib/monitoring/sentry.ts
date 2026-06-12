@@ -41,6 +41,6 @@ export function captureMessage(message: string, level: 'info' | 'warning' | 'err
   // Sentry.captureMessage(message, level);
 }
 
-export function setUser(user: { id: string; email?: string } | null) {
+export function setUser(_user: { id: string; email?: string } | null) {
   // Sentry.setUser(user);
 }

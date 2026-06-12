@@ -5,11 +5,10 @@ import Animated, {
   useSharedValue,
   withSequence,
   withTiming,
-  withSpring,
 } from 'react-native-reanimated';
 
 import { IosGlassSurface } from '@/components/ui/ios-glass-surface';
-import { SPRING_CONFIGS, TIMING_CONFIGS } from '@/lib/animations';
+import { TIMING_CONFIGS } from '@/lib/animations';
 import { COLORS, FONTS } from '@/lib/design-system';
 import { IOS_GLASS } from '@/lib/ios-glass';
 import { cn } from '@/lib/utils';

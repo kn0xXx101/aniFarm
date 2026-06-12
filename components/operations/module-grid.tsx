@@ -47,9 +47,10 @@ export function ModuleGrid({ modules, columns = 2, returnTo }: ModuleGridProps) 
       if (!enforceSubscriptionGate(gate, (p) => router.push(p), toast)) return;
     }
     if (returnTo && typeof m.href === 'string' && !m.href.includes('(tabs)')) {
+      const backTo = typeof returnTo === 'string' ? returnTo : returnTo.pathname;
       router.push({
         pathname: m.href,
-        params: { backTo: encodeURIComponent(String(returnTo)) },
+        params: { backTo: encodeURIComponent(backTo) },
       } as never);
       return;
     }

@@ -15,7 +15,7 @@ import { useFarmStore } from '@/lib/stores/farm-store';
 import { useSessionStore } from '@/lib/stores/session-store';
 import { useAlertStore } from '@/lib/stores/alert-store';
 import { buildAnalyticsFromSessions } from '@/lib/analytics';
-import { COLORS, FONTS, TYPE, LAYOUT } from '@/lib/design-system';
+import { COLORS, TYPE, LAYOUT } from '@/lib/design-system';
 import { IOS_GLASS } from '@/lib/ios-glass';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 

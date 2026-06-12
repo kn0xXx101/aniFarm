@@ -6,7 +6,7 @@ import { Card3D } from '@/components/ui/card-3d';
 import { Text } from '@/components/ui/text';
 import { CountPillButton } from '@/components/count/count-pill-button';
 import type { SubscriptionCheck } from '@/lib/subscription/service';
-import { COLORS, FONTS, TYPE } from '@/lib/design-system';
+import { COLORS, TYPE } from '@/lib/design-system';
 
 interface UpgradeBannerProps {
   gate: SubscriptionCheck;

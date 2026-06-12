@@ -38,7 +38,7 @@ function SlidingButtonInner(
   ref: React.ForwardedRef<PressableRef>,
 ) {
   const { onPressIn: fillIn, onPressOut: fillOut, Fill, onLayout } = useSlideFill({
-    disabled,
+    disabled: disabled ?? undefined,
     fillColor,
     shape: fillShape,
     borderRadius,
@@ -47,7 +47,7 @@ function SlidingButtonInner(
   return (
     <AnimatedPressable
       ref={ref}
-      disabled={disabled}
+      disabled={disabled ?? undefined}
       hapticFeedback="light"
       className={className}
       onLayout={slideFill ? onLayout : undefined}

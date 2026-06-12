@@ -82,8 +82,7 @@ export default function LiveCount() {
       toast.toast({ title: 'Upgrade required', description: gate.message, variant: 'destructive' });
       router.replace('/(tabs)/subscription');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- gate once on mount
-  }, []);
+  }, [router, toast]);
   const allTrackIds = useRef<Set<number>>(new Set());
   const lastTimeRef = useRef<number>(Date.now());
   const [previewSize, setPreviewSize] = useState({ w: 1, h: 1 });

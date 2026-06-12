@@ -232,7 +232,7 @@ export function WelcomeScreen() {
               }}
               style={{ width: '100%' }}
             >
-              Sign in
+              <Text>Sign in</Text>
             </Button>
           </Animated.View>
 

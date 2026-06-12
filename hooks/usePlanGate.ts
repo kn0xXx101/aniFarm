@@ -10,9 +10,14 @@ export function usePlanGate(feature: SubscriptionFeature) {
   const userTier = useAuthStore((s) => s.user?.tier);
   const trialEndsAt = useSubscriptionStore((s) => s.trialEndsAt);
 
+  const effectiveTier = useMemo(() => {
+    if (trialEndsAt && Date.now() < trialEndsAt) return 'pro';
+    return userTier ?? 'free';
+  }, [userTier, trialEndsAt]);
+
   const gate = useMemo(
-    () => canUseFeature(feature),
-    [feature, userTier, trialEndsAt],
+    () => canUseFeature(feature, effectiveTier),
+    [feature, effectiveTier],
   );
 
   return { gate, allowed: gate.ok } satisfies { gate: SubscriptionCheck; allowed: boolean };
